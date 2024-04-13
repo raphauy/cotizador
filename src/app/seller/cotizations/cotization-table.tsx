@@ -9,60 +9,77 @@ import { X } from "lucide-react"
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { DataTablePagination } from "@/components/data-table/data-table-pagination"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter"
+import { CotizationStatus, CotizationType } from "@prisma/client"
   
 interface DataTableToolbarProps<TData> {
   table: TanstackTable<TData>;
+  clientNames: string[]
+  sellerNames: string[];
 }
 
-export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
+export function DataTableToolbar<TData>({ table, sellerNames, clientNames }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
+
+  const statuses = Object.values(CotizationStatus)
+  const types = Object.values(CotizationType)
 
   return (
     <div className="flex gap-1 dark:text-white items-center">
-        
-          <Input className="max-w-xs" placeholder="number filter..."
-              value={(table.getColumn("number")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("number")?.setFilterValue(event.target.value)}                
-          />
-          
+
+      {table.getColumn("clientName") && clientNames && (
+        <DataTableFacetedFilter
+          column={table.getColumn("clientName")}
+          title="Cliente"
+          options={clientNames}          
+        />
+      )}
+
+      {table.getColumn("sellerName") && sellerNames && (
+        <DataTableFacetedFilter
+          column={table.getColumn("sellerName")}
+          title="Vendedor"
+          options={sellerNames}
+        />
+      )}
+
+      {table.getColumn("status") && statuses && (
+        <DataTableFacetedFilter
+          column={table.getColumn("status")}
+          title="Estado"
+          options={statuses}
+        />
+      )}
+
+      {table.getColumn("type") && types && (
+        <DataTableFacetedFilter
+          column={table.getColumn("type")}
+          title="Tipo"
+          options={types}
+        />
+      )}
+
+      <Input className="max-w-xs" placeholder="filtro por número..."
+          value={(table.getColumn("number")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("number")?.setFilterValue(event.target.value)}                
+      />
       
-          <Input className="max-w-xs" placeholder="status filter..."
-              value={(table.getColumn("status")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("status")?.setFilterValue(event.target.value)}                
-          />
+  
+      <Input className="max-w-xs" placeholder="filtro por obra..."
+          value={(table.getColumn("obra")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("obra")?.setFilterValue(event.target.value)}                
+      />
           
-      
-          <Input className="max-w-xs" placeholder="type filter..."
-              value={(table.getColumn("type")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("type")?.setFilterValue(event.target.value)}                
-          />
-          
-      
-          <Input className="max-w-xs" placeholder="obra filter..."
-              value={(table.getColumn("obra")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("obra")?.setFilterValue(event.target.value)}                
-          />
-          
-        {/* {table.getColumn("role") && roles && (
-          <DataTableFacetedFilter
-            column={table.getColumn("role")}
-            title="Rol"
-            options={roles}
-          />
-        )} */}
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X className="w-4 h-4 ml-2" />
-          </Button>
-        )}
-        <div className="flex-1 ">
-          <DataTableViewOptions table={table}/>
-        </div>
+      {isFiltered && (
+        <Button
+          variant="ghost"
+          onClick={() => table.resetColumnFilters()}
+          className="h-8 px-2 lg:px-3"
+        >
+          Reset
+          <X className="w-4 h-4 ml-2" />
+        </Button>
+      )}
     </div>
   )
 }
@@ -72,6 +89,8 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   columnsOff?: string[]
   subject: string
+  clientNames: string[]
+  sellerNames: string[];
 }
 
 export function DataTable<TData, TValue>({
@@ -79,6 +98,8 @@ export function DataTable<TData, TValue>({
   data,
   columnsOff,
   subject,
+  clientNames,
+  sellerNames,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -118,7 +139,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full space-y-4 dark:text-white">
-      <DataTableToolbar table={table}/>
+      <DataTableToolbar table={table} sellerNames={sellerNames} clientNames={clientNames}/>
       <div className="border rounded-md">
         <Table>
           <TableHeader>

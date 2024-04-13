@@ -10,37 +10,44 @@ const data= [
     {
       href: `/admin`,
       icon: LayoutDashboard,
-      text: "Dashboard"
+      text: "Dashboard",
+      disabled: false
     },
     {
       href: `/admin/users`,
       icon: User,
-      text: "Usuarios"
+      text: "Usuarios",
+      disabled: false
     },
     {
-        href: `/admin/works`,
+        href: `/admin/worktypes`,
         icon: Pickaxe, 
-        text: "Trabajos"
+        text: "Trabajos",
+        disabled: false
     },
     {
         href: `/admin/materials`,
         icon: Combine, 
-        text: "Materiales"
+        text: "Materiales",
+        disabled: false
     },
     {
         href: `/admin/terminations`,
         icon: ArrowDownWideNarrow,  
-        text: "Terminaciones"
+        text: "Terminaciones",
+        disabled: true
     },
     {
-        href: `/admin/holes`,
+        href: `/admin/labor`,
         icon: AlignVerticalDistributeStart,   
-        text: "Huecos"
+        text: "Mano de obra",
+        disabled: true
     },
     {
         href: `/admin/prices`,
         icon: CircleDollarSign,    
-        text: "Precios"
+        text: "Precios",
+        disabled: true
     },
 ]
 
@@ -50,15 +57,15 @@ export default function MenuAdmin() {
         return <div>Path is not /admin</div>
     
     return (
-        <nav>
+        <nav className="w-full">
             <ul className="flex items-center">
                 {data.map((item, index) => {
                     return (
-                        <li key={index} className={cn("border-b-primary", path === item.href && "border-b-2")}>
+                        <li key={index} className={cn("border-b-primary w-full lg:w-fit text-center", path === item.href && "border-b-2")}> 
                             <Link href={item.href}>
-                                <Button variant="ghost">
+                                <Button variant="ghost" disabled={item.disabled} className="px-3">
                                     <item.icon className="w-4 h-4 mr-1 mb-0.5" />
-                                    {item.text}
+                                    <p className="hidden lg:block">{item.text}</p> 
                                 </Button>
                             </Link>
                         </li>

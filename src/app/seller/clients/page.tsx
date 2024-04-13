@@ -8,7 +8,7 @@ export default async function UsersPage() {
   const data= await getClientsDAO()
 
   return (
-    <div className="w-full">      
+    <div className="w-full">
 
       <div className="flex justify-end mx-auto my-2">
         <ClientDialog />

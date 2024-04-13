@@ -30,7 +30,7 @@ export default function Menu() {
                 user.role === "ADMIN" ?
                 <RightMenuAdmin />
                 :
-                <p className="mr-4">{user?.name} - {user?.role}</p>
+                <p className="mr-4 whitespace-nowrap">{user?.name} - {user?.role}</p>
             }
         </div>
     )

@@ -21,35 +21,36 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
 
   return (
     <div className="flex gap-1 dark:text-white items-center">
-        
-          <Input className="max-w-xs" placeholder="filtrar por nombre..."
-              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}                
-          />
-          
+
+      {table.getColumn("type") && (
+        <DataTableFacetedFilter
+          column={table.getColumn("type")}
+          title="Tipo"
+          options={clientTypes}
+        />
+      )}
+
+      <Input className="max-w-xs" placeholder="filtrar por nombre..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}                
+      />
       
-          <Input className="max-w-xs" placeholder="filtrar por email..."
-              value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("email")?.setFilterValue(event.target.value)}                
-          />
-          
-        {table.getColumn("type") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("type")}
-            title="Tipo"
-            options={clientTypes}
-          />
-        )}
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X className="w-4 h-4 ml-2" />
-          </Button>
-        )}
+  
+      <Input className="max-w-xs" placeholder="filtrar por email..."
+          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("email")?.setFilterValue(event.target.value)}                
+      />
+        
+      {isFiltered && (
+        <Button
+          variant="ghost"
+          onClick={() => table.resetColumnFilters()}
+          className="h-8 px-2 lg:px-3"
+        >
+          Reset
+          <X className="w-4 h-4 ml-2" />
+        </Button>
+      )}
     </div>
   )
 }

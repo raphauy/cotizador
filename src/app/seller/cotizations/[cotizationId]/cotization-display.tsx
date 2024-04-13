@@ -1,0 +1,154 @@
+import { DeleteWorkDialog, WorkDialog } from "@/app/admin/works/work-dialogs"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { cn, completeWithZeros, formatWhatsAppStyle } from "@/lib/utils"
+import { CotizationDAO } from "@/services/cotization-services"
+import { Construction, Mail, Pencil, Phone, Settings } from "lucide-react"
+import Link from "next/link"
+import { ClientDialog } from "../../clients/client-dialogs"
+import { ItemsList } from "./items-list"
+import { StatusSelector } from "./status-selector"
+
+type Props= {
+    cotization: CotizationDAO
+    creatorName: string
+    sellerName: string
+    selectedWorkId: string
+}
+export default function CotizationDisplay({ cotization, creatorName, sellerName, selectedWorkId }: Props) {
+
+    const ownerIsSeller= cotization.creatorId === cotization.sellerId
+
+    const updateClientTrigger= <Pencil size={25} className="pr-2 hover:cursor-pointer text-muted-foreground"/> 
+
+    const works= cotization.works
+
+    // totalValue= suma de todos los valores de los items
+    const totalValue= works.reduce((acc, work) => acc + work.items.reduce((acc, item) => acc + (item.valor || 0), 0), 0)
+
+    return (
+        <div className="lg:w-1/2 space-y-5">
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between"> 
+                        <div>
+                            <CardTitle className="flex items-center gap-5 text-2xl">
+                                <p className="text-green-900 font-bold">{"#" + completeWithZeros(cotization.number)}</p> 
+                                <Badge variant="secondary" className="bg-sky-100 border-sky-400 text-black">{cotization.type}</Badge>
+
+                            </CardTitle>
+                            <CardDescription className="flex items-center gap-4 text-lg">
+                                {cotization.client.name} 
+                                <ClientDialog id={cotization.clientId} updateTrigger={updateClientTrigger} />
+                            </CardDescription>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{formatWhatsAppStyle(cotization.date)}</p>
+                    </div>
+                    <Separator />
+                </CardHeader>
+                <CardContent className="flex gap-2 justify-between text-muted-foreground">
+
+                    <div className="space-y-2"> 
+                        {
+                        cotization.obra ?
+                            <div className="flex items-center gap-2">
+                                <Construction className="h-5 w-5" />
+                                <p className="text-sm">{cotization.obra}</p>
+                            </div>
+                            :
+                            <p></p>
+                        }
+                        {
+                        cotization.client.phone && 
+                            <div className="flex items-center gap-2">
+                                <Phone className="h-5 w-5" />
+                                <p className="text-sm">{cotization.client.phone}</p>
+                            </div>
+                        }
+                        <div className="flex items-center gap-2">
+                            <Mail className="h-5 w-5" />
+                            <p className="text-sm">{cotization.client.email}</p>
+                        </div>
+
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        <p className="text-sm">Vendedor:</p>
+                        <p className="text-sm font-bold">{sellerName}</p>
+                        {
+                            !ownerIsSeller && 
+                            <>
+                                <p className="text-sm">Ingresado:</p>
+                                <p className="text-sm font-bold">{creatorName}</p>
+                            </>
+                        }
+                    </div>
+                </CardContent>
+
+                <div className="flex items-center justify-between">
+                    <div className="pb-4 ml-3">
+                        <StatusSelector id={cotization.id} status={cotization.status} />
+                    </div>
+                    
+                    <CardContent className="flex gap-2 justify-end text-muted-foreground">
+                        <Link href={`/seller/cotizations/new?id=${cotization.id}`}>
+                            <Pencil className="h-5 w-5" />
+                        </Link>
+                    </CardContent>
+                </div>
+            </Card>
+
+            <div className="flex items-center justify-between pt-10">
+                <div className={cn("text-xl font-bold w-full flex items-center gap-4",works.length === 0 && "justify-center")}>
+                    <p>
+                        {works.length === 1 ? '1 trabajo:' : works.length === 0 ? 'Aún no hay trabajos en este presupuesto' : `${works.length} trabajos:`}
+                    </p>
+                    
+
+                    {totalValue > 0 && <Badge variant="secondary" className="bg-green-100 border-green-400 text-black text-lg font-bold">{totalValue.toFixed(2)} USD</Badge>} 
+
+                </div>
+                {works.length > 0 && <WorkDialog cotizationId={cotization.id} />}
+                
+            </div>
+
+            {
+                works.map(work => {
+                    return (
+                        <Card key={work.id} className={cn(work.id === selectedWorkId ? "border-green-500 border-2" : "")}>
+                            <Link href={`/seller/cotizations/${cotization.id}?workId=${work.id}`}>
+                                <CardHeader>
+                                    <div className="flex items-center justify-between"> 
+                                        <CardTitle className="flex items-center gap-4">
+                                            {work.workType.name}
+                                        </CardTitle>
+                                        <p className="text-sm text-muted-foreground">{work.material.name} ({work.color.name})</p>
+                                    </div>
+                                    <Separator />
+                                </CardHeader>
+                            </Link>
+                            <CardContent className="flex gap-2 justify-between text-muted-foreground">
+                                <ItemsList work={work} />
+                            </CardContent>
+            
+                            <CardContent className="flex items-center justify-between text-muted-foreground">
+                                <div className="pb-4 ml-3">
+                                    
+                                </div>
+            
+                                <div className="flex items-center gap-2">
+                                    <Link href={`/seller/cotizations/${cotization.id}?workId=${work.id}`}>
+                                        <Settings className="h-5 w-5" />
+                                    </Link>
+                                    <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} />
+                                </div>
+                            </CardContent>
+            
+                        </Card>
+                    )
+                })
+            }
+
+        </div>
+    )
+}

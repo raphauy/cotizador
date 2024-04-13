@@ -1,7 +1,8 @@
 "use server"
   
 import { revalidatePath } from "next/cache"
-import { CotizationDAO, CotizationFormValues, createCotization, updateCotization, getFullCotizationDAO, deleteCotization } from "@/services/cotization-services"
+import { CotizationDAO, CotizationFormValues, createCotization, updateCotization, getFullCotizationDAO, deleteCotization, setStatus } from "@/services/cotization-services"
+import { CotizationStatus } from "@prisma/client"
 
 
 export async function getCotizationDAOAction(id: string): Promise<CotizationDAO | null> {
@@ -29,3 +30,10 @@ export async function deleteCotizationAction(id: string): Promise<CotizationDAO 
     return deleted as CotizationDAO
 }
 
+export async function setStatusAction(id: string, status: CotizationStatus) {
+    const updated= await setStatus(id, status)
+
+    revalidatePath("/seller/cotizations")
+
+    return updated as CotizationDAO
+}

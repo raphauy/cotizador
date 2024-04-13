@@ -10,12 +10,12 @@ import { ClientForm, DeleteClientForm } from "./client-forms";
 type Props= {
   id?: string
   onSelect?: (id: string) => void
+  updateTrigger?: JSX.Element
 }
 
 
-export function ClientDialog({ id, onSelect }: Props) {
+export function ClientDialog({ id, onSelect, updateTrigger }: Props) {
   const addTrigger= <Button variant={onSelect ? "outline" : "default" }><PlusCircle size={22} className="mr-2"/>Nuevo Cliente</Button>
-  const updateTrigger= <Pencil size={30} className="pr-2 hover:cursor-pointer"/>
 
   const [open, setOpen] = useState(false);
 

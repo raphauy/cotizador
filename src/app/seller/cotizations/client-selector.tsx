@@ -49,7 +49,7 @@ export function ClientSelector({ data, onSelect, selectedId }: Props) {
   }, [selectors, searchValue])
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center w-full">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -67,9 +67,9 @@ export function ClientSelector({ data, onSelect, selectedId }: Props) {
 
         <PopoverContent className="min-w-[230px] p-0">
         <Command className="rounded-lg border shadow-md">
-          <CommandInput placeholder="Type a command or search..." />
+          <CommandInput placeholder="Buscar cliente..." />
           <CommandList>
-              <CommandEmpty>No results found.</CommandEmpty>
+              <CommandEmpty>No hay resultados.</CommandEmpty>
               <CommandGroup>
                   {filteredValues.map((item, index) => {
                   if (index >= 10) return null

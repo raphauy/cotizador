@@ -43,17 +43,17 @@ export default function MenuSeller() {
         return <div></div>
         
     return (
-        <nav>
+        <nav className="w-full">
             <ul className="flex items-center">
                 {data.map((item, index) => {
                     if (item.roles && userRole && !item.roles.includes(userRole))
                         return null
                     return (
-                        <li key={index} className={cn("border-b-primary", path === item.href && "border-b-2")}> 
+                        <li key={index} className={cn("border-b-primary w-full sm:w-fit text-center", path === item.href && "border-b-2")}>  
                             <Link href={item.href}>
-                                <Button variant="ghost">
+                            <Button variant="ghost" className="px-3">
                                     <item.icon className="w-4 h-4 mr-1 mb-0.5" />
-                                    {item.text}
+                                    <p className="hidden sm:block">{item.text}</p> 
                                 </Button>
                             </Link>
                         </li>
