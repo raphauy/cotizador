@@ -74,21 +74,6 @@ export function NoteForm({ id, closeDialog }: Props) {
       
           <FormField
             control={form.control}
-            name="private"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Private</FormLabel>
-                <FormControl>
-                  <Input placeholder="Note's private" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-      
-          <FormField
-            control={form.control}
             name="userId"
             render={({ field }) => (
               <FormItem>
