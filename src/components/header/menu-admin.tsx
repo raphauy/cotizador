@@ -62,7 +62,7 @@ export default function MenuAdmin() {
                 {data.map((item, index) => {
                     return (
                         <li key={index} className={cn("border-b-primary w-full lg:w-fit text-center", path === item.href && "border-b-2")}> 
-                            <Link href={item.href}>
+                            <Link href={item.disabled ? "#" : item.href}>
                                 <Button variant="ghost" disabled={item.disabled} className="px-3">
                                     <item.icon className="w-4 h-4 mr-1 mb-0.5" />
                                     <p className="hidden lg:block">{item.text}</p> 
