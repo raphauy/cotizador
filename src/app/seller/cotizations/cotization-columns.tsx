@@ -120,9 +120,9 @@ export const columns: ColumnDef<CotizationDAO>[] = [
       return (
         <div className="flex items-center justify-end gap-2">
 
-          <Link href={`/seller/cotizations/new?id=${data.id}`}>
+          {/* <Link href={`/seller/cotizations/new?id=${data.id}`}>
             <Pencil className="hover:cursor-pointer" />
-          </Link>
+          </Link> */}
           <DeleteCotizationDialog description={deleteDescription} id={data.id} />
         </div>
 
