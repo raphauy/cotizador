@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db"
 import { WorkDAO, getFullWorkDAO, getWorkDAO } from "./work-services"
 import { ClientType, ItemType } from "@prisma/client"
 import { ColorDAO } from "./color-services"
+import { AreaItem } from "@/app/seller/cotizations/[cotizationId]/addItems/page"
 
 export type ItemDAO = {
 	id: string
@@ -163,3 +164,18 @@ export async function getFullItemDAO(id: string) {
   return found as ItemDAO
 }
     
+
+export async function createBulkItem(workId: string, type: ItemType, areaItems: AreaItem[]): Promise<boolean> {
+
+  for (let i = 0; i < areaItems.length; i++) {
+    const dataItem: ItemFormValues = {
+      workId,
+      type,
+      largo: areaItems[i].length?.toString(),
+      ancho: areaItems[i].width?.toString(),
+    }
+    await createItem(dataItem)
+  }
+
+  return true
+}

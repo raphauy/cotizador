@@ -11,7 +11,7 @@ import { DataTablePagination } from "@/components/data-table/data-table-paginati
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ItemType } from "@prisma/client"
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter"
-import { ItemDialog } from "./item-dialogs"
+import { ItemDialog, TransitionDialog } from "./item-dialogs"
 
 const itemTypes = Object.values(ItemType)
 
@@ -47,7 +47,12 @@ export function DataTableToolbar<TData>({ table, workId }: DataTableToolbarProps
         )}
       </div>
 
-      <ItemDialog workId={workId} />
+      <div className="flex gap-2">
+        <TransitionDialog workId={workId} />
+        <ItemDialog workId={workId} />
+      </div>
+
+
     </div>
   )
 }

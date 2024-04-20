@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { ItemForm, DeleteItemForm } from "./item-forms"
 import { getItemDAOAction } from "./item-actions"
 import { WorkDAO } from "@/services/work-services";
+import { TransitionForm } from "./transition-form";
 
 type Props= {
   id?: string
@@ -66,5 +67,28 @@ interface CollectionProps{
 
 
 
+type TransitionProps= {
+  workId: string
+}
+
+export function TransitionDialog({ workId }: TransitionProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusCircle size={22} className="mr-2"/>Crear Varios Items
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Crear Varios Items</DialogTitle>
+        </DialogHeader>
+        <TransitionForm closeDialog={() => setOpen(false)} workId={workId} />
+      </DialogContent>
+    </Dialog>
+  )
+}
 
   
