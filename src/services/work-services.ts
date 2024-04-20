@@ -117,6 +117,6 @@ export async function getFullWorkDAO(id: string) {
       items: true,
 		}
   })
-  return found as WorkDAO
+  return found
 }
     

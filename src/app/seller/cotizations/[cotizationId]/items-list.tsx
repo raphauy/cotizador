@@ -10,6 +10,8 @@ import SurfaceAccordion from "./surface-accordion"
 import OtherAccordion from "./other-accordion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { formatCurrency } from "@/lib/utils"
+import TerminationAccordion from "./termination-accordion"
 
 type Props = {
     work: WorkDAO
@@ -24,6 +26,7 @@ export function ItemsList({ work }: Props) {
     const [tramos, setTramos] = useState<ItemDAO[]>([])
     const [zocalos, setZocalos] = useState<ItemDAO[]>([])
     const [alzadas, setAlzadas] = useState<ItemDAO[]>([])
+    const [terminaciones, setTerminaciones] = useState<ItemDAO[]>([])
 
     const [totalValue, setTotalValue] = useState(0)
   
@@ -35,8 +38,11 @@ export function ItemsList({ work }: Props) {
         setZocalos(zocalosFiltered)
         const alzadosFiltered= originalItems.filter((item) => item.type === ItemType.ALZADA)
         setAlzadas(alzadosFiltered)
+
+        const terminacionesFiltered= originalItems.filter((item) => item.type === ItemType.TERMINACION)
+        setTerminaciones(terminacionesFiltered)
         // set items with the other types
-        const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA)
+        const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA && item.type !== ItemType.TERMINACION)
         setItems(otherItems)
         setTotalValue(originalItems.reduce((acc, item) => acc + (item.valor || 0), 0))
     }, [work])
@@ -69,11 +75,12 @@ export function ItemsList({ work }: Props) {
                 <SurfaceAccordion surfaceItems={tramos} />
                 <SurfaceAccordion surfaceItems={zocalos} />
                 <SurfaceAccordion surfaceItems={alzadas} />
+                <TerminationAccordion terminationItems={terminaciones} />
                 <OtherAccordion surfaceItems={items} />
             </Accordion>
             <div className="flex font-bold flex-row justify-between w-full pr-4 pt-4">
                 <p>Total</p>
-                <p className="w-20">{Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(totalValue)}</p>
+                <p className="w-20">{formatCurrency(totalValue)}</p>
             </div>
         </div>
     )

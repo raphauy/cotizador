@@ -2,7 +2,7 @@ import { DeleteWorkDialog, WorkDialog } from "@/app/admin/works/work-dialogs"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { cn, completeWithZeros, formatWhatsAppStyle } from "@/lib/utils"
+import { cn, completeWithZeros, formatCurrency, formatWhatsAppStyle } from "@/lib/utils"
 import { CotizationDAO } from "@/services/cotization-services"
 import { Construction, Mail, Pencil, Phone, Settings } from "lucide-react"
 import Link from "next/link"
@@ -105,7 +105,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                     </p>
                     
 
-                    {totalValue > 0 && <Badge variant="secondary" className="bg-green-100 border-green-400 text-black text-lg font-bold">{totalValue.toFixed(2)} USD</Badge>} 
+                    {totalValue > 0 && <Badge variant="secondary" className="bg-green-100 border-green-400 text-black text-lg font-bold">{formatCurrency(totalValue)}</Badge>} 
 
                 </div>
                 {works.length > 0 && <WorkDialog cotizationId={cotization.id} />}

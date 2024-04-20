@@ -10,6 +10,10 @@ export type ColorDAO = {
 	arquitectoStudioPrice: number
 	distribuidorPrice: number
 	materialId: string
+  material: MaterialDAO
+}
+
+export type ColorToFilter = ColorDAO & {
   materialName: string
 }
 
@@ -86,6 +90,28 @@ export async function deleteColor(id: string) {
   return deleted
 }
 
+export async function getFullColorsDAOToFilter() {
+  const found = await prisma.color.findMany({
+    orderBy: {
+      id: 'asc'
+    },
+    include: {
+			material: true,
+		}
+  })
+  if (!found) return []
+
+  const res: ColorToFilter[]= []
+  found.forEach((color) => {
+    const resColor= {
+      ...color,
+      materialName: color.material.name
+    }
+    res.push(resColor)
+  })
+
+  return res as ColorToFilter[]
+}
 
 export async function getFullColorsDAO(): Promise<ColorDAO[]> {
   const found = await prisma.color.findMany({
@@ -98,16 +124,7 @@ export async function getFullColorsDAO(): Promise<ColorDAO[]> {
   })
   if (!found) return []
 
-  const res: ColorDAO[]= []
-  found.forEach((color) => {
-    const resColor= {
-      ...color,
-      materialName: color.material.name
-    }
-    res.push(resColor)
-  })
-
-  return res as ColorDAO[]
+  return found as ColorDAO[]
 }
 
 export async function getFullColorsDAOByMaterialId(materialId: string): Promise<ColorDAO[]> {

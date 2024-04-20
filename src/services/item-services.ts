@@ -4,19 +4,23 @@ import { WorkDAO, getFullWorkDAO, getWorkDAO } from "./work-services"
 import { ClientType, ItemType } from "@prisma/client"
 import { ColorDAO } from "./color-services"
 import { AreaItem } from "@/app/seller/cotizations/[cotizationId]/addItems/page"
+import { TerminacionDAO, getTerminacionDAO } from "./terminacion-services"
 
 export type ItemDAO = {
 	id: string
 	type: ItemType
 	orden?: number
-	largo?: number
-	ancho?: number
-  superficie?: number
-	metros?: number
-	valor?: number
+	largo?: number | null | undefined
+	ancho?: number | null | undefined 
+  superficie?: number | null | undefined
+	metros?: number | null | undefined
+	valor?: number | null | undefined
+  ajuste?: number | null | undefined
   createdAt: Date
-	work: WorkDAO
 	workId: string
+  work: WorkDAO
+  terminacionId: string
+  terminacion: TerminacionDAO
 }
 
 export const itemSchema = z.object({
@@ -30,13 +34,27 @@ export const itemSchema = z.object({
 export type ItemFormValues = z.infer<typeof itemSchema>
 
 
+export const terminationSchema = z.object({
+  terminationId: z.string().min(1, "Debes elegir una terminación."),
+  llevaCurva: z.boolean(),
+  ajuste: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  workId: z.string().min(1, "workId is required."),
+  meters: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+})
+
+export type TerminationFormValues = z.infer<typeof terminationSchema>
+
+
+
+
+
 export async function getItemsDAO() {
   const found = await prisma.item.findMany({
     orderBy: {
       id: 'asc'
     },
   })
-  return found as ItemDAO[]
+  return found
 }
 
 export async function getItemDAO(id: string) {
@@ -45,7 +63,7 @@ export async function getItemDAO(id: string) {
       id
     },
   })
-  return found as ItemDAO
+  return found
 }
     
 export async function createItem(data: ItemFormValues) {
@@ -55,10 +73,13 @@ export async function createItem(data: ItemFormValues) {
   const superficie = largo * ancho / 10000
   const type = data.type
   const work= await getFullWorkDAO(data.workId)
+  if (!work) throw new Error("Work not found")
+
   const orden= work.items.length
   const color= work.color
   const client= work.cotization.client
   const clientType= client.type
+  // @ts-ignore
   const valor= calculateValue(type, clientType, superficie, metros, color)
   const created = await prisma.item.create({
     data: {
@@ -103,9 +124,11 @@ export async function updateItem(id: string, data: ItemFormValues) {
   const metros = data.metros ? Number(data.metros) : 0
   const type = data.type
   const work= await getFullWorkDAO(data.workId)
+  if (!work) throw new Error("Work not found")
   const color= work.color
   const client= work.cotization.client
   const clientType= client.type
+  // @ts-ignore
   const valor= calculateValue(type, clientType, superficie, metros, color)
   console.log("superficie: ", superficie)
   console.log("valor:", valor)
@@ -145,11 +168,13 @@ export async function getFullItemsDAO() {
         include: {
           color: true,
           material: true,
+          cotization: true,
         }
-      }
+      },
+      terminacion: true,
 		}
   })
-  return found as ItemDAO[]
+  return found
 }
   
 export async function getFullItemDAO(id: string) {
@@ -158,14 +183,21 @@ export async function getFullItemDAO(id: string) {
       id
     },
     include: {
-			work: true,
+			work: {
+        include: {
+          color: true,
+          material: true,
+          cotization: true,
+        }
+      },
+      terminacion: true,
 		}
   })
-  return found as ItemDAO
+  return found
 }
     
 
-export async function createBulkItem(workId: string, type: ItemType, areaItems: AreaItem[]): Promise<boolean> {
+export async function createBulkAreaItem(workId: string, type: ItemType, areaItems: AreaItem[]): Promise<boolean> {
 
   for (let i = 0; i < areaItems.length; i++) {
     const dataItem: ItemFormValues = {
@@ -178,4 +210,53 @@ export async function createBulkItem(workId: string, type: ItemType, areaItems: 
   }
 
   return true
+}
+
+export async function createTerminationItem(data: TerminationFormValues) {
+  const workId= data.workId
+  const termination= await getTerminacionDAO(data.terminationId)
+  const type= ItemType.TERMINACION
+  const metros= Number(data.meters)
+  let total= metros * termination.price
+  if (data.llevaCurva) {
+    total += Number(data.ajuste)
+  }
+  const valor= total
+  const created = await prisma.item.create({
+    data: {
+      type,
+      metros,
+      valor,
+      ajuste: data.ajuste ? Number(data.ajuste) : 0,
+      workId,
+      terminacionId: data.terminationId,
+    }
+  })
+  return created
+}
+
+export async function updateTerminationItem(id: string, data: TerminationFormValues){
+  const workId= data.workId
+  const termination= await getTerminacionDAO(data.terminationId)
+  const type= ItemType.TERMINACION
+  const metros= Number(data.meters)
+  let total= metros * termination.price
+  if (data.llevaCurva) {
+    total += Number(data.ajuste)
+  }
+  const valor= total
+  const updated = await prisma.item.update({
+    where: {
+      id
+    },
+    data: {
+      type,
+      metros,
+      valor,
+      ajuste: data.ajuste ? Number(data.ajuste) : 0,
+      workId,
+      terminacionId: data.terminationId,
+    }
+  })
+  return updated
 }

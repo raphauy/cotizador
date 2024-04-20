@@ -48,7 +48,7 @@ export default function EditDisplay({ work, cotizationId, showDialog }: Props) {
                 <Separator />
             </CardHeader>
             <CardContent className="text-muted-foreground">
-                <DataTable columns={columns} data={work.items} subject="Item" workId={work.id} />
+                <DataTable columns={columns} data={work.items} subject="Item" workId={work.id} cotizationId={work.cotizationId} />
             </CardContent>
         </Card>
     )

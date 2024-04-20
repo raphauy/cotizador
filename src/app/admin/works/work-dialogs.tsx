@@ -1,12 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react";
-import { ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { toast } from "@/components/ui/use-toast";
-import { WorkForm, DeleteWorkForm } from "./work-forms"
-import { getWorkDAOAction } from "./work-actions"
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Pencil, PlusCircle, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { DeleteWorkForm, WorkForm } from "./work-forms";
 
 type Props= {
   id?: string

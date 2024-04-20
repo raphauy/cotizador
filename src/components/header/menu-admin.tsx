@@ -35,18 +35,12 @@ const data= [
         href: `/admin/terminations`,
         icon: ArrowDownWideNarrow,  
         text: "Terminaciones",
-        disabled: true
+        disabled: false
     },
     {
         href: `/admin/labor`,
         icon: AlignVerticalDistributeStart,   
         text: "Mano de obra",
-        disabled: true
-    },
-    {
-        href: `/admin/prices`,
-        icon: CircleDollarSign,    
-        text: "Precios",
         disabled: true
     },
 ]

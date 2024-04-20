@@ -3,10 +3,12 @@
 import { Button } from "@/components/ui/button"
 import { ItemDAO } from "@/services/item-services"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, Pencil } from "lucide-react"
 import { format } from "date-fns"
 import { DeleteItemDialog, ItemDialog } from "./item-dialogs"
-import { getItemDescription } from "@/lib/utils"
+import { formatCurrency, getItemDescription } from "@/lib/utils"
+import { ItemType } from "@prisma/client"
+import Link from "next/link"
 
 
 export const columns: ColumnDef<ItemDAO>[] = [
@@ -38,13 +40,21 @@ export const columns: ColumnDef<ItemDAO>[] = [
       const data= row.original
 
       const deleteDescription= `Seguro que deseas este ${data.type}?`
- 
+
       return (
         <div className="flex items-center justify-end gap-4">
 
-          <p>{data.valor} USD</p>
+          <p>{formatCurrency(data.valor || 0)}</p>
           <div className="flex items-center">
-            <ItemDialog id={data.id} workId={data.workId} />
+            {
+              data.type === ItemType.TERMINACION ?
+              <Link href={`/seller/cotizations/${data.work.cotizationId}/addTermination?itemId=${data.id}`}>
+                <Pencil className="w-5 h-5 cursor-pointer mr-2" />
+              </Link>
+              :
+              <ItemDialog id={data.id} workId={data.workId} cotizationId={data.work.cotizationId} />
+            }
+            
             <DeleteItemDialog description={deleteDescription} id={data.id} />
           </div>
         </div>

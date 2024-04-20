@@ -12,16 +12,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Loader } from "lucide-react"
 import { ItemType } from "@prisma/client"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useRouter } from "next/navigation"
 
 const itemTypes = Object.values(ItemType)
 
 type Props= {
   id?: string
+  cotizationId: string
   workId: string
   closeDialog: () => void
 }
 
-export function ItemForm({ id, workId, closeDialog }: Props) {
+export function ItemForm({ id, workId, cotizationId, closeDialog }: Props) {
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
@@ -37,13 +39,15 @@ export function ItemForm({ id, workId, closeDialog }: Props) {
   const [isLinear, setIsLinear] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  const router = useRouter()
+
   const watchType = useWatch({ name: "type", control: form.control })
 
   useEffect(() => {
     if (watchType === ItemType.TRAMO || watchType === ItemType.ZOCALO || watchType === ItemType.ALZADA){
       setIsArea(true)
       setIsLinear(false)
-    } else if (watchType === ItemType.TERMINACION){
+    } else if (watchType === ItemType.REGRUESO){
       setIsLinear(true)
       setIsArea(false)
     } else {
@@ -53,6 +57,10 @@ export function ItemForm({ id, workId, closeDialog }: Props) {
   }, [watchType])
 
   const onSubmit = async (data: ItemFormValues) => {
+    if (data.type === ItemType.TERMINACION) {
+      router.push(`/seller/cotizations/${cotizationId}/addTermination?workId=${workId}`)
+      return
+    }
     setLoading(true)
     try {
       await createOrUpdateItemAction(id ? id : null, data)

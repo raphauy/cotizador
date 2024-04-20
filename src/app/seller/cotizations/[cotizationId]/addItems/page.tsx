@@ -1,11 +1,11 @@
 "use client"
 
-import { createBulkItemAction } from "@/app/admin/items/item-actions"
+import { createBulkAreaItemAction } from "@/app/admin/items/item-actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "@/components/ui/use-toast"
-import { cn } from "@/lib/utils"
+import { cn, getItemLabel } from "@/lib/utils"
 import { ItemType } from "@prisma/client"
 import { set } from "date-fns"
 import { ArrowLeftToLine, ChevronLeft, Loader, PlusCircle, X } from "lucide-react"
@@ -19,17 +19,13 @@ export type AreaItem = {
 }
 
 type Props= {
-    params: {
-      cotizationId: string
-    }
     searchParams: {
       workId: string
       itemType: string
       cantidad: string
     }
 }
-export default function AddItemsPage({ params, searchParams }: Props) {
-    const cotizationId= params.cotizationId
+export default function AddItemsPage({ searchParams }: Props) {
     const workId= searchParams.workId
     const itemType= searchParams.itemType as ItemType
     const [cantidad, setCantidad] = useState(parseInt(searchParams.cantidad))
@@ -65,7 +61,7 @@ export default function AddItemsPage({ params, searchParams }: Props) {
         setLoading(true)
         const nonZeroAreas= itemAreas.filter((itemArea) => itemArea.length && itemArea.width && itemArea.length > 0 && itemArea.width > 0)
 
-        createBulkItemAction(workId, itemType, nonZeroAreas)
+        createBulkAreaItemAction(workId, itemType, nonZeroAreas)
         .then((items) => {
             if (items) {
                 toast({title: "Items creados" })
@@ -119,8 +115,8 @@ export default function AddItemsPage({ params, searchParams }: Props) {
                 itemAreas.map((itemArea, index) => (
                     <div key={index} className="grid grid-cols-[1fr,1fr,1fr,50px] gap-4 items-center">
                         <Label id={itemArea.label}>{itemArea.label}:</Label>
-                        <Input id={`item${index+1}-length`} placeholder="Largo" type="number" value={itemArea.length ? itemArea.length : ""} onChange={(e) => handleLenghtChange(e, index)} />
-                        <Input id={`item${index+1}-width`} placeholder="Ancho" type="number" value={itemArea.width ? itemArea.width : ""} onChange={(e) => handleWidthChange(e, index)} />
+                        <Input autoFocus={index === 0} id={`item${index+1}-length`} placeholder="largo" type="number" value={itemArea.length ? itemArea.length : ""} onChange={(e) => handleLenghtChange(e, index)} />
+                        <Input id={`item${index+1}-width`} placeholder="ancho" type="number" value={itemArea.width ? itemArea.width : ""} onChange={(e) => handleWidthChange(e, index)} />
                         <Button variant="ghost" onClick={() => removeItem(index)}>
                             <X className="w-5 h-5 text-red-400" />
                         </Button>
@@ -149,23 +145,3 @@ export default function AddItemsPage({ params, searchParams }: Props) {
    )
 }
 
-function getItemLabel(itemType: string) {
-    switch (itemType) {
-        case "TRAMO":
-            return "Tramo"
-        case "ZOCALO":
-            return "Zócalo"
-        case "ALZADA":
-            return "Alzada"
-        case "TERMINACION":
-            return "Terminación"
-        case "REGRUESO":
-            return "Regreso"
-        case "MANO_DE_OBRA":
-            return "Mano de obra"
-        case "AJUSTE":
-            return "Ajuste"
-        default:
-            return "Item"
-    }
-}

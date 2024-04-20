@@ -1,6 +1,4 @@
 import { getFullItemsDAO } from "@/services/item-services"
-import { columns } from "./item-columns"
-import { DataTable } from "./item-table"
 
 export default async function UsersPage() {
   

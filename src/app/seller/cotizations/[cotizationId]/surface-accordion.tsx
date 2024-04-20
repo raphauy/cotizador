@@ -2,7 +2,7 @@ import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/
 import { getShortItemDescription } from "@/lib/utils"
 import { ItemDAO } from "@/services/item-services"
 import { ItemType } from "@prisma/client"
-import SuperficieBox from "./superficie-box"
+import LineBox from "./superficie-box"
 
 type Props = {
     surfaceItems: ItemDAO[]
@@ -26,7 +26,7 @@ export default function SurfaceAccordion({ surfaceItems }: Props) {
         <AccordionTrigger>
             <div className="flex flex-row justify-between w-full">
                 <p>{title}</p>
-                <SuperficieBox superficie={areaTotal} total={valueTotal} />                
+                <LineBox superficie={areaTotal} total={valueTotal} sufix="m²" />
             </div>
         </AccordionTrigger>
         <AccordionContent>
@@ -36,7 +36,7 @@ export default function SurfaceAccordion({ surfaceItems }: Props) {
                         <p>{getShortItemDescription(item)}</p>
                         {
                             item.superficie && item.valor?
-                            <SuperficieBox superficie={item.superficie} total={item.valor} />
+                            <LineBox superficie={item.superficie} total={item.valor} sufix="m²" />
                             : null
                         }
                         

@@ -155,11 +155,15 @@ model Item {
   metros            Float?    @default(0)
   
   valor             Float?    @default(0)
+  ajuste            Float?    @default(0)
 
   createdAt         DateTime  @default(now())             // gennext: skip.zod
 
   work              Work      @relation(fields: [workId], references: [id], onDelete: Cascade)
   workId            String
+
+  terminacion       Terminacion? @relation(fields: [terminacionId], references: [id], onDelete: NoAction)
+  terminacionId     String?
 }
 
 model Color {
@@ -198,11 +202,21 @@ model Work {
   material          Material  @relation(fields: [materialId], references: [id], onDelete: NoAction)
   materialId        String
 
-  color            Color     @relation(fields: [colorId], references: [id], onDelete: NoAction)
-  colorId          String
+  color             Color     @relation(fields: [colorId], references: [id], onDelete: NoAction)
+  colorId           String
 
   cotization        Cotization @relation(fields: [cotizationId], references: [id], onDelete: Cascade)
   cotizationId      String
 
   items             Item[]                                   // genext: skip.list
+}
+
+model Terminacion {
+  id                        String    @id @default(cuid())
+  name                      String                                   // genext: show.column
+  image                     String?                                   // genext: show.column
+
+  price                     Float @default(0)
+
+  items                     Item[]                                   // genext: skip.list 
 }

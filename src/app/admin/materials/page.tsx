@@ -1,4 +1,4 @@
-import { getFullColorsDAO } from "@/services/color-services"
+import { getFullColorsDAO, getFullColorsDAOToFilter } from "@/services/color-services"
 import { getMaterialsDAO } from "@/services/material-services"
 import { columns as colorColumns } from "../colors/color-columns"
 import { ColorDialog } from "../colors/color-dialogs"
@@ -10,7 +10,7 @@ import { DataTable as MaterialTable } from "./material-table"
 export default async function UsersPage() {
   
   const dataMaterials= await getMaterialsDAO()
-  const dataColors= await getFullColorsDAO()
+  const dataColors= await getFullColorsDAOToFilter()
 
   const materialNames= dataMaterials.map((material) => material.name)
 

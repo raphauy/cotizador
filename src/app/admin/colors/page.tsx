@@ -6,7 +6,7 @@ import { DataTable } from "./color-table"
 export default async function UsersPage() {
   
   const data= await getFullColorsDAO()
-  const materialNames= Array.from(new Set(data.map((color) => color.materialName)))
+  const materialNames= Array.from(new Set(data.map((color) => color.material.name)))
 
   return (
     <div className="w-full">      

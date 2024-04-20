@@ -1,20 +1,20 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm, useWatch } from "react-hook-form"
-import { toast } from "@/components/ui/use-toast"
-import { useEffect, useState } from "react"
-import { deleteItemAction, createOrUpdateItemAction, getItemDAOAction } from "./item-actions"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Loader } from "lucide-react"
-import { ItemType } from "@prisma/client"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { z } from "zod"
+import { toast } from "@/components/ui/use-toast"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { ItemType } from "@prisma/client"
+import { Loader } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { createOrUpdateItemAction } from "./item-actions"
 
-const itemTypes = Object.values(ItemType).filter((itemType) => itemType === ItemType.TRAMO || itemType === ItemType.ZOCALO || itemType === ItemType.ALZADA)
+const itemTypes = Object.values(ItemType)
 
 export const transitionSchema = z.object({
   type: z.nativeEnum(ItemType),
@@ -39,11 +39,26 @@ export function TransitionForm({ workId, closeDialog }: Props) {
     },
     mode: "onChange",
   })
+  const type= form.watch("type")
+
   const [loading, setLoading] = useState(false)
+
+  const [isArea, setIsArea] = useState(false)
 
   const router = useRouter()
   const params= useParams()
   const cotizationId= params.cotizationId
+
+  useEffect(() => {
+    if (type === ItemType.TRAMO || type === ItemType.ZOCALO || type === ItemType.ALZADA){
+      setIsArea(true)
+    } else if (type === ItemType.TERMINACION){
+      setIsArea(false)
+    } else {
+      setIsArea(false)
+    }  
+  }, [type])
+  
 
   const onSubmit = async (data: TransitionFormValues) => {
     if (!cotizationId) {
@@ -53,7 +68,32 @@ export function TransitionForm({ workId, closeDialog }: Props) {
 
     setLoading(true)
     try {
-      router.push(`/seller/cotizations/${cotizationId}/addItems?workId=${workId}&itemType=${data.type}&cantidad=${data.cantidad}`)
+      if (data.type === ItemType.TRAMO || data.type === ItemType.ZOCALO || data.type === ItemType.ALZADA) {
+        router.push(`/seller/cotizations/${cotizationId}/addItems?workId=${workId}&itemType=${data.type}&cantidad=${data.cantidad}`)
+        return
+      } else if (data.type === ItemType.TERMINACION) {
+        router.push(`/seller/cotizations/${cotizationId}/addTermination?workId=${workId}`)
+        return
+      }
+
+      setLoading(true)
+      try {
+        const itemData= {
+          workId,
+          type: data.type,
+          largo: "0",
+          ancho: "0",
+          metros: "0"
+        }
+        await createOrUpdateItemAction(null, itemData)
+        toast({ title: "Item creado" })
+        closeDialog()
+      } catch (error: any) {
+        toast({ title: "Error", description: error.message, variant: "destructive" })
+      } finally {
+        setLoading(false)
+      }
+  
       closeDialog()
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" })
@@ -91,19 +131,21 @@ export function TransitionForm({ workId, closeDialog }: Props) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="cantidad"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cantidad de Items a crear:</FormLabel>
-                <FormControl>
-                  <Input placeholder="ej: 10" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          { isArea &&
+            <FormField
+              control={form.control}
+              name="cantidad"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cantidad de Items a crear:</FormLabel>
+                  <FormControl>
+                    <Input placeholder="ej: 10" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          }
           
 
         <div className="flex justify-end">

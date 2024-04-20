@@ -143,6 +143,14 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
           items: {
             orderBy: {
               createdAt: 'asc'
+            },
+            include: {
+              terminacion: true,
+              work: {
+                select: {
+                  cotizationId: true
+                }
+              }
             }
           }
         },
@@ -160,6 +168,7 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
     clientName: found.client?.name,
     creatorName: found.creator?.name,
     sellerName: found.seller.name,
+    // @ts-ignore
     works: found.works as WorkDAO[]
   }
   return res

@@ -9,51 +9,40 @@ import { X } from "lucide-react"
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { DataTablePagination } from "@/components/data-table/data-table-pagination"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { ItemType } from "@prisma/client"
-import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter"
-import { ItemDialog, TransitionDialog } from "./item-dialogs"
-
-const itemTypes = Object.values(ItemType)
-
+  
 interface DataTableToolbarProps<TData> {
   table: TanstackTable<TData>;
-  workId: string
-  cotizationId: string
 }
 
-export function DataTableToolbar<TData>({ table, workId, cotizationId }: DataTableToolbarProps<TData>) {
+export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0
 
   return (
-    <div className="flex gap-1 dark:text-white items-center justify-between">
-
-      <div className="flex">
-        {
-          table.getColumn("type") && (
-            <DataTableFacetedFilter
-              column={table.getColumn("type")}
-              title="Tipo"
-              options={itemTypes}
-            />
-          )
-        }
+    <div className="flex gap-1 dark:text-white items-center">
+        
+          <Input className="max-w-xs" placeholder="name filter..."
+              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+              onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}                
+          />
+          
+      
+        {/* {table.getColumn("role") && roles && (
+          <DataTableFacetedFilter
+            column={table.getColumn("role")}
+            title="Rol"
+            options={roles}
+          />
+        )} */}
         {isFiltered && (
           <Button
             variant="ghost"
             onClick={() => table.resetColumnFilters()}
             className="h-8 px-2 lg:px-3"
-          >            
+          >
+            Reset
             <X className="w-4 h-4 ml-2" />
           </Button>
         )}
-      </div>
-
-      <div className="flex gap-2">
-        <TransitionDialog workId={workId} />
-        {/* <ItemDialog workId={workId} cotizationId={cotizationId} /> */}
-      </div>
-
-
     </div>
   )
 }
@@ -63,8 +52,6 @@ interface DataTableProps<TData, TValue> {
   data: TData[]
   columnsOff?: string[]
   subject: string
-  workId: string
-  cotizationId: string
 }
 
 export function DataTable<TData, TValue>({
@@ -72,8 +59,6 @@ export function DataTable<TData, TValue>({
   data,
   columnsOff,
   subject,
-  workId,
-  cotizationId,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -113,9 +98,27 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="w-full space-y-4 dark:text-white">
-      <DataTableToolbar table={table} workId={workId} cotizationId={cotizationId}/>
+      <DataTableToolbar table={table}/>
       <div className="border rounded-md">
         <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
@@ -139,13 +142,14 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Aún no hay Items
+                  No hay resultados.
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination table={table} subject={subject}/>
     </div>
   )
 }

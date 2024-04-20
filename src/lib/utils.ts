@@ -63,7 +63,7 @@ export function getItemDescription(item: ItemDAO): string {
     case ItemType.ALZADA:
       return `Alzada ${item.largo}x${item.ancho} cm, ${surface}m²`
     case ItemType.TERMINACION:
-      return `Terminación (no implementado)`
+      return `Terminación ${item.terminacion.name} (${item.metros}ml) ${item.ajuste ? `+${formatCurrency(item.ajuste)}` : ""}`
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
     case ItemType.MANO_DE_OBRA:
@@ -84,7 +84,7 @@ export function getShortItemDescription(item: ItemDAO): string {
     case ItemType.ALZADA:
       return `Alzada ${item.largo}x${item.ancho} cm`
     case ItemType.TERMINACION:
-      return `Terminación (no implementado)`
+      return `Terminación ${item.terminacion.name} ${item.ajuste ? `+${formatCurrency(item.ajuste)}` : ""}`
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
     case ItemType.MANO_DE_OBRA:
@@ -93,5 +93,52 @@ export function getShortItemDescription(item: ItemDAO): string {
       return `Ajuste (no implementado)`
     default:
       return `Trabajo ${item.work.name} de ${item.work.material.name} con ${item.work.color.name}`
+  }
+}
+
+export function formatCurrency(value: number): string {
+  return Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(value)  
+}
+
+
+export function getItemLabel(itemType: string) {
+  switch (itemType) {
+      case "TRAMO":
+          return "Tramo"
+      case "ZOCALO":
+          return "Zócalo"
+      case "ALZADA":
+          return "Alzada"
+      case "TERMINACION":
+          return "Terminación"
+      case "REGRUESO":
+          return "Regreso"
+      case "MANO_DE_OBRA":
+          return "Mano de obra"
+      case "AJUSTE":
+          return "Ajuste"
+      default:
+          return "Item"
+  }
+}
+
+export function getPluralItemLabel(itemType: string) {
+  switch (itemType) {
+      case "TRAMO":
+          return "Tramos"
+      case "ZOCALO":
+          return "Zócalos"
+      case "ALZADA":
+          return "Alzadas"
+      case "TERMINACION":
+          return "Terminaciones"
+      case "REGRUESO":
+          return "Regresos"
+      case "MANO_DE_OBRA":
+          return "Manos de obra"
+      case "AJUSTE":
+          return "Ajustes"
+      default:
+          return "Items"
   }
 }

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache"
 import { WorkDAO, WorkFormValues, createWork, updateWork, getFullWorkDAO, deleteWork } from "@/services/work-services"
 
 
-export async function getWorkDAOAction(id: string): Promise<WorkDAO | null> {
+export async function getWorkDAOAction(id: string){
     return getFullWorkDAO(id)
 }
 
