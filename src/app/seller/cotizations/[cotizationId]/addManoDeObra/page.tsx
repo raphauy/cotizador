@@ -204,7 +204,7 @@ export default function AddItemsPage({ searchParams }: Props) {
                                 name="ajuste"
                                 render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Ajuste por curva en USD</FormLabel>
+                                    <FormLabel>Ajuste en USD</FormLabel>
                                     <FormControl>
                                     <Input placeholder="ej: 100" {...field} />
                                     </FormControl>
