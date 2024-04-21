@@ -1,7 +1,7 @@
 "use server"
   
 import { AreaItem } from "@/app/seller/cotizations/[cotizationId]/addItems/page"
-import { ItemDAO, ItemFormValues, TerminationFormValues, createBulkAreaItem, createItem, createTerminationItem, deleteItem, getFullItemDAO, updateItem, updateTerminationItem } from "@/services/item-services"
+import { ItemDAO, ItemFormValues, ManoDeObraItemFormValues, TerminationFormValues, createBulkAreaItem, createItem, createManoDeObraItem, createTerminationItem, deleteItem, getFullItemDAO, updateItem, updateManoDeObraItem, updateTerminationItem } from "@/services/item-services"
 import { ItemType } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
@@ -50,6 +50,22 @@ export async function createTerminationItemAction(data: TerminationFormValues){
 
 export async function updateTerminationItemAction(id: string, data: TerminationFormValues){
     const items= await updateTerminationItem(id, data)
+
+    revalidatePath("/seller/cotizations/[cotizationId]", "page")
+
+    return items
+}
+
+export async function createManoDeObraItemAction(data: ManoDeObraItemFormValues) {
+    const items= await createManoDeObraItem(data)
+
+    revalidatePath("/seller/cotizations/[cotizationId]", "page")
+    
+    return items
+}
+
+export async function updateManoDeObraItemAction(id: string, data: ManoDeObraItemFormValues){
+    const items= await updateManoDeObraItem(id, data)
 
     revalidatePath("/seller/cotizations/[cotizationId]", "page")
 

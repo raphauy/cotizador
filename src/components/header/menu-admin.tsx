@@ -38,10 +38,10 @@ const data= [
         disabled: false
     },
     {
-        href: `/admin/labor`,
+        href: `/admin/manodeobras`,
         icon: AlignVerticalDistributeStart,   
         text: "Mano de obra",
-        disabled: true
+        disabled: false
     },
 ]
 

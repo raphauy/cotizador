@@ -27,6 +27,7 @@ export function ItemsList({ work }: Props) {
     const [zocalos, setZocalos] = useState<ItemDAO[]>([])
     const [alzadas, setAlzadas] = useState<ItemDAO[]>([])
     const [terminaciones, setTerminaciones] = useState<ItemDAO[]>([])
+    const [manosDeObras, setManosDeObras] = useState<ItemDAO[]>([])
 
     const [totalValue, setTotalValue] = useState(0)
   
@@ -41,8 +42,10 @@ export function ItemsList({ work }: Props) {
 
         const terminacionesFiltered= originalItems.filter((item) => item.type === ItemType.TERMINACION)
         setTerminaciones(terminacionesFiltered)
+        const manosDeObrasFiltered= originalItems.filter((item) => item.type === ItemType.MANO_DE_OBRA)
+        setManosDeObras(manosDeObrasFiltered)
         // set items with the other types
-        const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA && item.type !== ItemType.TERMINACION)
+        const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA && item.type !== ItemType.TERMINACION && item.type !== ItemType.MANO_DE_OBRA)
         setItems(otherItems)
         setTotalValue(originalItems.reduce((acc, item) => acc + (item.valor || 0), 0))
     }, [work])
@@ -75,7 +78,8 @@ export function ItemsList({ work }: Props) {
                 <SurfaceAccordion surfaceItems={tramos} />
                 <SurfaceAccordion surfaceItems={zocalos} />
                 <SurfaceAccordion surfaceItems={alzadas} />
-                <TerminationAccordion terminationItems={terminaciones} />
+                <TerminationAccordion terminationItems={terminaciones} header="Terminación" headerPlural="Terminaciones" />
+                <TerminationAccordion terminationItems={manosDeObras} header="Mano de obra" headerPlural="Manos de obra" />
                 <OtherAccordion surfaceItems={items} />
             </Accordion>
             <div className="flex font-bold flex-row justify-between w-full pr-4 pt-4">

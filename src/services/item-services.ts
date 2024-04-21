@@ -5,6 +5,7 @@ import { ClientType, ItemType } from "@prisma/client"
 import { ColorDAO } from "./color-services"
 import { AreaItem } from "@/app/seller/cotizations/[cotizationId]/addItems/page"
 import { TerminacionDAO, getTerminacionDAO } from "./terminacion-services"
+import { ManoDeObraDAO, getManoDeObraDAO } from "./manodeobra-services"
 
 export type ItemDAO = {
 	id: string
@@ -21,6 +22,8 @@ export type ItemDAO = {
   work: WorkDAO
   terminacionId: string
   terminacion: TerminacionDAO
+  manoDeObraId: string
+  manoDeObra: ManoDeObraDAO
 }
 
 export const itemSchema = z.object({
@@ -44,7 +47,14 @@ export const terminationSchema = z.object({
 
 export type TerminationFormValues = z.infer<typeof terminationSchema>
 
+export const manoDeObraItemSchema = z.object({
+  manoDeObraId: z.string().min(1, "Debes elegir una mano de obra."),
+  llevaAjuste: z.boolean(),
+  ajuste: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  workId: z.string().min(1, "workId is required."),
+})
 
+export type ManoDeObraItemFormValues = z.infer<typeof manoDeObraItemSchema>
 
 
 
@@ -172,6 +182,7 @@ export async function getFullItemsDAO() {
         }
       },
       terminacion: true,
+      manoDeObra: true,
 		}
   })
   return found
@@ -191,6 +202,7 @@ export async function getFullItemDAO(id: string) {
         }
       },
       terminacion: true,
+      manoDeObra: true,
 		}
   })
   return found
@@ -256,6 +268,51 @@ export async function updateTerminationItem(id: string, data: TerminationFormVal
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
       terminacionId: data.terminationId,
+    }
+  })
+  return updated
+}
+
+export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
+  const workId= data.workId
+  const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
+  const type= ItemType.MANO_DE_OBRA
+  let total= manoDeObra.price
+  if (data.llevaAjuste) {
+    total += Number(data.ajuste)
+  }
+  const valor= total
+  const created = await prisma.item.create({
+    data: {
+      type,
+      valor,
+      ajuste: data.ajuste ? Number(data.ajuste) : 0,
+      workId,
+      manoDeObraId: data.manoDeObraId,
+    }
+  })
+  return created
+}
+
+export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormValues){
+  const workId= data.workId
+  const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
+  const type= ItemType.MANO_DE_OBRA
+  let total= manoDeObra.price
+  if (data.llevaAjuste) {
+    total += Number(data.ajuste)
+  }
+  const valor= total
+  const updated = await prisma.item.update({
+    where: {
+      id
+    },
+    data: {
+      type,
+      valor,
+      ajuste: data.ajuste ? Number(data.ajuste) : 0,
+      workId,
+      manoDeObraId: data.manoDeObraId,
     }
   })
   return updated

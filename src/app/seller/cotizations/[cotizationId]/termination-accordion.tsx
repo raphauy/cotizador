@@ -5,19 +5,21 @@ import { ItemType } from "@prisma/client"
 import LineBox from "./superficie-box"
 
 type Props = {
+    header: string
+    headerPlural: string
     terminationItems: ItemDAO[]
 }
-export default function TerminationAccordion({ terminationItems }: Props) {
+export default function TerminationAccordion({ header, headerPlural, terminationItems }: Props) {
     if (!terminationItems || terminationItems.length === 0) return null
 
     const type= ItemType.TERMINACION
-    const title= terminationItems.length === 1 ? terminationItems.length + " terminación" : terminationItems.length + " terminaciones" 
+    const title= terminationItems.length === 1 ? terminationItems.length + " " + header : terminationItems.length + " " + headerPlural
     let areaTotal= 0
     let valueTotal= 0
     terminationItems.forEach((item) => {
-        if (!item.metros || !item.valor) return
+        if (!item.valor) return
 
-        areaTotal+= item.metros
+        areaTotal+= item.metros || 0
         valueTotal+= item.valor
     })
     return (
@@ -34,7 +36,7 @@ export default function TerminationAccordion({ terminationItems }: Props) {
                         <div className="flex flex-row justify-between w-full" key={item.id}>
                             <p>{getShortItemDescription(item)}</p>
                             {
-                                item.metros && item.valor?
+                                item.valor?
                                 <LineBox superficie={Number(item.metros)} total={item.valor} sufix="ml" />
                                 : null
                             }

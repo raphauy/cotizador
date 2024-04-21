@@ -52,7 +52,7 @@ export function TransitionForm({ workId, closeDialog }: Props) {
   useEffect(() => {
     if (type === ItemType.TRAMO || type === ItemType.ZOCALO || type === ItemType.ALZADA){
       setIsArea(true)
-    } else if (type === ItemType.TERMINACION){
+    } else if (type === ItemType.TERMINACION || type === ItemType.MANO_DE_OBRA){
       setIsArea(false)
     } else {
       setIsArea(false)
@@ -73,6 +73,9 @@ export function TransitionForm({ workId, closeDialog }: Props) {
         return
       } else if (data.type === ItemType.TERMINACION) {
         router.push(`/seller/cotizations/${cotizationId}/addTermination?workId=${workId}`)
+        return
+      } else if (data.type === ItemType.MANO_DE_OBRA) {
+        router.push(`/seller/cotizations/${cotizationId}/addManoDeObra?workId=${workId}`)
         return
       }
 

@@ -4,22 +4,21 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "@/components/ui/use-toast"
 import { useEffect, useState } from "react"
-import { deleteTerminacionAction, createOrUpdateTerminacionAction, getTerminacionDAOAction } from "./terminacion-actions"
-import { terminacionSchema, TerminacionFormValues } from '@/services/terminacion-services'
+import { deleteManoDeObraAction, createOrUpdateManoDeObraAction, getManoDeObraDAOAction } from "./manodeobra-actions"
+import { manoDeObraSchema, ManoDeObraFormValues } from '@/services/manodeobra-services'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
 
 type Props= {
   id?: string
   closeDialog: () => void
 }
 
-export function TerminacionForm({ id, closeDialog }: Props) {
-  const form = useForm<TerminacionFormValues>({
-    resolver: zodResolver(terminacionSchema),
+export function ManoDeObraForm({ id, closeDialog }: Props) {
+  const form = useForm<ManoDeObraFormValues>({
+    resolver: zodResolver(manoDeObraSchema),
     defaultValues: {
       name: "",
       price: "0",
@@ -28,11 +27,11 @@ export function TerminacionForm({ id, closeDialog }: Props) {
   })
   const [loading, setLoading] = useState(false)
 
-  const onSubmit = async (data: TerminacionFormValues) => {
+  const onSubmit = async (data: ManoDeObraFormValues) => {
     setLoading(true)
     try {
-      await createOrUpdateTerminacionAction(id ? id : null, data)
-      toast({ title: id ? "Terminacion updated" : "Terminacion created" })
+      await createOrUpdateManoDeObraAction(id ? id : null, data)
+      toast({ title: id ? "ManoDeObra updated" : "ManoDeObra created" })
       closeDialog()
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" })
@@ -43,7 +42,7 @@ export function TerminacionForm({ id, closeDialog }: Props) {
 
   useEffect(() => {
     if (id) {
-      getTerminacionDAOAction(id).then((data) => {
+      getManoDeObraDAOAction(id).then((data) => {
         if (data) {
           form.setValue("name", data.name)
           form.setValue("price", data.price.toString())
@@ -67,9 +66,9 @@ export function TerminacionForm({ id, closeDialog }: Props) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre</FormLabel>
+                <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Nombre de la terminación" {...field} />
+                  <Input placeholder="ManoDeObra's name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -77,15 +76,14 @@ export function TerminacionForm({ id, closeDialog }: Props) {
           />
           
       
-
           <FormField
             control={form.control}
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Precio</FormLabel>
+                <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input placeholder="Precio" {...field} type="number" />
+                  <Input placeholder="ManoDeObra's price" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -94,9 +92,9 @@ export function TerminacionForm({ id, closeDialog }: Props) {
           
 
         <div className="flex justify-end">
-            <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
+            <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancel</Button>
             <Button type="submit" className="w-32 ml-2">
-              {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar</p>}
+              {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Save</p>}
             </Button>
           </div>
         </form>
@@ -105,15 +103,15 @@ export function TerminacionForm({ id, closeDialog }: Props) {
   )
 }
 
-export function DeleteTerminacionForm({ id, closeDialog }: Props) {
+export function DeleteManoDeObraForm({ id, closeDialog }: Props) {
   const [loading, setLoading] = useState(false)
 
   async function handleDelete() {
     if (!id) return
     setLoading(true)
-    deleteTerminacionAction(id)
+    deleteManoDeObraAction(id)
     .then(() => {
-      toast({title: "Terminacion deleted" })
+      toast({title: "ManoDeObra deleted" })
     })
     .catch((error) => {
       toast({title: "Error", description: error.message, variant: "destructive"})

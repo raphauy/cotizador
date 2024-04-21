@@ -66,11 +66,11 @@ export function getItemDescription(item: ItemDAO): string {
     case ItemType.ALZADA:
       return `Alzada ${item.largo}x${item.ancho} cm, ${surface}m²`
     case ItemType.TERMINACION:
-      return `Terminación ${item.terminacion.name} (${item.metros}ml) ${item.ajuste ? `+${formatCurrency(item.ajuste)}` : ""}`
+      return `Terminación ${item.terminacion.name} (${item.metros}ml) ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`
+    case ItemType.MANO_DE_OBRA:
+      return `MO: ${item.manoDeObra.name} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
-    case ItemType.MANO_DE_OBRA:
-      return `Mano de obra (no implementado)`
     case ItemType.AJUSTE:
       return `Ajuste (no implementado)`
     default:
@@ -87,11 +87,11 @@ export function getShortItemDescription(item: ItemDAO): string {
     case ItemType.ALZADA:
       return `Alzada ${item.largo}x${item.ancho} cm`
     case ItemType.TERMINACION:
-      return `Terminación ${item.terminacion.name} ${item.ajuste ? `+${formatCurrency(item.ajuste)}` : ""}`
+      return `${item.terminacion.name} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`
+    case ItemType.MANO_DE_OBRA:
+      return `${item.manoDeObra.name} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}` 
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
-    case ItemType.MANO_DE_OBRA:
-      return `Mano de obra (no implementado)`
     case ItemType.AJUSTE:
       return `Ajuste (no implementado)`
     default:

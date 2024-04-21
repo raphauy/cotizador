@@ -164,6 +164,9 @@ model Item {
 
   terminacion       Terminacion? @relation(fields: [terminacionId], references: [id], onDelete: NoAction)
   terminacionId     String?
+
+  manoDeObra        ManoDeObra? @relation(fields: [manoDeObraId], references: [id], onDelete: NoAction)
+  manoDeObraId      String?
 }
 
 model Color {
@@ -215,8 +218,18 @@ model Terminacion {
   id                        String    @id @default(cuid())
   name                      String                                   // genext: show.column
   image                     String?                                   // genext: show.column
-
   price                     Float @default(0)
 
   items                     Item[]                                   // genext: skip.list 
+}
+
+model ManoDeObra {
+  id                String    @id @default(cuid())
+  name              String                                   // genext: show.column
+  price             Float @default(0)                        // genext: show.column  
+
+  createdAt         DateTime  @default(now())                // gennext: skip.zod
+  updatedAt         DateTime  @updatedAt                     // gennext: skip.zod
+
+  items             Item[]                                   // genext: skip.list
 }
