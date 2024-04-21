@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { auth } from "./auth"
-import { format, isThisWeek, isToday, isYesterday, parseISO, toDate } from "date-fns"
+import { format, isThisWeek, isToday, isYesterday, parseISO } from "date-fns"
 import { es } from "date-fns/locale"
 import { ItemDAO } from "@/services/item-services"
 import { ItemType } from "@prisma/client"
@@ -38,32 +38,17 @@ export function completeWithZeros(number: number): string {
 }
 
 export function formatWhatsAppStyle(date: Date | string): string {
-  let parsedDate = typeof date === 'string' ? parseISO(date) : toDate(date);
-
-  if (isToday(parsedDate)) {
-    return format(parsedDate, 'HH:mm', { locale: es });
-  } else if (isYesterday(parsedDate)) {
-    return 'Ayer';
-  } else if (isThisWeek(parsedDate)) {
-    return format(parsedDate, 'eeee', { locale: es });
-  } else {
-    return format(parsedDate, 'dd/MM/yyyy', { locale: es });
-  }
-}
-
-export function formatWhatsAppStyle1(date: Date | string): string {
   let parsedDate = typeof date === 'string' ? parseISO(date) : date;
 
-  const timezone= "America/Montevideo"
-  
   if (isToday(parsedDate)) {
-    return format(parsedDate, 'HH:mm');
+    return "hoy"
+//    return format(parsedDate, 'HH:mm')
   } else if (isYesterday(parsedDate)) {
-    return 'Ayer';
+    return 'Ayer'
   } else if (isThisWeek(parsedDate)) {
-    return format(parsedDate, 'eeee', { locale: es });
+    return format(parsedDate, 'eeee', { locale: es })
   } else {
-    return format(parsedDate, 'dd/MM/yyyy');
+    return format(parsedDate, 'dd/MM/yyyy')
   }
 }
 
