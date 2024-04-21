@@ -40,6 +40,8 @@ export function completeWithZeros(number: number): string {
 export function formatWhatsAppStyle(date: Date | string): string {
   let parsedDate = typeof date === 'string' ? parseISO(date) : date;
 
+  // todo timezone
+  
   if (isToday(parsedDate)) {
     return "hoy"
 //    return format(parsedDate, 'HH:mm')
