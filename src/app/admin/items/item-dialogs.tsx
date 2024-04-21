@@ -77,12 +77,12 @@ export function TransitionDialog({ workId }: TransitionProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <PlusCircle size={22} className="mr-2"/>Crear Varios Items
+          <PlusCircle size={22} className="mr-2"/>Crear Items
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Crear Varios Items</DialogTitle>
+          <DialogTitle>Crear Items</DialogTitle>
         </DialogHeader>
         <TransitionForm closeDialog={() => setOpen(false)} workId={workId} />
       </DialogContent>
