@@ -103,7 +103,9 @@ export function ItemForm({ id, workId, cotizationId, closeDialog }: Props) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Tipo de Item:</FormLabel>
-                <Select onValueChange={(value) => field.onChange(value)} value={field.value}
+                <Select disabled={id ? true : false}
+                  onValueChange={(value) => field.onChange(value)} 
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>

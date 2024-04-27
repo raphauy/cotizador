@@ -11,6 +11,7 @@ export type ItemDAO = {
 	id: string
 	type: ItemType
 	orden?: number
+  description?: string
 	largo?: number | null | undefined
 	ancho?: number | null | undefined 
   superficie?: number | null | undefined
@@ -56,6 +57,13 @@ export const manoDeObraItemSchema = z.object({
 
 export type ManoDeObraItemFormValues = z.infer<typeof manoDeObraItemSchema>
 
+export const ajusteSchema = z.object({
+  value: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }),
+  description: z.string().optional(),
+  workId: z.string().min(1, "workId is required."),
+})
+
+export type AjusteFormValues = z.infer<typeof ajusteSchema>
 
 
 export async function getItemsDAO() {
@@ -313,6 +321,41 @@ export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormV
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
       manoDeObraId: data.manoDeObraId,
+    }
+  })
+  return updated
+}
+
+export async function createAjusteItem(data: AjusteFormValues) {
+  const workId= data.workId
+  const type= ItemType.AJUSTE
+  const valor= Number(data.value)
+  const description= data.description
+  const created = await prisma.item.create({
+    data: {
+      type,
+      valor,
+      description,
+      workId,
+    }
+  })
+  return created
+}
+
+export async function updateAjusteItem(id: string, data: AjusteFormValues){
+  const workId= data.workId
+  const type= ItemType.AJUSTE
+  const valor= Number(data.value)
+  const description= data.description
+  const updated = await prisma.item.update({
+    where: {
+      id
+    },
+    data: {
+      type,
+      valor,
+      description,
+      workId,
     }
   })
   return updated

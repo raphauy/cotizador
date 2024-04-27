@@ -147,6 +147,7 @@ model Item {
   id                String    @id @default(cuid())
   type              ItemType
   orden             Int       @default(0)
+  description       String?   @default("")
 
   largo             Float?    @default(0)
   ancho             Float?    @default(0)

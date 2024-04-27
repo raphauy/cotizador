@@ -57,6 +57,11 @@ export const columns: ColumnDef<ItemDAO>[] = [
                 <Pencil className="w-5 h-5 cursor-pointer mr-2" />
               </Link>
               :
+              data.type === ItemType.AJUSTE ?
+              <Link href={`/seller/cotizations/${data.work.cotizationId}/addAjuste?itemId=${data.id}`}>
+                <Pencil className="w-5 h-5 cursor-pointer mr-2" />
+              </Link>
+              :
               <ItemDialog id={data.id} workId={data.workId} cotizationId={data.work.cotizationId} />
             }
             

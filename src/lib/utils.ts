@@ -72,7 +72,7 @@ export function getItemDescription(item: ItemDAO): string {
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
     case ItemType.AJUSTE:
-      return `Ajuste (no implementado)`
+      return `Ajuste: ${item.description}`
     default:
       return `Trabajo ${item.work.name} de ${item.work.material.name} con ${item.work.color.name}`
   }
@@ -93,7 +93,7 @@ export function getShortItemDescription(item: ItemDAO): string {
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
     case ItemType.AJUSTE:
-      return `Ajuste (no implementado)`
+      return `- ${item.description}`
     default:
       return `Trabajo ${item.work.name} de ${item.work.material.name} con ${item.work.color.name}`
   }

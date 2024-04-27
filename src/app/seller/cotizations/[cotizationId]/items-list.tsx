@@ -28,6 +28,7 @@ export function ItemsList({ work }: Props) {
     const [alzadas, setAlzadas] = useState<ItemDAO[]>([])
     const [terminaciones, setTerminaciones] = useState<ItemDAO[]>([])
     const [manosDeObras, setManosDeObras] = useState<ItemDAO[]>([])
+    const [ajustes, setAjustes] = useState<ItemDAO[]>([])
 
     const [totalValue, setTotalValue] = useState(0)
   
@@ -42,10 +43,15 @@ export function ItemsList({ work }: Props) {
 
         const terminacionesFiltered= originalItems.filter((item) => item.type === ItemType.TERMINACION)
         setTerminaciones(terminacionesFiltered)
+
         const manosDeObrasFiltered= originalItems.filter((item) => item.type === ItemType.MANO_DE_OBRA)
         setManosDeObras(manosDeObrasFiltered)
+
+        const ajustesFiltered= originalItems.filter((item) => item.type === ItemType.AJUSTE)
+        setAjustes(ajustesFiltered)
+
         // set items with the other types
-        const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA && item.type !== ItemType.TERMINACION && item.type !== ItemType.MANO_DE_OBRA)
+        const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA && item.type !== ItemType.TERMINACION && item.type !== ItemType.MANO_DE_OBRA && item.type !== ItemType.AJUSTE)
         setItems(otherItems)
         setTotalValue(originalItems.reduce((acc, item) => acc + (item.valor || 0), 0))
     }, [work])
@@ -80,6 +86,7 @@ export function ItemsList({ work }: Props) {
                 <SurfaceAccordion surfaceItems={alzadas} />
                 <TerminationAccordion terminationItems={terminaciones} header="Terminación" headerPlural="Terminaciones" />
                 <TerminationAccordion terminationItems={manosDeObras} header="Mano de obra" headerPlural="Manos de obra" />
+                <TerminationAccordion terminationItems={ajustes} header="Ajuste" headerPlural="Ajustes" /> 
                 <OtherAccordion surfaceItems={items} />
             </Accordion>
             <div className="flex font-bold flex-row justify-between w-full pr-4 pt-4">
