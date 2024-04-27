@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, Pencil } from "lucide-react"
 import { DeleteCotizationDialog } from "./cotization-dialogs"
 import Link from "next/link"
-import { completeWithZeros } from "@/lib/utils"
+import { completeWithZeros, formatWhatsAppStyle } from "@/lib/utils"
 import { StatusSelector } from "./[cotizationId]/status-selector"
 
 
@@ -82,7 +82,7 @@ export const columns: ColumnDef<CotizationDAO>[] = [
     filterFn: (row, id, value) => {
       return value.includes(row.getValue(id))
     },
-},
+  },
 
   {
     accessorKey: "type",
@@ -109,6 +109,21 @@ export const columns: ColumnDef<CotizationDAO>[] = [
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
+  },
+
+  {
+    accessorKey: "date",
+    header: ({ column }) => {
+        return (
+          <Button variant="ghost" className="pl-0 dark:text-white"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+            Fecha
+            <ArrowUpDown className="w-4 h-4 ml-1" />
+          </Button>
+    )},
+    cell: ({ row }) => {
+      return <p>{formatWhatsAppStyle(row.original.date)}</p>
+    },
   },
   {
     id: "actions",
