@@ -31,7 +31,6 @@ export default function AddItemsPage({ searchParams }: Props) {
         resolver: zodResolver(manoDeObraItemSchema),
         defaultValues: {
             workId,
-            llevaAjuste: false,
             ajuste: "0",
             quantity: "1",
         },
@@ -39,7 +38,6 @@ export default function AddItemsPage({ searchParams }: Props) {
     })
 
     const manoDeObraId= form.watch("manoDeObraId")
-    const llevaAjuste= form.watch("llevaAjuste")
     const ajuste= form.watch("ajuste")
     
     const [loading, setLoading] = useState(true)
@@ -63,7 +61,6 @@ export default function AddItemsPage({ searchParams }: Props) {
                 form.setValue("workId", item.workId)
                 form.setValue("manoDeObraId", item.manoDeObraId)
                 form.setValue("ajuste", item.ajuste?.toString())
-                form.setValue("llevaAjuste", item.ajuste !== 0)
                 form.setValue("quantity", item.quantity?.toString())
             })
             .catch((error) => {
@@ -193,44 +190,7 @@ export default function AddItemsPage({ searchParams }: Props) {
                         )}
                     />
                     
-                    <FormField
-                        control={form.control}
-                        name="llevaAjuste"
-                        render={({ field }) => (
-                            <FormItem className="flex items-baseline justify-between rounded-lg border h-14 px-4 pt-1.5">
-                            <div className="space-y-0.5">
-                                <FormLabel className="text-base">
-                                Lleva ajuste?
-                                </FormLabel>
-                            </div>
-                            <FormControl>
-                                <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
-                            </FormItem>
-                        )}
-                        />
 
-                        {
-                            llevaAjuste &&
-                            <FormField
-                                control={form.control}
-                                name="ajuste"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Ajuste en USD:</FormLabel>
-                                    <FormControl>
-                                    <Input placeholder="ej: 100" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                        }
-                
-                    
 
                     <div className="flex justify-end items-center gap-2">
                         <Button onClick={router.back} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
@@ -245,31 +205,6 @@ export default function AddItemsPage({ searchParams }: Props) {
                     </form>
                 </Form>
                 </div>     
-
-
-                {
-                    manoDeObraSelected &&
-                    <>
-                    <p className="text-2xl font-bold mt-10 w-full">Resumen:</p>
-                    <div className="p-4 bg-white rounded-md min-w-[500px] mt-5 border grid grid-cols-2"> 
-                        <p className="font-bold col-span-2 text-center mb-5">{manoDeObraSelected?.name} ({manoDeObraSelected?.price} USD)</p> 
-                        <p>Valor:</p>
-                        <p className="font-bold text-right">{manoDeObraSelected?.price} USD</p>
-
-                        {
-                            llevaAjuste &&
-                            <>
-                            <p>Ajuste:</p>
-                            <p className="font-bold text-right">{ajuste} USD</p>
-                            </>
-                        }
-
-                        <p className="mt-4">Total:</p>
-                        <p className="font-bold text-right mt-4">{totalPrice} USD</p>
-                    </div>
-                    </>
-                }
-
        </div>
    )
 }
