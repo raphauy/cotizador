@@ -66,6 +66,12 @@ export default function AddItemsPage({ searchParams }: Props) {
     const alzadasWithData= alzadas.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
     const totalAlzadasWithData= alzadasWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
 
+    const terminacionesWithData= terminaciones.filter((item) => item.terminationId && (item.centimeters && item.centimeters > 0) || (item.length && item.width && item.length > 0 && item.width > 0))
+    const totalTerminationsWithData= terminacionesWithData.reduce((acc, item) => acc + (item.quantity ? item.quantity : 0), 0)
+
+    const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId)  
+    const totalManoDeObrasWithData= manoDeObrasWithData.reduce((acc, item) => acc + (item.quantity ? item.quantity : 0), 0)
+
     const [loading, setLoading] = useState(false)
 
     const router = useRouter()
@@ -119,7 +125,7 @@ export default function AddItemsPage({ searchParams }: Props) {
         upsertBatchAreaItemAction(workId, areaItemsWithData)
         .then((items) => {
             if (items) {
-                toast({title: "Items de áreas guardados" })
+                // toast({title: "Items de áreas guardados" })
             }
         })
         .catch((error) => {
@@ -130,9 +136,8 @@ export default function AddItemsPage({ searchParams }: Props) {
         upsertBatchTerminationItemAction(workId, terminacionesWithData)
         .then((items) => {
             if (items) {
-                toast({title: "Items de terminaciones guardados" })
+                // toast({title: "Items de terminaciones guardados" })
             }
-            setLoading(false)
         })
         .catch((error) => {
             toast({title: "Error", description: error.message, variant: "destructive"})
@@ -142,7 +147,7 @@ export default function AddItemsPage({ searchParams }: Props) {
         upsertBatchManoDeObraItemAction(workId, manoDeObrasWithData)
         .then((items) => {
             if (items) {
-                toast({title: "Items de mano de obra guardados" })
+                toast({title: "Items guardados" })
             }
             setLoading(false)
         })
@@ -159,21 +164,25 @@ export default function AddItemsPage({ searchParams }: Props) {
             </Button>
             <div className="grid lg:grid-cols-3 gap-2">
                 <div>
-                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Tramos {totalTramosWithData > 0 ? "(" + totalTramosWithData + ")" : ""}</p>
+                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Tramos <span className="font-bold text-xl">{totalTramosWithData > 0 ? "(" + totalTramosWithData + ")" : ""}</span></p>
                     <AreaBox workId={workId} itemType={ItemType.TRAMO} cantidad={cantidadTramosIniciales} itemAreas={tramos} setItemAreas={setTramos} />
                 </div>
                 <div>
-                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Zocalos {totalZocalosWithData > 0 ? "(" + totalZocalosWithData + ")" : ""}</p>
+                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Zocalos <span className="font-bold text-xl">{totalZocalosWithData > 0 ? "(" + totalZocalosWithData + ")" : ""}</span></p>
                     <AreaBox workId={workId} itemType={ItemType.ZOCALO} cantidad={0} itemAreas={zocalos} setItemAreas={setZocalos} />
                 </div>
                 <div>
-                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Alzadas {totalAlzadasWithData > 0 ? "(" + totalAlzadasWithData + ")" : ""}</p>
+                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Alzadas <span className="font-bold text-xl">{totalAlzadasWithData > 0 ? "(" + totalAlzadasWithData + ")" : ""}</span></p>
                     <AreaBox workId={workId} itemType={ItemType.ALZADA} cantidad={0} itemAreas={alzadas} setItemAreas={setAlzadas} />
                 </div>
             </div>
 
-            <div>
+            <div className="mt-10">
+                <p className="text-2xl font-bold mb-3 text-center lg:text-left">Terminaciones <span className="font-bold text-xl">{totalTerminationsWithData > 0 ? "(" + totalTerminationsWithData + ")" : ""}</span></p>
                 <TerminationsBox workId={workId} cantidad={1} itemTerminations={terminaciones} setItemTerminations={setTerminations} />
+            </div>
+            <div className="mt-10">
+                <p className="text-2xl font-bold mb-3 text-center lg:text-left">Mano de Obras <span className="font-bold text-xl">{totalManoDeObrasWithData > 0 ? "(" + totalManoDeObrasWithData + ")" : ""}</span></p>
                 <ManoDeObraBox workId={workId} cantidad={1} itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} />
             </div>
 

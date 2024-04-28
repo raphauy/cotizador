@@ -22,9 +22,6 @@ export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setIt
     const [loading, setLoading] = useState(false)
     const [loadingMO, setLoadingMO] = useState(false)
 
-    const itemsWithData= itemManoDeObras
-    const itemsToSave= itemsWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
-
     const [manoDeObras, setManoDeObras] = useState<ManoDeObraDAO[]>([])
 
     useEffect(() => {
@@ -100,7 +97,6 @@ export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setIt
 
     return (
         <div>
-            <p className="text-3xl font-bold mt-7 mb-5 mx-auto">Mano de Obra</p>
             <div className="mx-auto p-6 lg:p-2 space-y-4 border rounded-md dark:text-white bg-white dark:bg-black">                        
                 <p>Valores en <span className="font-bold">cm</span></p>
                 {/* <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center"> */}
@@ -142,11 +138,6 @@ export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setIt
                     <Button variant="ghost" onClick={addItem}>
                         <PlusCircle className="w-5 h-5 text-verde-abbate" />
                     </Button>
-                </div>
-            <div className="flex justify-between gap-4">
-                    <div>
-                        <p className={cn("hidden", itemsToSave > 0 && "block")}>{itemsToSave} terminaiciones para guardar</p>
-                    </div>
                 </div>
         </div>
        </div>

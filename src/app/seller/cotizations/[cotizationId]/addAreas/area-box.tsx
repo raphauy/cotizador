@@ -22,7 +22,7 @@ export default function AreaBox({ workId, itemType, cantidad, itemAreas, setItem
 
     const itemLabel= getItemLabel(itemType)
 
-    const itemsWithData= itemAreas.filter((itemArea) => itemArea.length && itemArea.width && itemArea.length > 0 && itemArea.width > 0)
+    const itemsWithData= itemAreas.filter((item) => item.length && item.width && item.length > 0 && item.width > 0)
     const totalItemsToSave= itemsWithData.reduce((acc, itemArea) => acc + (itemArea.quantity ? itemArea.quantity : 0), 0)
 
     function addItem() {

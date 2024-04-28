@@ -24,9 +24,6 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
 
     const [terminations, setTerminations] = useState<TerminacionDAO[]>([])
 
-    const itemsWithData= itemTerminations.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
-    const itemsToSave= itemsWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
-
     useEffect(() => {
         setLoadingTerminations(true)
 
@@ -101,7 +98,6 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
 
     return (
         <div>
-            <p className="text-3xl font-bold mt-7 mb-5 mx-auto">Terminaciones</p>
             <div className="mx-auto p-6 lg:p-2 space-y-4 border rounded-md dark:text-white bg-white dark:bg-black">                        
                 <p>Valores en <span className="font-bold">cm</span></p>
                 <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
@@ -116,7 +112,12 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
                 {
                     itemTerminations.map((item, index) => (
                         <div key={index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
-                            <TerminationForm itemId={item.id} index={index} notifySelected={notifySelected} terminations={terminations} />
+                            { loadingTerminations ?
+                                <Loader className="h-4 w-4 animate-spin" />
+                                :
+                                <TerminationForm itemId={item.id} index={index} notifySelected={notifySelected} terminations={terminations} />
+                            }
+
                             <div className="flex items-center gap-2">
                                 <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.terminationId}/> 
                                 x
@@ -137,11 +138,6 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
                     <Button variant="ghost" onClick={addItem}>
                         <PlusCircle className="w-5 h-5 text-verde-abbate" />
                     </Button>
-                </div>
-            <div className="flex justify-between gap-4">
-                    <div>
-                        <p className={cn("hidden", itemsToSave > 0 && "block")}>{itemsToSave} terminaiciones para guardar</p>
-                    </div>
                 </div>
         </div>
        </div>
