@@ -8,6 +8,8 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { CotizationDAO } from "@/services/cotization-services"
 import { WorkDAO } from "@/services/work-services"
+import { PlusCircle } from "lucide-react"
+import Link from "next/link"
 
 type Props= {
     work?: WorkDAO

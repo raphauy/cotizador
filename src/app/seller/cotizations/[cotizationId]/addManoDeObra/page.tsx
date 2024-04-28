@@ -33,6 +33,7 @@ export default function AddItemsPage({ searchParams }: Props) {
             workId,
             llevaAjuste: false,
             ajuste: "0",
+            quantity: "1",
         },
         mode: "onChange",
     })
@@ -63,6 +64,7 @@ export default function AddItemsPage({ searchParams }: Props) {
                 form.setValue("manoDeObraId", item.manoDeObraId)
                 form.setValue("ajuste", item.ajuste?.toString())
                 form.setValue("llevaAjuste", item.ajuste !== 0)
+                form.setValue("quantity", item.quantity?.toString())
             })
             .catch((error) => {
                 console.log(error)
@@ -152,6 +154,20 @@ export default function AddItemsPage({ searchParams }: Props) {
             <div className="p-4 bg-white rounded-md min-w-[500px] border w-full">
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
+                    <FormField
+                        control={form.control}
+                        name="quantity"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Cantidad:</FormLabel>
+                            <FormControl>
+                            <Input placeholder="ej: 2" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                     
                     <FormField
                         control={form.control}
@@ -204,7 +220,7 @@ export default function AddItemsPage({ searchParams }: Props) {
                                 name="ajuste"
                                 render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Ajuste en USD</FormLabel>
+                                    <FormLabel>Ajuste en USD:</FormLabel>
                                     <FormControl>
                                     <Input placeholder="ej: 100" {...field} />
                                     </FormControl>

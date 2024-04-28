@@ -114,7 +114,11 @@ export async function getFullWorkDAO(id: string) {
           client: true,
         }
       },
-      items: true,
+      items: {
+        orderBy: {
+          createdAt: 'asc'
+        },
+      }
 		}
   })
   return found

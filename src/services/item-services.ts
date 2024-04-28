@@ -3,19 +3,20 @@ import { prisma } from "@/lib/db"
 import { WorkDAO, getFullWorkDAO, getWorkDAO } from "./work-services"
 import { ClientType, ItemType } from "@prisma/client"
 import { ColorDAO } from "./color-services"
-import { AreaItem } from "@/app/seller/cotizations/[cotizationId]/addItems/page"
 import { TerminacionDAO, getTerminacionDAO } from "./terminacion-services"
 import { ManoDeObraDAO, getManoDeObraDAO } from "./manodeobra-services"
+import { AreaItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
 
 export type ItemDAO = {
 	id: string
 	type: ItemType
 	orden?: number
   description?: string
+  quantity: number
 	largo?: number | null | undefined
 	ancho?: number | null | undefined 
   superficie?: number | null | undefined
-	metros?: number | null | undefined
+	centimetros?: number | null | undefined
 	valor?: number | null | undefined
   ajuste?: number | null | undefined
   createdAt: Date
@@ -29,9 +30,11 @@ export type ItemDAO = {
 
 export const itemSchema = z.object({
   type: z.nativeEnum(ItemType),
+  quantity: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  description: z.string().optional(),
   largo: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   ancho: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
-  metros: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  centimetros: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
 	workId: z.string().min(1, "workId is required."),
 })
 
@@ -40,16 +43,19 @@ export type ItemFormValues = z.infer<typeof itemSchema>
 
 export const terminationSchema = z.object({
   terminationId: z.string().min(1, "Debes elegir una terminación."),
-  llevaCurva: z.boolean(),
+  quantity: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   ajuste: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   workId: z.string().min(1, "workId is required."),
-  meters: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  centimetros: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  length: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  width: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
 })
 
 export type TerminationFormValues = z.infer<typeof terminationSchema>
 
 export const manoDeObraItemSchema = z.object({
   manoDeObraId: z.string().min(1, "Debes elegir una mano de obra."),
+  quantity: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   llevaAjuste: z.boolean(),
   ajuste: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   workId: z.string().min(1, "workId is required."),
@@ -85,11 +91,11 @@ export async function getItemDAO(id: string) {
 }
     
 export async function createItem(data: ItemFormValues) {
+  const quantity= data.quantity ? Number(data.quantity) : 1
   const largo = data.largo ? Number(data.largo) : 0
   const ancho = data.ancho ? Number(data.ancho) : 0
-  const metros = data.metros ? Number(data.metros) : 0
+  const centimetros = data.centimetros ? Number(data.centimetros) : 0
   const superficie = largo * ancho / 10000
-  const type = data.type
   const work= await getFullWorkDAO(data.workId)
   if (!work) throw new Error("Work not found")
 
@@ -98,13 +104,15 @@ export async function createItem(data: ItemFormValues) {
   const client= work.cotization.client
   const clientType= client.type
   // @ts-ignore
-  const valor= calculateValue(type, clientType, superficie, metros, color)
+  const areaValue= calculateAreaValue(clientType, superficie, color)
+  const valor= areaValue
   const created = await prisma.item.create({
     data: {
       ...data,
+      quantity,
       largo,
       ancho,
-      metros,
+      centimetros,
       superficie,
       valor,
       orden,
@@ -113,53 +121,30 @@ export async function createItem(data: ItemFormValues) {
   return created
 }
 
-function calculateValue(type: ItemType, clientType: ClientType, superficie: number, metros: number, color: ColorDAO): number {
-  let valor= 0
-  if (type === ItemType.TRAMO || type === ItemType.ZOCALO || type === ItemType.ALZADA) {
-    valor = superficie
-  // } else if (type === ItemType.TERMINACION) {
-  //   valor = metros
-  }
-
-  switch (clientType) {
-    case ClientType.CLIENTE_FINAL:
-      valor = valor * color.clienteFinalPrice
-      break
-    case ClientType.ARQUITECTO_ESTUDIO:
-      valor = valor * color.arquitectoStudioPrice
-      break
-    case ClientType.DISTRIBUIDOR:
-      valor = valor * color.distribuidorPrice
-      break
-  }
-
-  return valor
-}
 export async function updateItem(id: string, data: ItemFormValues) {
+  const quantity= data.quantity ? Number(data.quantity) : 1
   const largo = data.largo ? Number(data.largo) : 0
   const ancho = data.ancho ? Number(data.ancho) : 0
   const superficie = largo * ancho / 10000
-  const metros = data.metros ? Number(data.metros) : 0
-  const type = data.type
+  const centimetros = data.centimetros ? Number(data.centimetros) : 0
   const work= await getFullWorkDAO(data.workId)
   if (!work) throw new Error("Work not found")
   const color= work.color
   const client= work.cotization.client
   const clientType= client.type
   // @ts-ignore
-  const valor= calculateValue(type, clientType, superficie, metros, color)
-  console.log("superficie: ", superficie)
-  console.log("valor:", valor)
+  const valor= calculateAreaValue(clientType, superficie, color)
   const updated = await prisma.item.update({
     where: {
       id
     },
     data: {
       ...data,
+      quantity,
       largo,
       ancho,
       superficie,
-      metros,
+      centimetros,
       valor,
     }
   })
@@ -215,37 +200,73 @@ export async function getFullItemDAO(id: string) {
   })
   return found
 }
-    
 
-export async function createBulkAreaItem(workId: string, type: ItemType, areaItems: AreaItem[]): Promise<boolean> {
-
+export async function upsertBatchAreaItem(workId: string, areaItems: AreaItem[]): Promise<boolean> {
   for (let i = 0; i < areaItems.length; i++) {
     const dataItem: ItemFormValues = {
       workId,
-      type,
+      type: areaItems[i].type,
       largo: areaItems[i].length?.toString(),
       ancho: areaItems[i].width?.toString(),
+      quantity: areaItems[i].quantity?.toString(),
     }
-    await createItem(dataItem)
-  }
+    await upsertAreaItem(areaItems[i].id, dataItem)
+  }  
 
   return true
 }
 
+export async function upsertBatchTerminationItem(workId: string, items: TerminationItem[]): Promise<boolean> {
+  for (let i = 0; i < items.length; i++) {
+    const dataItem: TerminationFormValues = {
+      workId,
+      terminationId: items[i].terminationId!,
+      quantity: items[i].quantity?.toString(),
+      length: items[i].length?.toString(),
+      width: items[i].width?.toString(),
+      centimetros: (items[i].centimeters || 0).toString(),
+      ajuste: items[i].ajuste?.toString(),
+    }
+    await upsertTerminationItem(items[i].id, dataItem)
+  }  
+
+  return true
+}
+
+export async function upsertTerminationItem(id: string | undefined, data: TerminationFormValues) {
+  if (id) {
+    await updateTerminationItem(id, data)
+  } else {
+    await createTerminationItem(data)
+  }   
+}
+
+export async function upsertAreaItem(id: string | undefined, data: ItemFormValues) {
+  if (id) {
+    await updateItem(id, data)
+  } else {
+    await createItem(data)
+  }   
+}
+
+
 export async function createTerminationItem(data: TerminationFormValues) {
   const workId= data.workId
   const termination= await getTerminacionDAO(data.terminationId)
-  const type= ItemType.TERMINACION
-  const metros= Number(data.meters)
-  let total= metros * termination.price
-  if (data.llevaCurva) {
-    total += Number(data.ajuste)
-  }
-  const valor= total
+  const work= await getFullWorkDAO(data.workId)
+  if (!work) throw new Error("Work not found")
+  const client= work.cotization.client
+  const clientType= client.type
+  const color= work.color
+  // @ts-ignore
+  const valor= calculateTerminationValue(data, termination, clientType, color)
   const created = await prisma.item.create({
     data: {
-      type,
-      metros,
+      type: ItemType.TERMINACION,
+      quantity: data.quantity ? Number(data.quantity) : 0,
+      centimetros: data.centimetros ? Number(data.centimetros) : 0,
+      largo: data.length ? Number(data.length) : 0,
+      ancho: data.width ? Number(data.width) : 0,
       valor,
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
@@ -258,20 +279,23 @@ export async function createTerminationItem(data: TerminationFormValues) {
 export async function updateTerminationItem(id: string, data: TerminationFormValues){
   const workId= data.workId
   const termination= await getTerminacionDAO(data.terminationId)
-  const type= ItemType.TERMINACION
-  const metros= Number(data.meters)
-  let total= metros * termination.price
-  if (data.llevaCurva) {
-    total += Number(data.ajuste)
-  }
-  const valor= total
+  const work= await getFullWorkDAO(data.workId)
+  if (!work) throw new Error("Work not found")
+  const client= work.cotization.client
+  const clientType= client.type
+  const color= work.color
+  // @ts-ignore
+  const valor= calculateTerminationValue(data, termination, clientType, color)
   const updated = await prisma.item.update({
     where: {
       id
     },
     data: {
-      type,
-      metros,
+      type: ItemType.TERMINACION,
+      quantity: data.quantity ? Number(data.quantity) : 0,
+      centimetros: data.centimetros ? Number(data.centimetros) : 0,
+      largo: data.length ? Number(data.length) : 0,
+      ancho: data.width ? Number(data.width) : 0,
       valor,
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
@@ -285,6 +309,7 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
   const workId= data.workId
   const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
   const type= ItemType.MANO_DE_OBRA
+  const quantity= data.quantity ? Number(data.quantity) : 1
   let total= manoDeObra.price
   if (data.llevaAjuste) {
     total += Number(data.ajuste)
@@ -293,6 +318,7 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
   const created = await prisma.item.create({
     data: {
       type,
+      quantity,
       valor,
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
@@ -306,6 +332,7 @@ export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormV
   const workId= data.workId
   const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
   const type= ItemType.MANO_DE_OBRA
+  const quantity= data.quantity ? Number(data.quantity) : 1
   let total= manoDeObra.price
   if (data.llevaAjuste) {
     total += Number(data.ajuste)
@@ -317,6 +344,7 @@ export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormV
     },
     data: {
       type,
+      quantity,
       valor,
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
@@ -359,4 +387,53 @@ export async function updateAjusteItem(id: string, data: AjusteFormValues){
     }
   })
   return updated
+}
+
+function calculateAreaValue(clientType: ClientType, superficie: number, color: ColorDAO): number {
+
+  switch (clientType) {
+    case ClientType.CLIENTE_FINAL:
+      return superficie * color.clienteFinalPrice
+    case ClientType.ARQUITECTO_ESTUDIO:
+      return superficie * color.arquitectoStudioPrice
+    case ClientType.DISTRIBUIDOR:
+      return superficie * color.distribuidorPrice
+  }
+}
+
+function calculateTerminationValue(item: TerminationFormValues, termination: TerminacionDAO, clientType: ClientType, color: ColorDAO): number {
+  let valorLineal= 0
+  let valorArea= 0
+  let valorAjuste= item.ajuste ? Number(item.ajuste) : 0
+
+  // calular valor lineal en función de la terminación y los centímetros
+  const metros= item.centimetros ? Number(item.centimetros) / 100 : 0
+  switch (clientType) {
+    case ClientType.CLIENTE_FINAL:
+      valorLineal = termination.clienteFinalPrice * metros
+      break
+    case ClientType.ARQUITECTO_ESTUDIO:
+      valorLineal = termination.arquitectoStudioPrice * metros
+      break
+    case ClientType.DISTRIBUIDOR:
+      valorLineal = termination.distribuidorPrice * metros
+      break
+  }
+
+  // calcular valor de la superficie en función de la superficie (largo x ancho) y el color
+  const largo= item.width ? Number(item.width) : 0
+  const ancho= item.length ? Number(item.length) : 0
+  const superficie= largo * ancho / 10000 
+  valorArea = calculateAreaValue(clientType, superficie, color)
+
+  const valorTotal= valorLineal + valorArea + valorAjuste
+  return valorTotal
+}
+
+function calculateManoDeObraValue(type: ItemType, clientType: ClientType, quantity: number, manoDeObra: ManoDeObraDAO): number {
+  let valor= 0
+  if (type === ItemType.MANO_DE_OBRA) {
+    valor = quantity * manoDeObra.price
+  }
+  return valor
 }

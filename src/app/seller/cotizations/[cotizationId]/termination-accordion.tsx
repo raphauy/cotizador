@@ -12,15 +12,15 @@ type Props = {
 export default function TerminationAccordion({ header, headerPlural, terminationItems }: Props) {
     if (!terminationItems || terminationItems.length === 0) return null
 
-    const type= ItemType.TERMINACION
-    const title= terminationItems.length === 1 ? terminationItems.length + " " + header : terminationItems.length + " " + headerPlural
+    const totalQuantity= terminationItems.reduce((acc, item) => acc + item.quantity, 0)
+    const title= totalQuantity === 1 ? totalQuantity + " " + header : totalQuantity + " " + headerPlural
     let areaTotal= 0
     let valueTotal= 0
     terminationItems.forEach((item) => {
         if (!item.valor) return
 
-        areaTotal+= item.metros || 0
-        valueTotal+= item.valor
+        areaTotal+= (item.centimetros || 0) / 100 * item.quantity 
+        valueTotal+= item.valor * item.quantity
     })
     return (
         <AccordionItem value={title} key={title}>
@@ -37,7 +37,7 @@ export default function TerminationAccordion({ header, headerPlural, termination
                             <p>{getShortItemDescription(item)}</p>
                             {
                                 item.valor?
-                                <LineBox superficie={Number(item.metros)} total={item.valor} sufix="ml" />
+                                <LineBox superficie={Number(item.centimetros) / 100 * item.quantity} total={item.valor * item.quantity} sufix="ml" />
                                 : null
                             }
                             

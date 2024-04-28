@@ -1,8 +1,7 @@
 "use server"
   
-import { AreaItem } from "@/app/seller/cotizations/[cotizationId]/addItems/page"
-import { AjusteFormValues, ItemDAO, ItemFormValues, ManoDeObraItemFormValues, TerminationFormValues, createAjusteItem, createBulkAreaItem, createItem, createManoDeObraItem, createTerminationItem, deleteItem, getFullItemDAO, updateAjusteItem, updateItem, updateManoDeObraItem, updateTerminationItem } from "@/services/item-services"
-import { ItemType } from "@prisma/client"
+import { AreaItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
+import { AjusteFormValues, ItemFormValues, ManoDeObraItemFormValues, TerminationFormValues, createAjusteItem, upsertBatchAreaItem, createItem, createManoDeObraItem, createTerminationItem, deleteItem, getFullItemDAO, updateAjusteItem, updateItem, updateManoDeObraItem, updateTerminationItem, upsertBatchTerminationItem } from "@/services/item-services"
 import { revalidatePath } from "next/cache"
 
 
@@ -32,12 +31,20 @@ export async function deleteItemAction(id: string){
     return deleted
 }
 
-export async function createBulkAreaItemAction(workId: string, type: ItemType, areaItems: AreaItem[]): Promise<boolean> {
-    const items= await createBulkAreaItem(workId, type, areaItems)
+export async function upsertBatchAreaItemAction(workId: string, areaItems: AreaItem[]): Promise<boolean> {
+    const updated= await upsertBatchAreaItem(workId, areaItems)
 
     revalidatePath("/seller/cotizations/[cotizationId]", "page")
     
-    return items
+    return updated
+}
+
+export async function upsertBatchTerminationItemAction(workId: string, items: TerminationItem[]): Promise<boolean> {
+    const updated= await upsertBatchTerminationItem(workId, items)
+
+    revalidatePath("/seller/cotizations/[cotizationId]", "page")
+    
+    return updated
 }
 
 export async function createTerminationItemAction(data: TerminationFormValues){

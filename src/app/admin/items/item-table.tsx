@@ -5,13 +5,14 @@ import { Table as TanstackTable } from "@tanstack/react-table"
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { X } from "lucide-react"
+import { PlusCircle, X } from "lucide-react"
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { DataTablePagination } from "@/components/data-table/data-table-pagination"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { ItemType } from "@prisma/client"
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter"
 import { ItemDialog, TransitionDialog } from "./item-dialogs"
+import Link from "next/link"
 
 const itemTypes = Object.values(ItemType)
 
@@ -49,7 +50,13 @@ export function DataTableToolbar<TData>({ table, workId, cotizationId }: DataTab
       </div>
 
       <div className="flex gap-2">
-        <TransitionDialog workId={workId} />
+        <Link href={`/seller/cotizations/${cotizationId}/addAreas?workId=${workId}`}>
+            <Button className="w-full gap-2">
+                Crear/Editar Items
+            </Button>
+        </Link>
+
+        {/* <TransitionDialog workId={workId} /> */}
         {/* <ItemDialog workId={workId} cotizationId={cotizationId} /> */}
       </div>
 

@@ -11,7 +11,6 @@ import { toast } from "@/components/ui/use-toast"
 import { TerminationFormValues, terminationSchema } from "@/services/item-services"
 import { TerminacionDAO } from "@/services/terminacion-services"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { se } from "date-fns/locale"
 import { ChevronLeft, Loader } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -32,26 +31,21 @@ export default function AddItemsPage({ searchParams }: Props) {
         resolver: zodResolver(terminationSchema),
         defaultValues: {
             workId,
-            meters: "0",
-            llevaCurva: false,
+            centimetros: "0",
             ajuste: "0",
+            width: "0",
+            length: "0",
+            quantity: "0",
         },
         mode: "onChange",
     })
 
-    const terminationId= form.watch("terminationId")
-    const meters= form.watch("meters")
-    const llevaCurva= form.watch("llevaCurva")
-    const ajuste= form.watch("ajuste")
-    
     const [loading, setLoading] = useState(true)
     const [loadingSave, setLoadingSave] = useState(false)
 
-    const [totalPrice, setTotalPrice] = useState(0)
     const [back, setBack] = useState(true)
 
     const [terminations, setTerminations] = useState<TerminacionDAO[]>([])
-    const [terminationSelected, setTerminationSelected] = useState<TerminacionDAO | null>(null)
 
     const router = useRouter()
 
@@ -64,9 +58,11 @@ export default function AddItemsPage({ searchParams }: Props) {
 
                 form.setValue("workId", item.workId)
                 form.setValue("terminationId", item.terminacionId)
-                form.setValue("ajuste", item.ajuste?.toString())
-                form.setValue("llevaCurva", item.ajuste !== 0)
-                form.setValue("meters", item.metros?.toString())
+                item.ajuste && form.setValue("ajuste", item.ajuste?.toString())
+                item.centimetros && form.setValue("centimetros", item.centimetros?.toString())
+                item.ancho && form.setValue("width", item.ancho?.toString())
+                item.largo && form.setValue("length", item.largo?.toString())
+                item.quantity && form.setValue("quantity", item.quantity?.toString())
             })
             .catch((error) => {
                 console.log(error)
@@ -75,8 +71,6 @@ export default function AddItemsPage({ searchParams }: Props) {
     }, [itemId, form])
 
     useEffect(() => {
-        console.log("initializing...")
-
         setLoading(true)
 
         getTerminacionsDAOAction()
@@ -88,23 +82,6 @@ export default function AddItemsPage({ searchParams }: Props) {
         })
         
     }, [])
-
-    useEffect(() => {
-        if (terminationId) {
-            const selected= terminations.find((terminacion) => terminacion.id === terminationId)
-            setTerminationSelected(selected || null)
-        }
-    }, [terminations, terminationId])
-
-    useEffect(() => {
-        if (terminationSelected) {
-            const metersNumber= Number(meters)
-            const total= terminationSelected.price * metersNumber
-            const curvaPr= Number(ajuste)
-            setTotalPrice(curvaPr + total)
-        }
-    }, [terminationSelected, meters, ajuste])
-    
 
     if (loading) {
         return <Loader className="w-7 h-7 animate-spin mt-10" />
@@ -137,7 +114,6 @@ export default function AddItemsPage({ searchParams }: Props) {
         } else {
             // reset form
             form.reset()
-            setTerminationSelected(null)
             form.setValue("workId", data.workId)
             setItemId(null)
         }
@@ -151,7 +127,7 @@ export default function AddItemsPage({ searchParams }: Props) {
                     <ChevronLeft className="w-5 h-5" /> Volver
                 </Button>
             </div>
-            <p className="text-3xl font-bold mt-7 mb-10">Crear Terminación</p>
+            <p className="text-3xl font-bold mt-7 mb-10">Editar Terminación</p>
 
             <div className="p-4 bg-white rounded-md min-w-[500px] border w-full">
                 <Form {...form}>
@@ -162,7 +138,7 @@ export default function AddItemsPage({ searchParams }: Props) {
                         name="terminationId"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Terminación</FormLabel>
+                            <FormLabel>Tipo de Terminación:</FormLabel> 
                             <Select onValueChange={(value) => field.onChange(value)} value={field.value}
                             >
                             <FormControl>
@@ -180,15 +156,29 @@ export default function AddItemsPage({ searchParams }: Props) {
                         </FormItem>
                         )}
                     />
+
+                    <FormField
+                        control={form.control}
+                        name="quantity"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Cantidad:</FormLabel>
+                            <FormControl>
+                            <Input placeholder="ej: 2" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                     
                     <FormField
                         control={form.control}
-                        name="meters"
+                        name="centimetros"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Metros lineales de terminación</FormLabel>
+                            <FormLabel>Centícenticentimetros lineales de terminación en <span className="font-bold">cm</span>:</FormLabel>
                             <FormControl>
-                            <Input placeholder="ej: 10" {...field} />
+                            <Input placeholder="ej: 100 para represenar 1 metro" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -197,40 +187,46 @@ export default function AddItemsPage({ searchParams }: Props) {
 
                     <FormField
                         control={form.control}
-                        name="llevaCurva"
+                        name="width"
                         render={({ field }) => (
-                            <FormItem className="flex items-baseline justify-between rounded-lg border h-14 px-4 pt-1.5">
-                            <div className="space-y-0.5">
-                                <FormLabel className="text-base">
-                                Lleva curva?
-                                </FormLabel>
-                            </div>
+                        <FormItem>
+                            <FormLabel>Ancho cm:</FormLabel>
                             <FormControl>
-                                <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                                />
+                            <Input placeholder="ej: 100 para represenar 1 metro" {...field} />
                             </FormControl>
-                            </FormItem>
+                            <FormMessage />
+                        </FormItem>
                         )}
-                        />
+                    />
 
-                        {
-                            llevaCurva &&
-                            <FormField
-                                control={form.control}
-                                name="ajuste"
-                                render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Ajuste por curva en USD</FormLabel>
-                                    <FormControl>
-                                    <Input placeholder="ej: 100" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                                )}
-                            />
-                        }
+                    <FormField
+                        control={form.control}
+                        name="length"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Largo cm:</FormLabel>
+                            <FormControl>
+                            <Input placeholder="ej: 100 para represenar 1 metro" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+
+
+                    <FormField
+                        control={form.control}
+                        name="ajuste"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Ajuste por curva en USD:</FormLabel>
+                            <FormControl>
+                            <Input placeholder="ej: 100" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                 
                     
 
@@ -248,29 +244,6 @@ export default function AddItemsPage({ searchParams }: Props) {
                 </Form>
                 </div>     
 
-
-                {
-                    terminationSelected && meters !== "0" &&
-                    <>
-                    <p className="text-2xl font-bold mt-10 w-full">Resumen:</p>
-                    <div className="p-4 bg-white rounded-md min-w-[500px] mt-5 border grid grid-cols-2"> 
-                        <p className="font-bold col-span-2 text-center mb-5">{terminationSelected?.name} ({terminationSelected?.price} USD)</p>
-                        <p>Valor {meters}ml:</p>
-                        <p className="font-bold text-right">{terminationSelected?.price * Number(meters)} USD</p>
-
-                        {
-                            llevaCurva &&
-                            <>
-                            <p>Ajuste por curva:</p>
-                            <p className="font-bold text-right">{ajuste} USD</p>
-                            </>
-                        }
-
-                        <p className="mt-4">Total:</p>
-                        <p className="font-bold text-right mt-4">{totalPrice} USD</p>
-                    </div>
-                    </>
-                }
 
        </div>
    )

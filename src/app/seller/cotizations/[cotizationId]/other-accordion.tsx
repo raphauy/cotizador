@@ -26,7 +26,7 @@ export default function OtherAccordion({ surfaceItems }: Props) {
                             <p>{getShortItemDescription(item)}</p>
                             {
                                 item.superficie && item.valor?
-                                <SuperficieBox superficie={item.superficie} total={item.valor} sufix="m²" />
+                                <SuperficieBox superficie={item.superficie * item.quantity} total={item.valor * item.quantity} sufix="m²" />
                                 : null
                             }
                             

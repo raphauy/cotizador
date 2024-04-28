@@ -31,7 +31,8 @@ export function ItemForm({ id, workId, cotizationId, closeDialog }: Props) {
       type: ItemType.TRAMO,
       largo: "0",
       ancho: "0",
-      metros: "0",
+      centimetros: "0",
+      quantity: "1",
     },
     mode: "onChange",
   })
@@ -81,7 +82,8 @@ export function ItemForm({ id, workId, cotizationId, closeDialog }: Props) {
           form.setValue("type", data.type)
           form.setValue("largo", data.largo?.toString() || "0")
           form.setValue("ancho", data.ancho?.toString() || "0")
-          form.setValue("metros", data.metros?.toString() || "0")
+          form.setValue("centimetros", data.centimetros?.toString() || "0")
+          form.setValue("quantity", data.quantity?.toString() || "1")
         }
         Object.keys(form.getValues()).forEach((key: any) => {
           if (form.getValues(key) === null) {
@@ -125,12 +127,27 @@ export function ItemForm({ id, workId, cotizationId, closeDialog }: Props) {
 
           { isArea && 
           <>
+
+            <FormField
+              control={form.control}
+              name="quantity"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cantidad:</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Cantidad" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="largo"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Largo</FormLabel>
+                  <FormLabel>Largo (cm):</FormLabel>
                   <FormControl>
                     <Input placeholder="Item's largo" {...field} />
                   </FormControl>
@@ -145,7 +162,7 @@ export function ItemForm({ id, workId, cotizationId, closeDialog }: Props) {
               name="ancho"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ancho</FormLabel>
+                  <FormLabel>Ancho (cm):</FormLabel>
                   <FormControl>
                     <Input placeholder="Item's ancho" {...field} />
                   </FormControl>
@@ -160,12 +177,12 @@ export function ItemForm({ id, workId, cotizationId, closeDialog }: Props) {
       
             <FormField
               control={form.control}
-              name="metros"
+              name="centimetros"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Metros</FormLabel>
+                  <FormLabel>Centímetros</FormLabel>
                   <FormControl>
-                    <Input placeholder="Item's metros" {...field} />
+                    <Input placeholder="Centimetros" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

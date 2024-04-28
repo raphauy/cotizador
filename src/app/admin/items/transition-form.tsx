@@ -89,7 +89,7 @@ export function TransitionForm({ workId, closeDialog }: Props) {
           type: data.type,
           largo: "0",
           ancho: "0",
-          metros: "0"
+          centimetros: "0"
         }
         await createOrUpdateItemAction(null, itemData)
         toast({ title: "Item creado" })

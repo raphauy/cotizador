@@ -1,0 +1,236 @@
+"use client"
+
+import { upsertBatchAreaItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
+import { getWorkDAOAction } from "@/app/admin/works/work-actions"
+import { Button } from "@/components/ui/button"
+import { toast } from "@/components/ui/use-toast"
+import { WorkDAO } from "@/services/work-services"
+import { ItemType } from "@prisma/client"
+import { ChevronLeft, Loader } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import AreaBox from "./area-box"
+import TerminationsBox from "./termination-box"
+import { ItemDAO } from "@/services/item-services"
+
+export type AreaItem = {
+    id: string | undefined
+    quantity: number | undefined | null
+    length: number | undefined | null
+    width: number | undefined | null
+    type: ItemType
+}
+
+export type TerminationItem = {
+    id: string | undefined
+    terminationId: string | undefined
+    quantity: number | undefined | null
+    length: number | undefined | null
+    width: number | undefined | null
+    centimeters: number | undefined | null
+    ajuste: number | undefined | null
+}
+
+type Props= {
+    searchParams: {
+      workId: string
+    }
+}
+export default function AddItemsPage({ searchParams }: Props) {
+    const workId= searchParams.workId
+    const [cantidadTramosIniciales, setCantidadTramosIniciales] = useState(4)
+
+    const [work, setWork] = useState<WorkDAO>()
+
+    const [tramos, setTramos] = useState<AreaItem[]>([])
+    const [zocalos, setZocalos] = useState<AreaItem[]>([])
+    const [alzadas, setAlzadas] = useState<AreaItem[]>([])
+    const [terminaciones, setTerminations] = useState<TerminationItem[]>([])
+    
+    const tramosWithData= tramos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
+    const totalTramosWithData= tramosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
+    const zocalosWithData= zocalos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
+    const totalZocalosWithData= zocalosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
+    const alzadasWithData= alzadas.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
+    const totalAlzadasWithData= alzadasWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
+
+    const [loading, setLoading] = useState(false)
+
+    const router = useRouter()
+
+    useEffect(() => {
+        getWorkDAOAction(workId)
+        .then((workDao) => {
+            if (workDao) {
+                // @ts-ignore
+                setWork(workDao)
+            }
+        })
+        .catch((error) => {
+            toast({title: "Error", description: error.message, variant: "destructive"})
+        })
+    }, [workId])
+
+    useEffect(() => {
+        if (!work) return
+
+        const items= work?.items
+
+        const areaItemsLoaded= items.filter((item) => item.type === ItemType.TRAMO || item.type === ItemType.ZOCALO || item.type === ItemType.ALZADA)
+
+        const tramosLoaded= getAreaItems(areaItemsLoaded, ItemType.TRAMO, cantidadTramosIniciales)
+        setTramos(tramosLoaded)
+        const zocalosLoaded= getAreaItems(areaItemsLoaded, ItemType.ZOCALO)
+        setZocalos(zocalosLoaded)
+        const alzadasLoaded= getAreaItems(areaItemsLoaded, ItemType.ALZADA)
+        setAlzadas(alzadasLoaded)
+
+        const terminationsItem= items.filter((item) => item.type === ItemType.TERMINACION)
+        const terminaciones= getTerminationsItems(terminationsItem)
+        setTerminations(terminaciones)
+
+    }, [work, cantidadTramosIniciales])
+
+
+    function handleSave() {
+        setLoading(true)
+
+        const allItems= [...tramos, ...zocalos, ...alzadas]
+        const areaItemsWithData= allItems.filter((itemArea) => itemArea.length && itemArea.width && itemArea.length > 0 && itemArea.width > 0)
+        console.log(areaItemsWithData)
+
+
+        upsertBatchAreaItemAction(workId, areaItemsWithData)
+        .then((items) => {
+            if (items) {
+                toast({title: "Items de áreas guardados" })
+            }
+        })
+        .catch((error) => {
+            toast({title: "Error", description: error.message, variant: "destructive"})
+        })
+
+        const terminacionesWithData= terminaciones.filter((item) => item.terminationId && (item.centimeters || item.length))  
+        upsertBatchTerminationItemAction(workId, terminacionesWithData)
+        .then((items) => {
+            if (items) {
+                toast({title: "Items de terminaciones guardados" })
+            }
+            setLoading(false)
+        })
+        .catch((error) => {
+            toast({title: "Error", description: error.message, variant: "destructive"})
+        })
+
+    }
+
+    return (
+        <div className="w-full">
+            {loading ? "guardando" : "listo"}
+            <Button variant="link" onClick={() => router.back()} className="px-0">
+                <ChevronLeft className="w-5 h-5" /> Volver
+            </Button>
+            <div className="grid lg:grid-cols-3 gap-2">
+                <div>
+                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Tramos {totalTramosWithData > 0 ? "(" + totalTramosWithData + ")" : ""}</p>
+                    <AreaBox workId={workId} itemType={ItemType.TRAMO} cantidad={cantidadTramosIniciales} itemAreas={tramos} setItemAreas={setTramos} />
+                </div>
+                <div>
+                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Zocalos {totalZocalosWithData > 0 ? "(" + totalZocalosWithData + ")" : ""}</p>
+                    <AreaBox workId={workId} itemType={ItemType.ZOCALO} cantidad={0} itemAreas={zocalos} setItemAreas={setZocalos} />
+                </div>
+                <div>
+                    <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Alzadas {totalAlzadasWithData > 0 ? "(" + totalAlzadasWithData + ")" : ""}</p>
+                    <AreaBox workId={workId} itemType={ItemType.ALZADA} cantidad={0} itemAreas={alzadas} setItemAreas={setAlzadas} />
+                </div>
+            </div>
+
+            <div>
+                <TerminationsBox workId={workId} cantidad={cantidadTramosIniciales} itemTerminations={terminaciones} setItemTerminations={setTerminations} />
+            </div>
+
+            <div className="mt-10">
+                <div className="flex justify-end gap-4">
+                    <Button variant="outline" onClick={() => router.back()} className="w-40">
+                        Volver
+                    </Button>
+                    <Button onClick={handleSave} className="w-40">
+                        {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar</p>}
+                    </Button>
+                    
+                </div>
+        </div>
+       </div>
+   )
+}
+
+function getAreaItems(items: ItemDAO[], type: ItemType, cantidadIniciales: number = 1) {
+    const itemsFiltered= items.filter((item) => item.type === type)
+    const areaItemsMaped= itemsFiltered.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        length: item.largo,
+        width: item.ancho,
+        type: item.type,
+    }))
+
+    if (areaItemsMaped.length === 0) {
+        const newAreaItems= getInitAreaItems(cantidadIniciales, type)
+        return newAreaItems
+    }
+
+    return areaItemsMaped
+}
+
+function getTerminationsItems(items: ItemDAO[], cantidadIniciales: number = 1) {
+    const itemsFiltered= items.filter((item) => item.type === ItemType.TERMINACION)
+    const terminationsItemsMaped= itemsFiltered.map((item) => ({
+        id: item.id,
+        type: ItemType.TERMINACION,
+        terminationId: item.terminacionId,
+        quantity: item.quantity,
+        length: item.largo,
+        width: item.ancho,
+        centimeters: (item.centimetros ? item.centimetros : 0),
+        ajuste: item.ajuste,
+    }))
+
+    if (terminationsItemsMaped.length === 0) {
+        const newTerminationsItems= getInitTerminationsItems(cantidadIniciales)
+        return newTerminationsItems
+    }
+
+    return terminationsItemsMaped
+}
+
+function getInitAreaItems(cantidad: number, type: ItemType) {
+    const items= []
+    for (let i = 0; i < cantidad; i++) {
+        const itemArea: AreaItem = {
+            id: undefined,
+            quantity: 1,
+            length: undefined,
+            width: undefined,
+            type: type,
+        }
+        items.push(itemArea)
+    }
+    return items
+}
+
+function getInitTerminationsItems(cantidad: number) {
+    const items= []
+    for (let i = 0; i < cantidad; i++) {
+        const itemTermination: TerminationItem = {
+            id: undefined,
+            terminationId: undefined,
+            quantity: 1,
+            length: undefined,
+            width: undefined,
+            centimeters: 0,
+            ajuste: 0,
+        }
+        items.push(itemTermination)
+    }
+    return items
+}
