@@ -98,7 +98,7 @@ export function getShortItemDescription(item: ItemDAO): string {
       const superficie= getSuperficie(item)
       return `${item.quantity > 1 ? item.quantity : ""} ${item.terminacion && item.terminacion.name} ${superficie ? "(+" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}` 
     case ItemType.MANO_DE_OBRA:
-      return `${item.quantity > 1 && item.quantity} ${item.manoDeObra && item.manoDeObra.name} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}` 
+      return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`  
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
     case ItemType.AJUSTE:
