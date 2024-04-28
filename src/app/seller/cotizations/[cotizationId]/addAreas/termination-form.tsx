@@ -21,8 +21,9 @@ type Props= {
     itemId: string | undefined
     index: number
     notifySelected: (itemId: string | undefined, index: number, terminationId: string | undefined) => void
+    terminations: TerminacionDAO[]
 }
-export default function TerminationForm({ itemId, index, notifySelected }: Props) {
+export default function TerminationForm({ itemId, index, notifySelected, terminations }: Props) {
 
     const form = useForm<FormValues>({
         resolver: zodResolver(schema),
@@ -39,10 +40,6 @@ export default function TerminationForm({ itemId, index, notifySelected }: Props
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [terminationId])
     
-    
-    const [loading, setLoading] = useState(true)
-    const [terminations, setTerminations] = useState<TerminacionDAO[]>([])
-
     useEffect(() => {
         if (itemId) {
             getItemDAOAction(itemId)
@@ -57,19 +54,6 @@ export default function TerminationForm({ itemId, index, notifySelected }: Props
             })
         }
     }, [itemId, form])
-
-    useEffect(() => {
-        setLoading(true)
-
-        getTerminacionsDAOAction()
-        .then((terminaciones) => {
-            setTerminations(terminaciones)
-        })
-        .finally(() => {
-            setLoading(false)
-        })
-        
-    }, [])
 
     function onSubmit(data: FormValues) {
         console.log(data)        
@@ -89,9 +73,7 @@ export default function TerminationForm({ itemId, index, notifySelected }: Props
                         >
                         <FormControl>
                             <SelectTrigger>
-                                {
-                                    loading ? <Loader className="h-4 w-4 animate-spin" /> : <SelectValue placeholder="Seleccione aquí" />
-                                }
+                                <SelectValue placeholder="Seleccione aquí" />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>

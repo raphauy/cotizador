@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { Loader, PlusCircle, X } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { TerminationItem } from "./page"
 import TerminationForm from "./termination-form"
+import { getTerminacionsDAOAction } from "@/app/admin/terminations/terminacion-actions"
+import { TerminacionDAO } from "@/services/terminacion-services"
 
 type Props= {
     workId: string
@@ -18,9 +20,26 @@ type Props= {
 }
 export default function TerminationsBox({ workId, cantidad, itemTerminations, setItemTerminations }: Props) {
     const [loading, setLoading] = useState(false)
+    const [loadingTerminations, setLoadingTerminations] = useState(false)
+
+    const [terminations, setTerminations] = useState<TerminacionDAO[]>([])
 
     const itemsWithData= itemTerminations.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
     const itemsToSave= itemsWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
+
+    useEffect(() => {
+        setLoadingTerminations(true)
+
+        getTerminacionsDAOAction()
+        .then((terminaciones) => {
+            setTerminations(terminaciones)
+        })
+        .finally(() => {
+            setLoadingTerminations(false)
+        })
+        
+    }, [])
+
 
     function addItem() {
         const newAreas= [...itemTerminations, { id: undefined, terminationId: undefined, quantity: 1, length: 0, width: 0, centimeters: 0, ajuste: 0 }]
@@ -97,7 +116,7 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
                 {
                     itemTerminations.map((item, index) => (
                         <div key={index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
-                            <TerminationForm itemId={item.id} index={index} notifySelected={notifySelected} />
+                            <TerminationForm itemId={item.id} index={index} notifySelected={notifySelected} terminations={terminations} />
                             <div className="flex items-center gap-2">
                                 <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.terminationId}/> 
                                 x

@@ -21,8 +21,9 @@ type Props= {
     itemId: string | undefined
     index: number
     notifyMOSelected: (itemId: string | undefined, index: number, manoDeObraId: string | undefined) => void
+    manoDeObras: ManoDeObraDAO[]
 }
-export default function MOForm({ itemId, index, notifyMOSelected }: Props) {
+export default function MOForm({ itemId, index, notifyMOSelected, manoDeObras }: Props) {
 
     const form = useForm<FormValues>({
         resolver: zodResolver(schema),
@@ -40,8 +41,7 @@ export default function MOForm({ itemId, index, notifyMOSelected }: Props) {
     }, [manoDeObraId])
     
     
-    const [loading, setLoading] = useState(true)
-    const [manoDeObras, setManoDeObras] = useState<ManoDeObraDAO[]>([])
+    // const [manoDeObras, setManoDeObras] = useState<ManoDeObraDAO[]>([])
 
     useEffect(() => {
         if (itemId) {
@@ -58,18 +58,18 @@ export default function MOForm({ itemId, index, notifyMOSelected }: Props) {
         }
     }, [itemId, form])
 
-    useEffect(() => {
-        setLoading(true)
+    // useEffect(() => {
+    //     setLoading(true)
 
-        getManoDeObrasDAOAction()
-        .then((manoDeObras) => {
-            setManoDeObras(manoDeObras)
-        })
-        .finally(() => {
-            setLoading(false)
-        })
+    //     getManoDeObrasDAOAction()
+    //     .then((manoDeObras) => {
+    //         setManoDeObras(manoDeObras)
+    //     })
+    //     .finally(() => {
+    //         setLoading(false)
+    //     })
         
-    }, [])
+    // }, [])
 
     function onSubmit(data: FormValues) {
         console.log(data)        
@@ -89,9 +89,7 @@ export default function MOForm({ itemId, index, notifyMOSelected }: Props) {
                         >
                         <FormControl>
                             <SelectTrigger>
-                                {
-                                    loading ? <Loader className="h-4 w-4 animate-spin" /> : <SelectValue placeholder="Seleccione aquí" />
-                                }
+                                <SelectValue placeholder="Seleccione aquí" />
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>

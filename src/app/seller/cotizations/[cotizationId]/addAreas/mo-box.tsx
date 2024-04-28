@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { Loader, PlusCircle, X } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ManoDeObraItem, TerminationItem } from "./page"
 import MOForm from "./mo-form"
+import { getManoDeObrasDAOAction } from "@/app/admin/manodeobras/manodeobra-actions"
+import { ManoDeObraDAO } from "@/services/manodeobra-services"
 
 type Props= {
     workId: string
@@ -18,9 +20,25 @@ type Props= {
 }
 export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setItemManoDeObras }: Props) {
     const [loading, setLoading] = useState(false)
+    const [loadingMO, setLoadingMO] = useState(false)
 
     const itemsWithData= itemManoDeObras
     const itemsToSave= itemsWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
+
+    const [manoDeObras, setManoDeObras] = useState<ManoDeObraDAO[]>([])
+
+    useEffect(() => {
+        setLoadingMO(true)
+
+        getManoDeObrasDAOAction()
+        .then((manoDeObras) => {
+            setManoDeObras(manoDeObras)
+        })
+        .finally(() => {
+            setLoadingMO(false)
+        })
+        
+    }, [])
 
     function addItem() {
         const newAreas= [...itemManoDeObras, { id: undefined, manoDeObraId: undefined, quantity: 1, length: 0, width: 0, centimeters: 0, ajuste: 0 }]
@@ -99,7 +117,11 @@ export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setIt
                     itemManoDeObras.map((item, index) => (
                         // <div key={index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
                         <div key={index} className="grid grid-cols-[1fr,1fr,1fr,50px] gap-2 items-center">
-                            <MOForm itemId={item.id} index={index} notifyMOSelected={notifyMOSelected} />
+                            { loadingMO ?
+                            <Loader className="h-4 w-4 animate-spin" />
+                            :
+                            <MOForm itemId={item.id} index={index} notifyMOSelected={notifyMOSelected} manoDeObras={manoDeObras} />
+                            }
                             <div className="flex items-center gap-2">
                                 <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.manoDeObraId}/> 
                                 x
