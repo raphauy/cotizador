@@ -1,9 +1,11 @@
 "use client"
 
 import { getItemDAOAction } from "@/app/admin/items/item-actions"
+import { getManoDeObrasDAOAction } from "@/app/admin/manodeobras/manodeobra-actions"
 import { getTerminacionsDAOAction } from "@/app/admin/terminations/terminacion-actions"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ManoDeObraDAO } from "@/services/manodeobra-services"
 import { TerminacionDAO } from "@/services/terminacion-services"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader } from "lucide-react"
@@ -12,7 +14,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 
 export const schema = z.object({
-    terminationId: z.string().optional(),
+    manoDeObraId: z.string().optional(),
   })
   
   export type FormValues = z.infer<typeof schema>
@@ -20,37 +22,37 @@ export const schema = z.object({
 type Props= {
     itemId: string | undefined
     index: number
-    notifySelected: (itemId: string | undefined, index: number, terminationId: string | undefined) => void
+    notifyMOSelected: (itemId: string | undefined, index: number, manoDeObraId: string | undefined) => void
 }
-export default function TerminationForm({ itemId, index, notifySelected }: Props) {
+export default function MOForm({ itemId, index, notifyMOSelected }: Props) {
 
     const form = useForm<FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
-            terminationId: "",
+            manoDeObraId: "",
         },
         mode: "onChange",
     })
 
-    const terminationId= form.watch("terminationId")
+    const manoDeObraId= form.watch("manoDeObraId")
 
     useEffect(() => {
-        notifySelected(itemId, index, terminationId)
+        notifyMOSelected(itemId, index, manoDeObraId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [terminationId])
+    }, [manoDeObraId])
     
     
     const [loading, setLoading] = useState(true)
-    const [terminations, setTerminations] = useState<TerminacionDAO[]>([])
+    const [manoDeObras, setManoDeObras] = useState<ManoDeObraDAO[]>([])
 
     useEffect(() => {
         if (itemId) {
             getItemDAOAction(itemId)
             .then((item) => {
-                if (!item || !item.terminacionId)
+                if (!item || !item.manoDeObraId)
                     return
 
-                form.setValue("terminationId", item.terminacionId)
+                item.manoDeObraId && form.setValue("manoDeObraId", item.manoDeObraId)
             })
             .catch((error) => {
                 console.log(error)
@@ -61,9 +63,9 @@ export default function TerminationForm({ itemId, index, notifySelected }: Props
     useEffect(() => {
         setLoading(true)
 
-        getTerminacionsDAOAction()
-        .then((terminaciones) => {
-            setTerminations(terminaciones)
+        getManoDeObrasDAOAction()
+        .then((manoDeObras) => {
+            setManoDeObras(manoDeObras)
         })
         .finally(() => {
             setLoading(false)
@@ -82,7 +84,7 @@ export default function TerminationForm({ itemId, index, notifySelected }: Props
                 
                 <FormField
                     control={form.control}
-                    name="terminationId"
+                    name="manoDeObraId"
                     render={({ field }) => (
                     <FormItem>
                         <Select onValueChange={(value) => field.onChange(value)} value={field.value}
@@ -95,8 +97,8 @@ export default function TerminationForm({ itemId, index, notifySelected }: Props
                             </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                            {terminations.map(termination => (
-                            <SelectItem key={termination.id} value={termination.id}>{termination.name}</SelectItem>  
+                            {manoDeObras.map(manoDeObra => (
+                            <SelectItem key={manoDeObra.id} value={manoDeObra.id}>{manoDeObra.name}</SelectItem>  
                             ))}
                         </SelectContent>
                         </Select>

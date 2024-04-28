@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
-import { PlusCircle, X } from "lucide-react"
+import { Loader, PlusCircle, X } from "lucide-react"
 import { useState } from "react"
 import { TerminationItem } from "./page"
 import TerminationForm from "./termination-form"
@@ -107,7 +107,9 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
                             <Input id={`item${index+1}-width`} placeholder="ancho cm" type="number" value={item.width ? item.width : ""} onChange={(e) => handleWidthChange(e, index)} disabled={!item.terminationId}/>
                             <Input id={`item${index+1}-ajuste`} placeholder="ajuste" type="number" value={item.ajuste ? item.ajuste : ""} onChange={(e) => handleAjusteChange(e, index)} disabled={!item.terminationId}/>
                             <Button variant="ghost" onClick={() => removeItem(index)}>
-                                <X className="w-5 h-5 text-red-400" />
+                                {
+                                    loading ? <Loader className="h-4 w-4 animate-spin" /> : <X className="w-5 h-5 text-red-400" />
+                                }
                             </Button>
                         </div>
                     ))

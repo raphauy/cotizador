@@ -4,8 +4,8 @@ import { WorkDAO, getFullWorkDAO, getWorkDAO } from "./work-services"
 import { ClientType, ItemType } from "@prisma/client"
 import { ColorDAO } from "./color-services"
 import { TerminacionDAO, getTerminacionDAO } from "./terminacion-services"
-import { ManoDeObraDAO, getManoDeObraDAO } from "./manodeobra-services"
-import { AreaItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
+import { ManoDeObraDAO, ManoDeObraFormValues, getManoDeObraDAO } from "./manodeobra-services"
+import { AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
 
 export type ItemDAO = {
 	id: string
@@ -56,7 +56,6 @@ export type TerminationFormValues = z.infer<typeof terminationSchema>
 export const manoDeObraItemSchema = z.object({
   manoDeObraId: z.string().min(1, "Debes elegir una mano de obra."),
   quantity: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
-  llevaAjuste: z.boolean(),
   ajuste: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   workId: z.string().min(1, "workId is required."),
 })
@@ -249,6 +248,28 @@ export async function upsertAreaItem(id: string | undefined, data: ItemFormValue
   }   
 }
 
+export async function upsertBatchManoDeObraItem(workId: string, items: ManoDeObraItem[]): Promise<boolean> {
+  for (let i = 0; i < items.length; i++) {
+    const dataItem: ManoDeObraItemFormValues = {
+      workId,
+      manoDeObraId: items[i].manoDeObraId!,
+      quantity: items[i].quantity?.toString(),
+      ajuste: items[i].ajuste?.toString(),
+    }
+    await upsertManoDeObraItem(items[i].id, dataItem)
+  }  
+
+  return true
+}
+
+export async function upsertManoDeObraItem(id: string | undefined, data: ManoDeObraItemFormValues) {
+  if (id) {
+    await updateManoDeObraItem(id, data)
+  } else {
+    await createManoDeObraItem(data)
+  }
+}
+
 
 export async function createTerminationItem(data: TerminationFormValues) {
   const workId= data.workId
@@ -311,7 +332,7 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
   const type= ItemType.MANO_DE_OBRA
   const quantity= data.quantity ? Number(data.quantity) : 1
   let total= manoDeObra.price
-  if (data.llevaAjuste) {
+  if (data.ajuste) {
     total += Number(data.ajuste)
   }
   const valor= total
@@ -334,7 +355,7 @@ export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormV
   const type= ItemType.MANO_DE_OBRA
   const quantity= data.quantity ? Number(data.quantity) : 1
   let total= manoDeObra.price
-  if (data.llevaAjuste) {
+  if (data.ajuste) {
     total += Number(data.ajuste)
   }
   const valor= total

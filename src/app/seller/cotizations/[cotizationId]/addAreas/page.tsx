@@ -1,6 +1,6 @@
 "use client"
 
-import { upsertBatchAreaItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
+import { upsertBatchAreaItemAction, upsertBatchManoDeObraItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
 import { getWorkDAOAction } from "@/app/admin/works/work-actions"
 import { Button } from "@/components/ui/button"
 import { toast } from "@/components/ui/use-toast"
@@ -12,6 +12,7 @@ import { useEffect, useState } from "react"
 import AreaBox from "./area-box"
 import TerminationsBox from "./termination-box"
 import { ItemDAO } from "@/services/item-services"
+import ManoDeObraBox from "./mo-box"
 
 export type AreaItem = {
     id: string | undefined
@@ -24,6 +25,16 @@ export type AreaItem = {
 export type TerminationItem = {
     id: string | undefined
     terminationId: string | undefined
+    quantity: number | undefined | null
+    length: number | undefined | null
+    width: number | undefined | null
+    centimeters: number | undefined | null
+    ajuste: number | undefined | null
+}
+
+export type ManoDeObraItem = {
+    id: string | undefined
+    manoDeObraId: string | undefined
     quantity: number | undefined | null
     length: number | undefined | null
     width: number | undefined | null
@@ -46,6 +57,7 @@ export default function AddItemsPage({ searchParams }: Props) {
     const [zocalos, setZocalos] = useState<AreaItem[]>([])
     const [alzadas, setAlzadas] = useState<AreaItem[]>([])
     const [terminaciones, setTerminations] = useState<TerminationItem[]>([])
+    const [manoDeObras, setManoDeObras] = useState<ManoDeObraItem[]>([])
     
     const tramosWithData= tramos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
     const totalTramosWithData= tramosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
@@ -89,6 +101,10 @@ export default function AddItemsPage({ searchParams }: Props) {
         const terminaciones= getTerminationsItems(terminationsItem)
         setTerminations(terminaciones)
 
+        const manoDeObrasItem= items.filter((item) => item.type === ItemType.MANO_DE_OBRA)
+        const manoDeObras= getManoDeObrasItems(manoDeObrasItem)
+        setManoDeObras(manoDeObras)
+
     }, [work, cantidadTramosIniciales])
 
 
@@ -122,11 +138,22 @@ export default function AddItemsPage({ searchParams }: Props) {
             toast({title: "Error", description: error.message, variant: "destructive"})
         })
 
+        const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId)  
+        upsertBatchManoDeObraItemAction(workId, manoDeObrasWithData)
+        .then((items) => {
+            if (items) {
+                toast({title: "Items de mano de obra guardados" })
+            }
+            setLoading(false)
+        })
+        .catch((error) => {
+            toast({title: "Error", description: error.message, variant: "destructive"})
+        })
+
     }
 
     return (
         <div className="w-full">
-            {loading ? "guardando" : "listo"}
             <Button variant="link" onClick={() => router.back()} className="px-0">
                 <ChevronLeft className="w-5 h-5" /> Volver
             </Button>
@@ -146,7 +173,8 @@ export default function AddItemsPage({ searchParams }: Props) {
             </div>
 
             <div>
-                <TerminationsBox workId={workId} cantidad={cantidadTramosIniciales} itemTerminations={terminaciones} setItemTerminations={setTerminations} />
+                <TerminationsBox workId={workId} cantidad={1} itemTerminations={terminaciones} setItemTerminations={setTerminations} />
+                <ManoDeObraBox workId={workId} cantidad={1} itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} />
             </div>
 
             <div className="mt-10">
@@ -186,7 +214,7 @@ function getTerminationsItems(items: ItemDAO[], cantidadIniciales: number = 1) {
     const itemsFiltered= items.filter((item) => item.type === ItemType.TERMINACION)
     const terminationsItemsMaped= itemsFiltered.map((item) => ({
         id: item.id,
-        type: ItemType.TERMINACION,
+        type: item.type,
         terminationId: item.terminacionId,
         quantity: item.quantity,
         length: item.largo,
@@ -234,3 +262,42 @@ function getInitTerminationsItems(cantidad: number) {
     }
     return items
 }
+
+function getManoDeObrasItems(items: ItemDAO[], cantidadIniciales: number = 1) {
+    const itemsFiltered= items.filter((item) => item.type === ItemType.MANO_DE_OBRA)
+    const manoDeObrasItemsMaped= itemsFiltered.map((item) => ({
+        id: item.id,
+        manoDeObraId: item.manoDeObraId,
+        quantity: item.quantity,
+        length: item.largo,
+        width: item.ancho,
+        centimeters: (item.centimetros ? item.centimetros : 0),
+        ajuste: item.ajuste,
+        type: item.type,
+    }))
+
+    if (manoDeObrasItemsMaped.length === 0) {
+        const newManoDeObrasItems= getInitManoDeObrasItems(cantidadIniciales)
+        return newManoDeObrasItems
+    }
+
+    return manoDeObrasItemsMaped
+}
+
+function getInitManoDeObrasItems(cantidad: number) {
+    const items= []
+    for (let i = 0; i < cantidad; i++) {
+        const itemManoDeObra: ManoDeObraItem = {
+            id: undefined,
+            manoDeObraId: undefined,
+            quantity: 1,
+            length: undefined,
+            width: undefined,
+            centimeters: 0,
+            ajuste: 0,
+        }
+        items.push(itemManoDeObra)
+    }
+    return items
+}
+

@@ -56,7 +56,7 @@ export function DataTableToolbar<TData>({ table, workId, cotizationId }: DataTab
             </Button>
         </Link>
 
-        {/* <TransitionDialog workId={workId} /> */}
+        <TransitionDialog workId={workId} />
         {/* <ItemDialog workId={workId} cotizationId={cotizationId} /> */}
       </div>
 

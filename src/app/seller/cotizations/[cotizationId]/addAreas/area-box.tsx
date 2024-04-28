@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { cn, getItemLabel } from "@/lib/utils"
 import { ItemType } from "@prisma/client"
-import { PlusCircle, X } from "lucide-react"
+import { Loader, PlusCircle, X } from "lucide-react"
 import { useState } from "react"
 import { AreaItem } from "./page"
 
@@ -81,7 +81,9 @@ export default function AreaBox({ workId, itemType, cantidad, itemAreas, setItem
                             <Input autoFocus={index === 0 && itemArea.type === ItemType.TRAMO} id={`item${index+1}-length`} placeholder="largo cm" type="number" value={itemArea.length ? itemArea.length : ""} onChange={(e) => handleLenghtChange(e, index)} />
                             <Input id={`item${index+1}-width`} placeholder="ancho cm" type="number" value={itemArea.width ? itemArea.width : ""} onChange={(e) => handleWidthChange(e, index)} />
                             <Button variant="ghost" onClick={() => removeItem(index)}>
-                                <X className="w-5 h-5 text-red-400" />
+                                {
+                                    loading ? <Loader className="h-4 w-4 animate-spin" /> : <X className="w-5 h-5 text-red-400" />
+                                }
                             </Button>
                         </div>
                     ))
