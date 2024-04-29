@@ -508,9 +508,5 @@ export function calculateManoDeObraValue(item: ManoDeObraItemFormValues, manoDeO
 
   valorTotal+= valorAjuste
 
-  // take in count the quantity
-  const quantity= item.quantity ? Number(item.quantity) : 1
-  valorTotal= valorTotal * quantity
-
   return valorTotal
 }
