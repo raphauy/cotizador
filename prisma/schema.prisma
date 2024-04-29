@@ -230,7 +230,10 @@ model Terminacion {
 model ManoDeObra {
   id                String    @id @default(cuid())
   name              String                                   // genext: show.column
-  price             Float @default(0)                        // genext: show.column  
+  
+  clienteFinalPrice         Float @default(0)
+  arquitectoStudioPrice     Float @default(0)
+  distribuidorPrice         Float @default(0)
 
   createdAt         DateTime  @default(now())                // gennext: skip.zod
   updatedAt         DateTime  @updatedAt                     // gennext: skip.zod

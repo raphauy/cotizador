@@ -78,8 +78,8 @@ export default function AreaBox({ workId, itemType, cantidad, itemAreas, setItem
                                 <Input type="number" value={itemArea.quantity ? itemArea.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} /> 
                                 x
                             </div>
-                            <Input autoFocus={index === 0 && itemArea.type === ItemType.TRAMO} id={`item${index+1}-length`} placeholder="largo cm" type="number" value={itemArea.length ? itemArea.length : ""} onChange={(e) => handleLenghtChange(e, index)} />
-                            <Input id={`item${index+1}-width`} placeholder="ancho cm" type="number" value={itemArea.width ? itemArea.width : ""} onChange={(e) => handleWidthChange(e, index)} />
+                            <Input autoFocus={index === 0 && itemArea.type === ItemType.TRAMO} id={`item${index+1}-length`} placeholder="largo" type="number" value={itemArea.length ? itemArea.length : ""} onChange={(e) => handleLenghtChange(e, index)} />
+                            <Input id={`item${index+1}-width`} placeholder="ancho" type="number" value={itemArea.width ? itemArea.width : ""} onChange={(e) => handleWidthChange(e, index)} />
                             <Button variant="ghost" onClick={() => removeItem(index)}>
                                 {
                                     loading ? <Loader className="h-4 w-4 animate-spin" /> : <X className="w-5 h-5 text-red-400" />

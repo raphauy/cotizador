@@ -98,21 +98,20 @@ export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setIt
     return (
         <div>
             <div className="mx-auto p-6 lg:p-2 space-y-4 border rounded-md dark:text-white bg-white dark:bg-black">                        
-                <p>Valores en <span className="font-bold">cm</span></p>
                 {/* <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center"> */}
-                <div className="grid grid-cols-[1fr,1fr,1fr,50px] gap-2 items-center">
+                <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
                     <p className="min-w-40">Mano de obra</p>
                     <p>Cantidad</p>
-                    {/* <p>Cm lineales</p>
+                    {/* <p>Cm lineales</p> */}
                     <p>Largo (cm)</p>
-                    <p>Ancho (cm)</p> */}
+                    <p>Ancho (cm)</p>
                     <p>Ajuste (USD)</p>
                     <p></p>
                 </div>
                 {
                     itemManoDeObras.map((item, index) => (
                         // <div key={index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
-                        <div key={index} className="grid grid-cols-[1fr,1fr,1fr,50px] gap-2 items-center">
+                        <div key={index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
                             { loadingMO ?
                             <Loader className="h-4 w-4 animate-spin" />
                             :
@@ -122,9 +121,9 @@ export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setIt
                                 <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.manoDeObraId}/> 
                                 x
                             </div>
-                            {/* <Input id={`item${index+1}-centimeters`} placeholder="lineal cm" type="number" value={item.centimeters ? item.centimeters : ""} onChange={(e) => handleCentimetersChange(e, index)} disabled={!item.manoDeObraId}/>
+                            {/* <Input id={`item${index+1}-centimeters`} placeholder="lineal cm" type="number" value={item.centimeters ? item.centimeters : ""} onChange={(e) => handleCentimetersChange(e, index)} disabled={!item.manoDeObraId}/> */}
                             <Input id={`item${index+1}-length`} placeholder="largo cm" type="number" value={item.length ? item.length : ""} onChange={(e) => handleLenghtChange(e, index)} disabled={!item.manoDeObraId}/>
-                            <Input id={`item${index+1}-width`} placeholder="ancho cm" type="number" value={item.width ? item.width : ""} onChange={(e) => handleWidthChange(e, index)} disabled={!item.manoDeObraId}/> */}
+                            <Input id={`item${index+1}-width`} placeholder="ancho cm" type="number" value={item.width ? item.width : ""} onChange={(e) => handleWidthChange(e, index)} disabled={!item.manoDeObraId}/>
                             <Input id={`item${index+1}-ajuste`} placeholder="ajuste" type="number" value={item.ajuste ? item.ajuste : ""} onChange={(e) => handleAjusteChange(e, index)} disabled={!item.manoDeObraId}/>
                             <Button variant="ghost" onClick={() => removeItem(index)}>
                                 {

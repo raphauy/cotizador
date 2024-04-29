@@ -158,7 +158,7 @@ export default function AddItemsPage({ searchParams }: Props) {
     }
 
     return (
-        <div className="w-full">
+        <div className="w-full mb-20">
             <Button variant="link" onClick={() => router.back()} className="px-0">
                 <ChevronLeft className="w-5 h-5" /> Volver
             </Button>
@@ -182,7 +182,7 @@ export default function AddItemsPage({ searchParams }: Props) {
                 <TerminationsBox workId={workId} cantidad={1} itemTerminations={terminaciones} setItemTerminations={setTerminations} />
             </div>
             <div className="mt-10">
-                <p className="text-2xl font-bold mb-3 text-center lg:text-left">Mano de Obras <span className="font-bold text-xl">{totalManoDeObrasWithData > 0 ? "(" + totalManoDeObrasWithData + ")" : ""}</span></p>
+                <p className="text-2xl font-bold mb-3 text-center lg:text-left">Mano de Obra <span className="font-bold text-xl">{totalManoDeObrasWithData > 0 ? "(" + totalManoDeObrasWithData + ")" : ""}</span></p>
                 <ManoDeObraBox workId={workId} cantidad={1} itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} />
             </div>
 

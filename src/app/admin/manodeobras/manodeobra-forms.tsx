@@ -21,7 +21,9 @@ export function ManoDeObraForm({ id, closeDialog }: Props) {
     resolver: zodResolver(manoDeObraSchema),
     defaultValues: {
       name: "",
-      price: "0",
+      clienteFinalPrice: "0",
+      arquitectoStudioPrice: "0",
+      distribuidorPrice: "0",
     },
     mode: "onChange",
   })
@@ -45,7 +47,9 @@ export function ManoDeObraForm({ id, closeDialog }: Props) {
       getManoDeObraDAOAction(id).then((data) => {
         if (data) {
           form.setValue("name", data.name)
-          form.setValue("price", data.price.toString())
+          data.clienteFinalPrice && form.setValue("clienteFinalPrice", data.clienteFinalPrice.toString())
+          data.arquitectoStudioPrice && form.setValue("arquitectoStudioPrice", data.arquitectoStudioPrice.toString())
+          data.distribuidorPrice && form.setValue("distribuidorPrice", data.distribuidorPrice.toString())
         }
         Object.keys(form.getValues()).forEach((key: any) => {
           if (form.getValues(key) === null) {
@@ -78,12 +82,40 @@ export function ManoDeObraForm({ id, closeDialog }: Props) {
       
           <FormField
             control={form.control}
-            name="price"
+            name="clienteFinalPrice"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Price</FormLabel>
                 <FormControl>
-                  <Input placeholder="ManoDeObra's price" {...field} />
+                  <Input placeholder="Precio para cliente final" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="arquitectoStudioPrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Precio para arquitecto y estudio</FormLabel>
+                <FormControl>
+                  <Input placeholder="Precio para arquitecto/estudio" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="distribuidorPrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Precio para distribuidor</FormLabel>
+                <FormControl>
+                  <Input placeholder="Precio para distribuidor" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
