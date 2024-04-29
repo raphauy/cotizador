@@ -12,6 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ConfigForm, DeleteConfigForm } from "./config-forms";
+import { useSession } from "next-auth/react";
 
 type Props = {
   id?: string;
@@ -51,6 +52,11 @@ type DeleteProps = {
 
 export function DeleteConfigDialog({ id, description }: DeleteProps) {
   const [open, setOpen] = useState(false);
+  const user= useSession()?.data?.user
+
+  if (!user || user.email !== "rapha.uy@rapha.uy") {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -43,7 +43,7 @@ export function DataTableToolbar<TData>({
     <div className="flex gap-1 dark:text-white items-center">
       <Input
         className="max-w-xs"
-        placeholder="name filter..."
+        placeholder="filtrar por nombre..."
         value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
         onChange={(event) =>
           table.getColumn("name")?.setFilterValue(event.target.value)
@@ -52,7 +52,7 @@ export function DataTableToolbar<TData>({
 
       <Input
         className="max-w-xs"
-        placeholder="value filter..."
+        placeholder="filtrar por valor..."
         value={(table.getColumn("value")?.getFilterValue() as string) ?? ""}
         onChange={(event) =>
           table.getColumn("value")?.setFilterValue(event.target.value)
@@ -76,9 +76,6 @@ export function DataTableToolbar<TData>({
           <X className="w-4 h-4 ml-2" />
         </Button>
       )}
-      <div className="flex-1 ">
-        <DataTableViewOptions table={table} />
-      </div>
     </div>
   );
 }
@@ -186,7 +183,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} subject={subject} />
+      {/* <DataTablePagination table={table} subject={subject} /> */}
     </div>
   );
 }

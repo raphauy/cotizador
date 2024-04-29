@@ -16,7 +16,7 @@ export const columns: ColumnDef<ConfigDAO>[] = [
           className="pl-0 dark:text-white"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name
+          Nombre
           <ArrowUpDown className="w-4 h-4 ml-1" />
         </Button>
       );
@@ -32,7 +32,7 @@ export const columns: ColumnDef<ConfigDAO>[] = [
           className="pl-0 dark:text-white"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Value
+          Valor
           <ArrowUpDown className="w-4 h-4 ml-1" />
         </Button>
       );
