@@ -258,6 +258,9 @@ export async function upsertBatchManoDeObraItem(workId: string, items: ManoDeObr
       manoDeObraId: items[i].manoDeObraId!,
       quantity: items[i].quantity?.toString(),
       ajuste: items[i].ajuste?.toString(),
+      centimetros: items[i].centimeters?.toString(),
+      length: items[i].length?.toString(),
+      width: items[i].width?.toString(),
     }
     await upsertManoDeObraItem(items[i].id, dataItem)
   }  

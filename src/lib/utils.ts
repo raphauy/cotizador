@@ -57,19 +57,18 @@ export function formatWhatsAppStyle(date: Date | string): string {
 // m²`
 
 export function getItemDescription(item: ItemDAO): string {
-  const surface = item.largo && item.ancho ? item.largo * item.ancho / 10000 : 0
+  const superficie= getSuperficie(item)
   switch (item.type) {
     case ItemType.TRAMO:
-      return `${item.quantity > 1 ? item.quantity + " Tramos" : "Tramo"} ${item.largo}x${item.ancho} cm, ${surface}m²`
+      return `${item.quantity > 1 ? item.quantity + " Tramos" : "Tramo"} ${item.largo}x${item.ancho} cm, ${superficie}m²`
     case ItemType.ZOCALO:
-      return `${item.quantity > 1 ? item.quantity + " Zócalos" : "Zócalo"} ${item.largo}x${item.ancho} cm, ${surface}m²`
+      return `${item.quantity > 1 ? item.quantity + " Zócalos" : "Zócalo"} ${item.largo}x${item.ancho} cm, ${superficie}m²`
     case ItemType.ALZADA:
-      return `${item.quantity > 1 ? item.quantity + " Alzadas" : "Alzada"} ${item.largo}x${item.ancho} cm, ${surface}m²`
+      return `${item.quantity > 1 ? item.quantity + " Alzadas" : "Alzada"} ${item.largo}x${item.ancho} cm, ${superficie}m²`
     case ItemType.TERMINACION:
-      const superficie= getSuperficie(item)
       return `${item.quantity > 1 ? item.quantity + " Terminaciones" : "Terminación"} ${item.terminacion && item.terminacion.name} (${(item.centimetros || 0)/100}ml${superficie ? " + " + superficie + "m²" : ""}) ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`    
     case ItemType.MANO_DE_OBRA:
-      return `${item.quantity > 1 ? item.quantity + " MO" : "MO"}: ${item.manoDeObra && item.manoDeObra.name} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`
+      return `${item.quantity > 1 ? item.quantity + " MO" : "MO"}: ${item.manoDeObra && item.manoDeObra.name} ${superficie ? "(" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
     case ItemType.AJUSTE:
@@ -87,6 +86,7 @@ export function getSuperficie(item: ItemDAO): number {
 }
 
 export function getShortItemDescription(item: ItemDAO): string {
+  const superficie= getSuperficie(item)
   switch (item.type) {
     case ItemType.TRAMO:
       return `${item.quantity > 1 ? item.quantity + " Tramos" : "Tramo"} ${item.largo}x${item.ancho} cm`
@@ -95,10 +95,9 @@ export function getShortItemDescription(item: ItemDAO): string {
     case ItemType.ALZADA:
       return `${item.quantity > 1 ? item.quantity + " Alzadas" : "Alzada"} ${item.largo}x${item.ancho} cm`
     case ItemType.TERMINACION:
-      const superficie= getSuperficie(item)
       return `${item.quantity > 1 ? item.quantity : ""} ${item.terminacion && item.terminacion.name} ${superficie ? "(+" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}` 
     case ItemType.MANO_DE_OBRA:
-      return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`  
+      return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${superficie ? "(" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`  
     case ItemType.REGRUESO:
       return `Regrueso (no implementado)`
     case ItemType.AJUSTE:
