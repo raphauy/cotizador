@@ -220,9 +220,7 @@ model Terminacion {
   id                        String    @id @default(cuid())
   name                      String                                   // genext: show.column
   image                     String?                                   // genext: show.column
-  clienteFinalPrice         Float @default(0)
-  arquitectoStudioPrice     Float @default(0)
-  distribuidorPrice         Float @default(0)
+  price         Float @default(0)
 
   items                     Item[]                                   // genext: skip.list 
 }

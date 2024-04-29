@@ -23,7 +23,7 @@ export const columns: ColumnDef<TerminacionDAO>[] = [
   },
 
   {
-    accessorKey: "clienteFinalPrice",
+    accessorKey: "price",
     header: ({ column }) => {
         return (
           <Button variant="ghost" className="pl-0 dark:text-white w-full"
@@ -36,66 +36,12 @@ export const columns: ColumnDef<TerminacionDAO>[] = [
       const data= row.original
       return (
         <p className="text-right w-28">
-          {data.clienteFinalPrice && data.clienteFinalPrice.toLocaleString()}
+          {data.price && data.price.toLocaleString()}
         </p>
       )
     },
   },
 
-  {
-    accessorKey: "arquitectoStudioPrice",
-    header: ({ column }) => {
-        return (
-          <Button variant="ghost" className="pl-0 dark:text-white w-full"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Arquitecto/Estudio $
-            <ArrowUpDown className="w-4 h-4 ml-1" />
-          </Button>
-    )},
-    cell: ({ row }) => {
-      const data= row.original
-      return (
-        <p className="text-right w-28">
-          {data.arquitectoStudioPrice && data.arquitectoStudioPrice.toLocaleString()}
-        </p>
-      )
-    },
-  },
-
-  {
-    accessorKey: "distribuidorPrice",
-    header: ({ column }) => {
-        return (
-          <Button variant="ghost" className="pl-0 dark:text-white"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Distribuidor $
-            <ArrowUpDown className="w-4 h-4 ml-1" />
-          </Button>
-    )},
-    cell: ({ row }) => {
-      const data= row.original
-      return (
-        <p className="text-right w-28">
-          {data.distribuidorPrice && data.distribuidorPrice.toLocaleString()}
-        </p>
-      )
-    },
-  },
-
-  //   accessorKey: "role",
-  //   header: ({ column }) => {
-  //     return (
-  //       <Button variant="ghost" className="pl-0 dark:text-white"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-  //         Rol
-  //         <ArrowUpDown className="w-4 h-4 ml-1" />
-  //       </Button>
-  //     )
-  //   },
-  //   filterFn: (row, id, value) => {
-  //     return value.includes(row.getValue(id))
-  //   },
-  // },
   {
     id: "actions",
     cell: ({ row }) => {

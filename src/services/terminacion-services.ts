@@ -5,16 +5,12 @@ export type TerminacionDAO = {
 	id: string
 	name: string
 	image: string | undefined | null
-  clienteFinalPrice: number
-  arquitectoStudioPrice: number
-  distribuidorPrice: number
+  price: number
 }
 
 export const terminacionSchema = z.object({
 	name: z.string().min(1, "name is required."),
-  clienteFinalPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
-  arquitectoStudioPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
-  distribuidorPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  price: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
 })
 
 export type TerminacionFormValues = z.infer<typeof terminacionSchema>
@@ -39,33 +35,25 @@ export async function getTerminacionDAO(id: string) {
 }
     
 export async function createTerminacion(data: TerminacionFormValues) {
-  const clienteFinalPrice = data.clienteFinalPrice ? Number(data.clienteFinalPrice) : 0
-  const arquitectoStudioPrice = data.arquitectoStudioPrice ? Number(data.arquitectoStudioPrice) : 0
-  const distribuidorPrice = data.distribuidorPrice ? Number(data.distribuidorPrice) : 0
+  const price = data.price ? Number(data.price) : 0
   const created = await prisma.terminacion.create({
     data: {
       ...data,
-      clienteFinalPrice,
-      arquitectoStudioPrice,
-      distribuidorPrice,
+      price,
     }
   })
   return created
 }
 
 export async function updateTerminacion(id: string, data: TerminacionFormValues) {
-  const clienteFinalPrice = data.clienteFinalPrice ? Number(data.clienteFinalPrice) : 0
-  const arquitectoStudioPrice = data.arquitectoStudioPrice ? Number(data.arquitectoStudioPrice) : 0
-  const distribuidorPrice = data.distribuidorPrice ? Number(data.distribuidorPrice) : 0
+  const price = data.price ? Number(data.price) : 0
   const updated = await prisma.terminacion.update({
     where: {
       id
     },
     data: {
       ...data,
-      clienteFinalPrice,
-      arquitectoStudioPrice,
-      distribuidorPrice,
+      price,
     }
   })
   return updated

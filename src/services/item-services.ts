@@ -446,17 +446,7 @@ function calculateTerminationValue(item: TerminationFormValues, termination: Ter
 
   // calular valor lineal en función de la terminación y los centímetros
   const metros= item.centimetros ? Number(item.centimetros) / 100 : 0
-  switch (clientType) {
-    case ClientType.CLIENTE_FINAL:
-      valorLineal = termination.clienteFinalPrice * metros
-      break
-    case ClientType.ARQUITECTO_ESTUDIO:
-      valorLineal = termination.arquitectoStudioPrice * metros
-      break
-    case ClientType.DISTRIBUIDOR:
-      valorLineal = termination.distribuidorPrice * metros
-      break
-  }
+  valorLineal = termination.price * metros
 
   // calcular valor de la superficie en función de la superficie (largo x ancho) y el color
   const largo= item.width ? Number(item.width) : 0

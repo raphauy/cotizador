@@ -22,9 +22,7 @@ export function TerminacionForm({ id, closeDialog }: Props) {
     resolver: zodResolver(terminacionSchema),
     defaultValues: {
       name: "",
-      clienteFinalPrice: "0",
-      arquitectoStudioPrice: "0",
-      distribuidorPrice: "0",
+      price: "0",
     },
     mode: "onChange",
   })
@@ -48,9 +46,7 @@ export function TerminacionForm({ id, closeDialog }: Props) {
       getTerminacionDAOAction(id).then((data) => {
         if (data) {
           form.setValue("name", data.name)
-          data.clienteFinalPrice && form.setValue("clienteFinalPrice", data.clienteFinalPrice.toString())
-          data.arquitectoStudioPrice && form.setValue("arquitectoStudioPrice", data.arquitectoStudioPrice.toString())
-          data.distribuidorPrice && form.setValue("distribuidorPrice", data.distribuidorPrice.toString())
+          data.price && form.setValue("price", data.price.toString())
         }
         Object.keys(form.getValues()).forEach((key: any) => {
           if (form.getValues(key) === null) {
@@ -71,7 +67,7 @@ export function TerminacionForm({ id, closeDialog }: Props) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre</FormLabel>
+                <FormLabel>Nombre:</FormLabel>
                 <FormControl>
                   <Input placeholder="Nombre de la terminación" {...field} />
                 </FormControl>
@@ -84,10 +80,10 @@ export function TerminacionForm({ id, closeDialog }: Props) {
 
           <FormField
             control={form.control}
-            name="clienteFinalPrice"
+            name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Precio cliente final</FormLabel>
+                <FormLabel>Precio:</FormLabel>
                 <FormControl>
                   <Input placeholder="Precio" {...field} type="number" />
                 </FormControl>
@@ -96,34 +92,6 @@ export function TerminacionForm({ id, closeDialog }: Props) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="arquitectoStudioPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio arquitecto/estudio</FormLabel>
-                <FormControl>
-                  <Input placeholder="Precio" {...field} type="number" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="distribuidorPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio distribuidor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Precio" {...field} type="number" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
 
         <div className="flex justify-end">
             <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
