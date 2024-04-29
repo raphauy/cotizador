@@ -33,12 +33,13 @@ export default function AddItemsPage({ searchParams }: Props) {
             workId,
             ajuste: "0",
             quantity: "1",
+            width: "0",
+            length: "0",
         },
         mode: "onChange",
     })
 
     const manoDeObraId= form.watch("manoDeObraId")
-    const ajuste= form.watch("ajuste")
     
     const [loading, setLoading] = useState(true)
     const [loadingSave, setLoadingSave] = useState(false)
@@ -57,10 +58,15 @@ export default function AddItemsPage({ searchParams }: Props) {
                 if (!item || !item.manoDeObraId)
                     return
 
+                console.log(item)
+                
+
                 form.setValue("workId", item.workId)
                 form.setValue("manoDeObraId", item.manoDeObraId)
-                form.setValue("ajuste", item.ajuste?.toString())
                 form.setValue("quantity", item.quantity?.toString())
+                item.ajuste && form.setValue("ajuste", item.ajuste?.toString())
+                item.ancho && form.setValue("width", item.ancho?.toString())
+                item.largo && form.setValue("length", item.largo?.toString())
             })
             .catch((error) => {
                 console.log(error)
@@ -179,7 +185,49 @@ export default function AddItemsPage({ searchParams }: Props) {
                         </FormItem>
                         )}
                     />
+
+                    <FormField
+                        control={form.control}
+                        name="length"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Largo:</FormLabel>
+                            <FormControl>
+                            <Input placeholder="largo en cm" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
                     
+                    <FormField
+                        control={form.control}
+                        name="width"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Ancho:</FormLabel>
+                            <FormControl>
+                            <Input placeholder="ancho en cm" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+
+                    <FormField
+                        control={form.control}
+                        name="ajuste"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Ajuste:</FormLabel>
+                            <FormControl>
+                            <Input placeholder="ajuste" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+
 
 
                     <div className="flex justify-end items-center gap-2">
@@ -187,10 +235,6 @@ export default function AddItemsPage({ searchParams }: Props) {
                         <Button type="submit" className="ml-2 w-40">
                         {loadingSave ? <Loader className="h-4 w-4 animate-spin" /> : <p>{back ? "Guardar y Volver" : "Guardar y crear otro"}</p>}
                         </Button>
-                    </div>
-                    <div className="flex justify-end items-center gap-2">
-                        <Switch onCheckedChange={() => setBack(!back)} checked={!back} />
-                        <p>seguir creando manos de obra</p> 
                     </div>
                     </form>
                 </Form>

@@ -347,6 +347,9 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
       manoDeObraId: data.manoDeObraId,
+      centimetros: data.centimetros ? Number(data.centimetros) : 0,
+      largo: data.length ? Number(data.length) : 0,
+      ancho: data.width ? Number(data.width) : 0,
     }
   })
   return created
@@ -354,7 +357,9 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
 
 
 export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormValues){
-  const workId= data.workId
+  console.log('updateManoDeObraItem', data)
+  
+  const workId= data.workId  
   const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
   const type= ItemType.MANO_DE_OBRA
   const quantity= data.quantity ? Number(data.quantity) : 1
@@ -374,6 +379,9 @@ export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormV
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
       manoDeObraId: data.manoDeObraId,
+      centimetros: data.centimetros ? Number(data.centimetros) : 0,
+      largo: data.length ? Number(data.length) : 0,
+      ancho: data.width ? Number(data.width) : 0,
     }
   })
   return updated
@@ -388,6 +396,7 @@ export async function createAjusteItem(data: AjusteFormValues) {
     data: {
       type,
       valor,
+      ajuste: valor,
       description,
       workId,
     }
@@ -407,6 +416,7 @@ export async function updateAjusteItem(id: string, data: AjusteFormValues){
     data: {
       type,
       valor,
+      ajuste: valor,
       description,
       workId,
     }
@@ -456,6 +466,7 @@ function calculateTerminationValue(item: TerminationFormValues, termination: Ter
 }
 
 export function calculateManoDeObraValue(item: ManoDeObraItemFormValues, manoDeObra: ManoDeObraDAO, clientType: ClientType): number {
+  let valorUnitario= 0
   let valorLineal= 0
   let valorArea= 0
   let valorAjuste= item.ajuste ? Number(item.ajuste) : 0
@@ -467,20 +478,36 @@ export function calculateManoDeObraValue(item: ManoDeObraItemFormValues, manoDeO
   const superficie= largo * ancho / 10000
   switch (clientType) {
     case ClientType.CLIENTE_FINAL:
+      valorUnitario= manoDeObra.clienteFinalPrice
       valorLineal= metrosLineales * manoDeObra.clienteFinalPrice
       valorArea= superficie * manoDeObra.clienteFinalPrice
       break
     case ClientType.ARQUITECTO_ESTUDIO:
+      valorUnitario= manoDeObra.arquitectoStudioPrice
       valorLineal= metrosLineales * manoDeObra.arquitectoStudioPrice
       valorArea= superficie * manoDeObra.arquitectoStudioPrice
       break
     case ClientType.DISTRIBUIDOR:
+      valorUnitario= manoDeObra.distribuidorPrice
       valorLineal= metrosLineales * manoDeObra.distribuidorPrice
       valorArea= superficie * manoDeObra.distribuidorPrice
       break
   }
 
-  const valorTotal= valorLineal + valorArea + valorAjuste
+  console.log('valorLineal', valorLineal)
+  console.log('valorArea', valorArea)
+  console.log('valorAjuste', valorAjuste)
+
+  let valorTotal= valorUnitario
+  if (valorLineal > 0 || valorArea > 0) {
+    valorTotal= valorLineal + valorArea
+  }
+
+  valorTotal+= valorAjuste
+
+  // take in count the quantity
+  const quantity= item.quantity ? Number(item.quantity) : 1
+  valorTotal= valorTotal * quantity
 
   return valorTotal
 }
