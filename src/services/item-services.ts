@@ -6,6 +6,8 @@ import { ColorDAO } from "./color-services"
 import { TerminacionDAO, getTerminacionDAO } from "./terminacion-services"
 import { ManoDeObraDAO, ManoDeObraFormValues, getManoDeObraDAO } from "./manodeobra-services"
 import { AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
+import { WorkTypeDAO } from "./worktype-services"
+import { formatCurrency } from "@/lib/utils"
 
 export type ItemDAO = {
 	id: string
@@ -43,6 +45,7 @@ export type ItemFormValues = z.infer<typeof itemSchema>
 
 export const terminationSchema = z.object({
   terminationId: z.string().min(1, "Debes elegir una terminación."),
+  description: z.string().optional(),
   quantity: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   ajuste: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   workId: z.string().min(1, "workId is required."),
@@ -72,6 +75,15 @@ export const ajusteSchema = z.object({
 })
 
 export type AjusteFormValues = z.infer<typeof ajusteSchema>
+
+export const colocacionSchema = z.object({
+  workId: z.string().min(1, "workId is required."),
+  type: z.nativeEnum(ItemType).refine((val) => val === ItemType.COLOCACION),
+  valor: z.number(),
+  description: z.string().optional(),
+})
+
+export type ColocacionFormValues = z.infer<typeof colocacionSchema>
 
 
 export async function getItemsDAO() {
@@ -132,10 +144,12 @@ export async function updateItem(id: string, data: ItemFormValues) {
   const work= await getFullWorkDAO(data.workId)
   if (!work) throw new Error("Work not found")
   const color= work.color
+
   const client= work.cotization.client
   const clientType= client.type
   // @ts-ignore
   const valor= calculateAreaValue(clientType, superficie, color)
+  
   const updated = await prisma.item.update({
     where: {
       id
@@ -148,6 +162,7 @@ export async function updateItem(id: string, data: ItemFormValues) {
       superficie,
       centimetros,
       valor,
+      description: data.description,
     }
   })
   return updated
@@ -360,8 +375,6 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
 
 
 export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormValues){
-  console.log('updateManoDeObraItem', data)
-  
   const workId= data.workId  
   const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
   const type= ItemType.MANO_DE_OBRA
@@ -487,10 +500,6 @@ export function calculateManoDeObraValue(item: ManoDeObraItemFormValues, manoDeO
       break
   }
 
-  console.log('valorLineal', valorLineal)
-  console.log('valorArea', valorArea)
-  console.log('valorAjuste', valorAjuste)
-
   let valorTotal= valorUnitario
   if (valorLineal > 0 || valorArea > 0) {
     valorTotal= valorLineal + valorArea
@@ -499,4 +508,75 @@ export function calculateManoDeObraValue(item: ManoDeObraItemFormValues, manoDeO
   valorTotal+= valorAjuste
 
   return valorTotal
+}
+
+export async function updateColocacion(workId: string) {
+  console.log('updateColocacion')
+  
+  const work= await getFullWorkDAO(workId)
+  if (!work) throw new Error("Work not found")
+  const client= work.cotization.client
+  const clientType= client.type
+  const workType= work.workType
+
+  const items= work.items
+  const tramos= items.filter((item) => item.type === ItemType.TRAMO)
+  const zocalos= items.filter((item) => item.type === ItemType.ZOCALO)
+  const alzados= items.filter((item) => item.type === ItemType.ALZADA)
+  const terminaciones= items.filter((item) => item.type === ItemType.TERMINACION)
+
+  const tramosArea= tramos.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) / 10000, 0)  
+  const zocalosArea= zocalos.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) / 10000, 0)
+  const alzadosArea= alzados.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) / 10000, 0)
+  const terminacionesArea= terminaciones.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) / 10000, 0)  
+
+  const totalArea= tramosArea + zocalosArea + alzadosArea + terminacionesArea
+
+  const pricePerMeter= getWorkPrice(clientType, workType)
+  const totalPrice= totalArea * pricePerMeter
+
+  let description= ""
+  if (tramosArea > 0) description+= `Tramos: ${tramosArea}m²`
+  if (zocalosArea > 0) description+= `, Zócalos: ${zocalosArea}m²`
+  if (alzadosArea > 0) description+= `, Alzadas: ${alzadosArea}m²`
+  if (terminacionesArea > 0) description+= `, Terminaciones: ${terminacionesArea}m²`
+  description+= `\nTotal: ${totalArea.toFixed(2)}m².`
+
+  const colocacionForm: ColocacionFormValues = {
+    workId,
+    type: ItemType.COLOCACION,
+    valor: totalPrice,
+    description,
+  }
+
+  const itemColocacion= items.find((item) => item.type === ItemType.COLOCACION)
+  // if exist, update colocacion, if not create
+  if (itemColocacion) {
+    const updated= await prisma.item.update({
+      where: {
+        id: itemColocacion.id
+      }, 
+      data: colocacionForm
+    })
+    return updated
+  } else {
+    const created = await prisma.item.create({data: colocacionForm})
+    return created
+  }
+}
+
+function getWorkPrice(clientType: ClientType, workType: WorkTypeDAO): number {
+  let price= 0
+  switch (clientType) {
+    case ClientType.CLIENTE_FINAL:
+      price= workType.clienteFinalPrice
+      break
+    case ClientType.ARQUITECTO_ESTUDIO:
+      price= workType.arquitectoStudioPrice
+      break
+    case ClientType.DISTRIBUIDOR:
+      price= workType.distribuidorPrice
+      break
+  }
+  return price
 }

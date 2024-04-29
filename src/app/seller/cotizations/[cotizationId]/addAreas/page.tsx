@@ -1,19 +1,21 @@
 "use client"
 
-import { upsertBatchAreaItemAction, upsertBatchManoDeObraItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
+import { InputDataConfig, getInputDataConfigAction } from "@/app/admin/configs/config-actions"
+import { deleteColocacionAction, updateColocacionAction, upsertBatchAreaItemAction, upsertBatchManoDeObraItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
 import { getWorkDAOAction } from "@/app/admin/works/work-actions"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { toast } from "@/components/ui/use-toast"
+import { formatCurrency } from "@/lib/utils"
+import { ItemDAO } from "@/services/item-services"
 import { WorkDAO } from "@/services/work-services"
 import { ItemType } from "@prisma/client"
 import { ChevronLeft, Loader } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import AreaBox from "./area-box"
-import TerminationsBox from "./termination-box"
-import { ItemDAO } from "@/services/item-services"
 import ManoDeObraBox from "./mo-box"
-import { InputDataConfig, getInputDataConfigAction } from "@/app/admin/configs/config-actions"
+import TerminationsBox from "./termination-box"
 
 export type AreaItem = {
     id: string | undefined
@@ -43,6 +45,12 @@ export type ManoDeObraItem = {
     ajuste: number | undefined | null
 }
 
+export type ColocacionItem = {
+    id: string
+    valor: number
+    description: string | undefined | null
+}
+
 type Props= {
     searchParams: {
       workId: string
@@ -65,6 +73,7 @@ export default function AddItemsPage({ searchParams }: Props) {
     const [alzadas, setAlzadas] = useState<AreaItem[]>([])
     const [terminaciones, setTerminations] = useState<TerminationItem[]>([])
     const [manoDeObras, setManoDeObras] = useState<ManoDeObraItem[]>([])
+    const [colocacion, setColocacion] = useState<ColocacionItem>()
     
     const tramosWithData= tramos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
     const totalTramosWithData= tramosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
@@ -99,6 +108,15 @@ export default function AddItemsPage({ searchParams }: Props) {
             if (workDao) {
                 // @ts-ignore
                 setWork(workDao)
+                const colocaciones= workDao.items.filter((item) => item.type === ItemType.COLOCACION)
+                if (colocaciones.length > 0) {
+                    const item= colocaciones[0]
+                    setColocacion({
+                        id: item.id,
+                        valor: item.valor ? item.valor : 0,
+                        description: item.description
+                    })
+                }
             }
         })
         .catch((error) => {
@@ -172,6 +190,44 @@ export default function AddItemsPage({ searchParams }: Props) {
             toast({title: "Error", description: error.message, variant: "destructive"})
         })
 
+        if (colocacion !== undefined) {
+            updateColocacion()
+        }
+
+    }
+
+    function updateColocacion() {
+        updateColocacionAction(workId)
+        .then((colocacion) => {
+            if (colocacion) {
+                setColocacion({
+                    id: colocacion.id,
+                    valor: colocacion.valor ? colocacion.valor : 0,
+                    description: colocacion.description
+                })
+            }
+        })
+        .catch((error) => {
+            toast({title: "Error", description: error.message, variant: "destructive"})
+        })
+    }
+
+    function toggleColocacion() {
+        const enabled= colocacion !== undefined
+        if (enabled) {
+            deleteColocacionAction(colocacion.id)
+            .then((colocacion) => {
+                if (colocacion) {
+                    setColocacion(undefined)
+                    toast({title: "Colocación eliminada" })
+                }
+            })
+            .catch((error) => {
+                toast({title: "Error", description: error.message, variant: "destructive"})
+            })
+        } else {
+            updateColocacion()
+        }
     }
 
     return (
@@ -201,6 +257,14 @@ export default function AddItemsPage({ searchParams }: Props) {
             <div className="mt-10">
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Mano de Obra <span className="font-bold text-xl">{totalManoDeObrasWithData > 0 ? "(" + totalManoDeObrasWithData + ")" : ""}</span></p>
                 <ManoDeObraBox itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} />
+            </div>
+            <div className="mt-10">
+                <p className="text-2xl font-bold mb-3 text-center lg:text-left">Colocación</p>
+                <div className="space-y-4 bg-white rounded-lg dark:bg-gray-800 p-4 border">
+                    <Switch onCheckedChange={toggleColocacion} checked={colocacion !== undefined} />
+                    <p className="whitespace-pre-line">{colocacion?.description}</p>
+                    <p>{colocacion?.valor ? formatCurrency(colocacion?.valor) : ""}</p>
+                </div>
             </div>
 
             <div className="mt-10">

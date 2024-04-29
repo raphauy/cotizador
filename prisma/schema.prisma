@@ -126,6 +126,11 @@ model Note {
 model WorkType {
   id                String    @id @default(cuid())
   name              String                                   // genext: show.column 
+
+  clienteFinalPrice         Float @default(0)
+  arquitectoStudioPrice     Float @default(0)
+  distribuidorPrice         Float @default(0)
+
   createdAt         DateTime  @default(now())                // gennext: skip.zod
   updatedAt         DateTime  @updatedAt                     // gennext: skip.zod
 
@@ -137,9 +142,9 @@ enum ItemType {
   ZOCALO
   ALZADA
   TERMINACION
-  REGRUESO
   MANO_DE_OBRA
   AJUSTE
+  COLOCACION
 }
 
 

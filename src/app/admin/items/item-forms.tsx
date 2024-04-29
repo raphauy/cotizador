@@ -48,9 +48,6 @@ export function ItemForm({ id, workId, cotizationId, closeDialog }: Props) {
     if (watchType === ItemType.TRAMO || watchType === ItemType.ZOCALO || watchType === ItemType.ALZADA){
       setIsArea(true)
       setIsLinear(false)
-    } else if (watchType === ItemType.REGRUESO){
-      setIsLinear(true)
-      setIsArea(false)
     } else {
       setIsArea(false)
       setIsLinear(false)

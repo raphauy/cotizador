@@ -19,7 +19,12 @@ type Props= {
 export function WorkTypeForm({ id, closeDialog }: Props) {
   const form = useForm<WorkTypeFormValues>({
     resolver: zodResolver(workTypeSchema),
-    defaultValues: {},
+    defaultValues: {
+      name: "",
+      clienteFinalPrice: "0",
+      arquitectoStudioPrice: "0",
+      distribuidorPrice: "0",
+    },
     mode: "onChange",
   })
   const [loading, setLoading] = useState(false)
@@ -41,7 +46,10 @@ export function WorkTypeForm({ id, closeDialog }: Props) {
     if (id) {
       getWorkTypeDAOAction(id).then((data) => {
         if (data) {
-          form.reset(data)
+          form.setValue("name", data.name)
+          form.setValue("clienteFinalPrice", data.clienteFinalPrice.toString())
+          form.setValue("arquitectoStudioPrice", data.arquitectoStudioPrice.toString())
+          form.setValue("distribuidorPrice", data.distribuidorPrice.toString())
         }
         Object.keys(form.getValues()).forEach((key: any) => {
           if (form.getValues(key) === null) {
@@ -71,6 +79,48 @@ export function WorkTypeForm({ id, closeDialog }: Props) {
             )}
           />
           
+          <FormField
+            control={form.control}
+            name="clienteFinalPrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Precio de cliente final</FormLabel>
+                <FormControl>
+                  <Input placeholder="Precio de cliente final" {...field} type="number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="arquitectoStudioPrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Precio de arquitecto studio</FormLabel>
+                <FormControl> 
+                  <Input placeholder="Precio de arquitecto studio" {...field} type="number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="distribuidorPrice"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Precio de distribuidor</FormLabel>
+                <FormControl>
+                  <Input placeholder="Precio de distribuidor" {...field} type="number" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
 
         <div className="flex justify-end">
             <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancel</Button>

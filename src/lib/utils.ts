@@ -69,10 +69,10 @@ export function getItemDescription(item: ItemDAO): string {
       return `${item.quantity > 1 ? item.quantity + " Terminaciones" : "Terminación"} ${item.terminacion && item.terminacion.name} (${(item.centimetros || 0)/100}ml${superficie ? " + " + superficie + "m²" : ""}) ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`    
     case ItemType.MANO_DE_OBRA:
       return `${item.quantity > 1 ? item.quantity + " MO" : "MO"}: ${item.manoDeObra && item.manoDeObra.name} ${superficie ? "(" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`
-    case ItemType.REGRUESO:
-      return `Regrueso (no implementado)`
     case ItemType.AJUSTE:
       return `Ajuste: ${item.description}`
+    case ItemType.COLOCACION:
+      return `Colocación: ${item.description}`
     default:
       return `Trabajo ${item.work.name} de ${item.work.material.name} con ${item.work.color.name}`
   }
@@ -98,10 +98,10 @@ export function getShortItemDescription(item: ItemDAO): string {
       return `${item.quantity > 1 ? item.quantity : ""} ${item.terminacion && item.terminacion.name} ${superficie ? "(+" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}` 
     case ItemType.MANO_DE_OBRA:
       return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${superficie ? "(" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`  
-    case ItemType.REGRUESO:
-      return `Regrueso (no implementado)`
     case ItemType.AJUSTE:
       return `- ${item.description}`
+    case ItemType.COLOCACION:
+      return `${item.description}`
     default:
       return `Trabajo ${item.work.name} de ${item.work.material.name} con ${item.work.color.name}`
   }
