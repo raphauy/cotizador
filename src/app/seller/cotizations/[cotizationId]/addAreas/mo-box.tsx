@@ -13,12 +13,11 @@ import { getManoDeObrasDAOAction } from "@/app/admin/manodeobras/manodeobra-acti
 import { ManoDeObraDAO } from "@/services/manodeobra-services"
 
 type Props= {
-    workId: string
-    cantidad: number
     itemManoDeObras: ManoDeObraItem[]
     setItemManoDeObras: (items: ManoDeObraItem[]) => void
 }
-export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setItemManoDeObras }: Props) {
+export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: Props) {
+    
     const [loading, setLoading] = useState(false)
     const [loadingMO, setLoadingMO] = useState(false)
 
@@ -90,8 +89,6 @@ export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setIt
     }
 
     function notifyMOSelected(itemId: string | undefined, index: number, manoDeObraId: string | undefined) {
-        console.log("manoDeObraId: ", manoDeObraId)
-        
         setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, manoDeObraId: manoDeObraId } : item))
     }
 
@@ -115,7 +112,7 @@ export default function ManoDeObraBox({ workId, cantidad, itemManoDeObras, setIt
                             { loadingMO ?
                             <Loader className="h-4 w-4 animate-spin" />
                             :
-                            <MOForm itemId={item.id} index={index} notifyMOSelected={notifyMOSelected} manoDeObras={manoDeObras} />
+                            <MOForm itemId={item.id} index={index} notifyMOSelected={notifyMOSelected} manoDeObras={manoDeObras} defaultManoDeObraId={item.manoDeObraId} />
                             }
                             <div className="flex items-center gap-2">
                                 <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.manoDeObraId}/> 

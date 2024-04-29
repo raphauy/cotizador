@@ -20,15 +20,16 @@ export const schema = z.object({
 type Props= {
     itemId: string | undefined
     index: number
+    defaultManoDeObraId?: string | undefined
     notifyMOSelected: (itemId: string | undefined, index: number, manoDeObraId: string | undefined) => void
     manoDeObras: ManoDeObraDAO[]
 }
-export default function MOForm({ itemId, index, notifyMOSelected, manoDeObras }: Props) {
+export default function MOForm({ itemId, index, defaultManoDeObraId, notifyMOSelected, manoDeObras }: Props) {
 
     const form = useForm<FormValues>({
         resolver: zodResolver(schema),
         defaultValues: {
-            manoDeObraId: "",
+            manoDeObraId: defaultManoDeObraId,
         },
         mode: "onChange",
     })
@@ -41,10 +42,8 @@ export default function MOForm({ itemId, index, notifyMOSelected, manoDeObras }:
     }, [manoDeObraId])
     
     
-    // const [manoDeObras, setManoDeObras] = useState<ManoDeObraDAO[]>([])
-
     useEffect(() => {
-        if (itemId) {
+        if (itemId) {            
             getItemDAOAction(itemId)
             .then((item) => {
                 if (!item || !item.manoDeObraId)
@@ -57,19 +56,6 @@ export default function MOForm({ itemId, index, notifyMOSelected, manoDeObras }:
             })
         }
     }, [itemId, form])
-
-    // useEffect(() => {
-    //     setLoading(true)
-
-    //     getManoDeObrasDAOAction()
-    //     .then((manoDeObras) => {
-    //         setManoDeObras(manoDeObras)
-    //     })
-    //     .finally(() => {
-    //         setLoading(false)
-    //     })
-        
-    // }, [])
 
     function onSubmit(data: FormValues) {
         console.log(data)        

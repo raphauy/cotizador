@@ -13,11 +13,10 @@ import { AreaItem } from "./page"
 type Props= {
     workId: string
     itemType: ItemType
-    cantidad: number
     itemAreas: AreaItem[]
     setItemAreas: (itemAreas: AreaItem[]) => void
 }
-export default function AreaBox({ workId, itemType, cantidad, itemAreas, setItemAreas }: Props) {
+export default function AreaBox({ workId, itemType, itemAreas, setItemAreas }: Props) {
     const [loading, setLoading] = useState(false)
 
     const itemLabel= getItemLabel(itemType)

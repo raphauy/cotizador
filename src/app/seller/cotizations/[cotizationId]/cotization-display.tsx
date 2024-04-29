@@ -119,8 +119,8 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                             <Link href={`/seller/cotizations/${cotization.id}?workId=${work.id}`}>
                                 <CardHeader>
                                     <div className="flex items-center justify-between"> 
-                                        <CardTitle className="flex items-center gap-4">
-                                            {work.workType.name}
+                                        <CardTitle className="flex items-center gap-1">
+                                            {work.workType.name}{work.reference && <p className="text-sm text-muted-foreground">({work.reference})</p>}
                                         </CardTitle>
                                         <p className="text-sm text-muted-foreground">{work.material.name} ({work.color.name})</p>
                                     </div>

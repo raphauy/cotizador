@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { AlignVerticalDistributeStart, ArrowDownWideNarrow, CircleDollarSign, Combine, LayoutDashboard, ListChecks, Megaphone, Pickaxe, Receipt, User } from "lucide-react"
+import { AlignVerticalDistributeStart, ArrowDownWideNarrow, CircleDollarSign, Combine, LayoutDashboard, ListChecks, Megaphone, Pickaxe, Receipt, Settings, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -41,6 +41,12 @@ const data= [
         href: `/admin/manodeobras`,
         icon: AlignVerticalDistributeStart,   
         text: "Mano de obra",
+        disabled: false
+    },
+    {
+        href: `/admin/configs`,
+        icon: Settings,   
+        text: "Configuraciones",
         disabled: false
     },
 ]

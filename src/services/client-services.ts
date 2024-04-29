@@ -9,7 +9,7 @@ export type ClientDAO = {
 	id: string
 	name: string
 	phone: string | undefined
-	email: string
+	email: string | undefined
 	slug: string
 	type: ClientType
 	createdAt: Date
@@ -18,11 +18,22 @@ export type ClientDAO = {
 }
 
 export const clientSchema = z.object({
-	name: z.string().min(1, "name is required."),
-	phone: z.string().optional(),
-	email: z.string().email("email is required."),
+  name: z.string().min(1, "name is required."),
+  phone: z.string().optional(),
+  email: z.string().optional().refine((email) => !email || z.string().email().safeParse(email).success, {
+    message: "El email no es válido",
+  }),
   type: z.nativeEnum(ClientType),
-})
+}).superRefine((data, ctx) => {
+  if (!data.phone && !data.email) {
+    // Agregar el error a 'email' o 'phone', dependiendo de cuál prefieras mostrar el error
+    ctx.addIssue({
+      path: ['email'], // Asigna el error a 'email' para mantener la consistencia
+      message: "Debe proporcionar al menos un teléfono o un email.",
+      code: z.ZodIssueCode.custom,
+    });
+  }
+});
 
 export type ClientFormValues = z.infer<typeof clientSchema>
 

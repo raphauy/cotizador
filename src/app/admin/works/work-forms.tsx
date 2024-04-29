@@ -15,6 +15,7 @@ import { useForm, useWatch } from "react-hook-form"
 import { getColorsDAOByMaterialIdAction, getMaterialsDAOAction } from "../colors/color-actions"
 import { getWorkTypesDAOAction } from "../worktypes/worktype-actions"
 import { createOrUpdateWorkAction, deleteWorkAction, getWorkDAOAction } from "./work-actions"
+import { Input } from "@/components/ui/input"
 
 type Props= {
   id?: string
@@ -27,6 +28,7 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
     resolver: zodResolver(workSchema),
     defaultValues: {
       cotizationId,
+      reference: "",
     },
     mode: "onChange",
   })
@@ -90,7 +92,10 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
     if (id) {
       getWorkDAOAction(id).then((data) => {
         if (data) {
-          form.reset(data)
+          form.reset({
+            ...data,
+            reference: data.reference || "",
+          })
         }
         Object.keys(form.getValues()).forEach((key: any) => {
           if (form.getValues(key) === null) {
@@ -179,8 +184,19 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
             )}
           />
 
-
-          
+          <FormField
+            control={form.control}
+            name="reference"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Referencia:</FormLabel>
+                <FormControl>
+                  <Input placeholder="Referencia" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
         <div className="flex justify-end">
             <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancel</Button>

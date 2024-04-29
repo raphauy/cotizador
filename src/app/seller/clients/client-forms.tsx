@@ -37,6 +37,15 @@ export function ClientForm({ id, closeDialog, onSelect }: Props) {
   const onSubmit = async (data: ClientFormValues) => {
     setLoading(true)
     try {
+      if (!data.phone && !data.email) {
+        form.setError('root', { // Usar 'root' para errores generales del formulario
+          type: 'manual',
+          message: 'Debe proporcionar al menos un teléfono o un email.',
+        });
+        setLoading(false);
+        return;
+      }
+
       const created= await createOrUpdateClientAction(id ? id : null, data)
       if (!created) {
         toast({ title: "Hubo un error al crear el cliente", variant: "destructive" })
@@ -117,7 +126,6 @@ export function ClientForm({ id, closeDialog, onSelect }: Props) {
             )}
           />
           
-      
           <FormField
             control={form.control}
             name="type"

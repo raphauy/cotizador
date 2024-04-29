@@ -13,6 +13,7 @@ import AreaBox from "./area-box"
 import TerminationsBox from "./termination-box"
 import { ItemDAO } from "@/services/item-services"
 import ManoDeObraBox from "./mo-box"
+import { InputDataConfig, getInputDataConfigAction } from "@/app/admin/configs/config-actions"
 
 export type AreaItem = {
     id: string | undefined
@@ -49,7 +50,13 @@ type Props= {
 }
 export default function AddItemsPage({ searchParams }: Props) {
     const workId= searchParams.workId
-    const [cantidadTramosIniciales, setCantidadTramosIniciales] = useState(4)
+
+    const [inputDataConfig, setInputDataConfig] = useState<InputDataConfig>({
+        manosDeObraIds: [],
+        tramosPorDefecto: 0,
+        zocalosPorDefecto: 0,
+        alzadosPorDefecto: 0,
+    })
 
     const [work, setWork] = useState<WorkDAO>()
 
@@ -77,6 +84,16 @@ export default function AddItemsPage({ searchParams }: Props) {
     const router = useRouter()
 
     useEffect(() => {
+        getInputDataConfigAction()
+        .then((data) => {
+            setInputDataConfig(data)
+        })
+        .catch((error) => {
+            console.log(error)            
+        })
+    }, [])
+    
+    useEffect(() => {
         getWorkDAOAction(workId)
         .then((workDao) => {
             if (workDao) {
@@ -90,17 +107,17 @@ export default function AddItemsPage({ searchParams }: Props) {
     }, [workId])
 
     useEffect(() => {
-        if (!work) return
+        if (!work || !inputDataConfig) return
 
         const items= work?.items
 
         const areaItemsLoaded= items.filter((item) => item.type === ItemType.TRAMO || item.type === ItemType.ZOCALO || item.type === ItemType.ALZADA)
 
-        const tramosLoaded= getAreaItems(areaItemsLoaded, ItemType.TRAMO, cantidadTramosIniciales)
+        const tramosLoaded= getAreaItems(areaItemsLoaded, ItemType.TRAMO, inputDataConfig.tramosPorDefecto)
         setTramos(tramosLoaded)
-        const zocalosLoaded= getAreaItems(areaItemsLoaded, ItemType.ZOCALO)
+        const zocalosLoaded= getAreaItems(areaItemsLoaded, ItemType.ZOCALO, inputDataConfig.zocalosPorDefecto)
         setZocalos(zocalosLoaded)
-        const alzadasLoaded= getAreaItems(areaItemsLoaded, ItemType.ALZADA)
+        const alzadasLoaded= getAreaItems(areaItemsLoaded, ItemType.ALZADA, inputDataConfig.alzadosPorDefecto)
         setAlzadas(alzadasLoaded)
 
         const terminationsItem= items.filter((item) => item.type === ItemType.TERMINACION)
@@ -108,10 +125,10 @@ export default function AddItemsPage({ searchParams }: Props) {
         setTerminations(terminaciones)
 
         const manoDeObrasItem= items.filter((item) => item.type === ItemType.MANO_DE_OBRA)
-        const manoDeObras= getManoDeObrasItems(manoDeObrasItem)
+        const manoDeObras= getManoDeObrasItems(manoDeObrasItem, inputDataConfig.manosDeObraIds)
         setManoDeObras(manoDeObras)
 
-    }, [work, cantidadTramosIniciales])
+    }, [work, inputDataConfig])
 
 
     function handleSave() {
@@ -165,15 +182,15 @@ export default function AddItemsPage({ searchParams }: Props) {
             <div className="grid lg:grid-cols-3 gap-2">
                 <div>
                     <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Tramos <span className="font-bold text-xl">{totalTramosWithData > 0 ? "(" + totalTramosWithData + ")" : ""}</span></p>
-                    <AreaBox workId={workId} itemType={ItemType.TRAMO} cantidad={cantidadTramosIniciales} itemAreas={tramos} setItemAreas={setTramos} />
+                    <AreaBox workId={workId} itemType={ItemType.TRAMO} itemAreas={tramos} setItemAreas={setTramos} />
                 </div>
                 <div>
                     <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Zocalos <span className="font-bold text-xl">{totalZocalosWithData > 0 ? "(" + totalZocalosWithData + ")" : ""}</span></p>
-                    <AreaBox workId={workId} itemType={ItemType.ZOCALO} cantidad={0} itemAreas={zocalos} setItemAreas={setZocalos} />
+                    <AreaBox workId={workId} itemType={ItemType.ZOCALO} itemAreas={zocalos} setItemAreas={setZocalos} />
                 </div>
                 <div>
                     <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Alzadas <span className="font-bold text-xl">{totalAlzadasWithData > 0 ? "(" + totalAlzadasWithData + ")" : ""}</span></p>
-                    <AreaBox workId={workId} itemType={ItemType.ALZADA} cantidad={0} itemAreas={alzadas} setItemAreas={setAlzadas} />
+                    <AreaBox workId={workId} itemType={ItemType.ALZADA} itemAreas={alzadas} setItemAreas={setAlzadas} />
                 </div>
             </div>
 
@@ -183,7 +200,7 @@ export default function AddItemsPage({ searchParams }: Props) {
             </div>
             <div className="mt-10">
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Mano de Obra <span className="font-bold text-xl">{totalManoDeObrasWithData > 0 ? "(" + totalManoDeObrasWithData + ")" : ""}</span></p>
-                <ManoDeObraBox workId={workId} cantidad={1} itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} />
+                <ManoDeObraBox itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} />
             </div>
 
             <div className="mt-10">
@@ -272,7 +289,7 @@ function getInitTerminationsItems(cantidad: number) {
     return items
 }
 
-function getManoDeObrasItems(items: ItemDAO[], cantidadIniciales: number = 1) {
+function getManoDeObrasItems(items: ItemDAO[], defaultManosDeObraIds: string[]) {
     const itemsFiltered= items.filter((item) => item.type === ItemType.MANO_DE_OBRA)
     const manoDeObrasItemsMaped= itemsFiltered.map((item) => ({
         id: item.id,
@@ -286,19 +303,20 @@ function getManoDeObrasItems(items: ItemDAO[], cantidadIniciales: number = 1) {
     }))
 
     if (manoDeObrasItemsMaped.length === 0) {
-        const newManoDeObrasItems= getInitManoDeObrasItems(cantidadIniciales)
+        const newManoDeObrasItems= getInitManoDeObrasItems(defaultManosDeObraIds)
         return newManoDeObrasItems
     }
 
     return manoDeObrasItemsMaped
 }
 
-function getInitManoDeObrasItems(cantidad: number) {
-    const items= []
-    for (let i = 0; i < cantidad; i++) {
+function getInitManoDeObrasItems(defaultManosDeObraIds: string[]) {
+    const items: ManoDeObraItem[] = []
+    defaultManosDeObraIds.forEach((defaultManoDeObraId) => {
+        
         const itemManoDeObra: ManoDeObraItem = {
             id: undefined,
-            manoDeObraId: undefined,
+            manoDeObraId: defaultManoDeObraId,
             quantity: 1,
             length: undefined,
             width: undefined,
@@ -306,7 +324,7 @@ function getInitManoDeObrasItems(cantidad: number) {
             ajuste: 0,
         }
         items.push(itemManoDeObra)
-    }
+    })
     return items
 }
 

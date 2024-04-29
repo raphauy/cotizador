@@ -9,6 +9,7 @@ import { ItemDAO } from "./item-services"
 export type WorkDAO = {
 	id: string
 	name: string
+  reference: string
 	createdAt: Date
 	updatedAt: Date
   workType: WorkTypeDAO
@@ -27,6 +28,7 @@ export const workSchema = z.object({
 	materialId: z.string().min(1, "materialId is required."),
 	cotizationId: z.string().min(1, "cotizationId is required."),
   colorId: z.string().min(1, "colorId is required."),
+  reference: z.string().optional(),
 })
 
 export type WorkFormValues = z.infer<typeof workSchema>
@@ -56,6 +58,7 @@ export async function createWork(data: WorkFormValues) {
   const created = await prisma.work.create({
     data: {
       name,
+      reference: data.reference,
       workTypeId: data.workTypeId,
       materialId: data.materialId,
       colorId: data.colorId,

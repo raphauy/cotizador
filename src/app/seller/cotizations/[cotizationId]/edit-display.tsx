@@ -39,8 +39,8 @@ export default function EditDisplay({ work, cotizationId, showDialog }: Props) {
         <Card className="lg:w-1/2 h-fit">
             <CardHeader>
                 <div className="flex items-center justify-between"> 
-                    <CardTitle>
-                        {work.workType.name}
+                    <CardTitle className="flex items-center gap-1">
+                        {work.workType.name}{work.reference && <p className="text-sm text-muted-foreground">({work.reference})</p>}
                     </CardTitle>
                     <div className="flex items-center gap-2 text-muted-foreground">
                         <p className="text-sm">{work.material.name} ({work.color.name})</p>
