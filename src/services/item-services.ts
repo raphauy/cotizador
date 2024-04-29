@@ -58,6 +58,9 @@ export const manoDeObraItemSchema = z.object({
   quantity: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   ajuste: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   workId: z.string().min(1, "workId is required."),
+  centimetros: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  length: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  width: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
 })
 
 export type ManoDeObraItemFormValues = z.infer<typeof manoDeObraItemSchema>
@@ -331,11 +334,11 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
   const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
   const type= ItemType.MANO_DE_OBRA
   const quantity= data.quantity ? Number(data.quantity) : 1
-  let total= manoDeObra.price
-  if (data.ajuste) {
-    total += Number(data.ajuste)
-  }
-  const valor= total
+  const work= await getFullWorkDAO(data.workId)
+  if (!work) throw new Error("Work not found")
+  const client= work.cotization.client
+  const clientType= client.type
+  const valor= calculateManoDeObraValue(data, manoDeObra, clientType)
   const created = await prisma.item.create({
     data: {
       type,
@@ -349,16 +352,17 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
   return created
 }
 
+
 export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormValues){
   const workId= data.workId
   const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
   const type= ItemType.MANO_DE_OBRA
   const quantity= data.quantity ? Number(data.quantity) : 1
-  let total= manoDeObra.price
-  if (data.ajuste) {
-    total += Number(data.ajuste)
-  }
-  const valor= total
+  const work= await getFullWorkDAO(data.workId)
+  if (!work) throw new Error("Work not found")
+  const client= work.cotization.client
+  const clientType= client.type
+  const valor= calculateManoDeObraValue(data, manoDeObra, clientType)
   const updated = await prisma.item.update({
     where: {
       id
@@ -451,10 +455,32 @@ function calculateTerminationValue(item: TerminationFormValues, termination: Ter
   return valorTotal
 }
 
-function calculateManoDeObraValue(type: ItemType, clientType: ClientType, quantity: number, manoDeObra: ManoDeObraDAO): number {
-  let valor= 0
-  if (type === ItemType.MANO_DE_OBRA) {
-    valor = quantity * manoDeObra.price
+export function calculateManoDeObraValue(item: ManoDeObraItemFormValues, manoDeObra: ManoDeObraDAO, clientType: ClientType): number {
+  let valorLineal= 0
+  let valorArea= 0
+  let valorAjuste= item.ajuste ? Number(item.ajuste) : 0
+
+  // calular valor lineal en función de la manoDeObra y los centímetros por un lado y el área por la otra
+  const metrosLineales= item.centimetros ? Number(item.centimetros) / 100 : 0
+  const largo= item.width ? Number(item.width) : 0
+  const ancho= item.length ? Number(item.length) : 0
+  const superficie= largo * ancho / 10000
+  switch (clientType) {
+    case ClientType.CLIENTE_FINAL:
+      valorLineal= metrosLineales * manoDeObra.clienteFinalPrice
+      valorArea= superficie * manoDeObra.clienteFinalPrice
+      break
+    case ClientType.ARQUITECTO_ESTUDIO:
+      valorLineal= metrosLineales * manoDeObra.arquitectoStudioPrice
+      valorArea= superficie * manoDeObra.arquitectoStudioPrice
+      break
+    case ClientType.DISTRIBUIDOR:
+      valorLineal= metrosLineales * manoDeObra.distribuidorPrice
+      valorArea= superficie * manoDeObra.distribuidorPrice
+      break
   }
-  return valor
+
+  const valorTotal= valorLineal + valorArea + valorAjuste
+
+  return valorTotal
 }

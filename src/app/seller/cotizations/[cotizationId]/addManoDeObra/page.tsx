@@ -43,7 +43,6 @@ export default function AddItemsPage({ searchParams }: Props) {
     const [loading, setLoading] = useState(true)
     const [loadingSave, setLoadingSave] = useState(false)
 
-    const [totalPrice, setTotalPrice] = useState(0)
     const [back, setBack] = useState(true)
 
     const [manosDeObra, setManosDeObra] = useState<ManoDeObraDAO[]>([])
@@ -90,15 +89,6 @@ export default function AddItemsPage({ searchParams }: Props) {
             setManoDeObraSelected(selected || null)
         }
     }, [manosDeObra, manoDeObraId])
-
-    useEffect(() => {
-        if (manoDeObraSelected) {
-            const total= manoDeObraSelected.price
-            const curvaPr= Number(ajuste)
-            setTotalPrice(curvaPr + total)
-        }
-    }, [manoDeObraSelected, ajuste])
-    
 
     if (loading) {
         return <Loader className="w-7 h-7 animate-spin mt-10" />
