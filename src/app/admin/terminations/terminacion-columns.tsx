@@ -26,7 +26,7 @@ export const columns: ColumnDef<TerminacionDAO>[] = [
     accessorKey: "price",
     header: ({ column }) => {
         return (
-          <Button variant="ghost" className="pl-0 dark:text-white w-full"
+          <Button variant="ghost" className="pl-0 dark:text-white"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
             Precio Cliente Final $
             <ArrowUpDown className="w-4 h-4 ml-1" />
@@ -35,7 +35,7 @@ export const columns: ColumnDef<TerminacionDAO>[] = [
     cell: ({ row }) => {
       const data= row.original
       return (
-        <p className="text-right w-28">
+        <p className="ml-14">
           {data.price && data.price.toLocaleString()}
         </p>
       )
