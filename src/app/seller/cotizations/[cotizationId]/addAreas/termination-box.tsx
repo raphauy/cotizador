@@ -1,7 +1,7 @@
 "use client"
 
 import { deleteItemAction } from "@/app/admin/items/item-actions"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
@@ -126,11 +126,11 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
                             <Input id={`item${index+1}-length`} placeholder="largo cm" type="number" value={item.length ? item.length : ""} onChange={(e) => handleLenghtChange(e, index)} disabled={!item.terminationId}/>
                             <Input id={`item${index+1}-width`} placeholder="ancho cm" type="number" value={item.width ? item.width : ""} onChange={(e) => handleWidthChange(e, index)} disabled={!item.terminationId}/>
                             <Input id={`item${index+1}-ajuste`} placeholder="ajuste" type="number" value={item.ajuste ? item.ajuste : ""} onChange={(e) => handleAjusteChange(e, index)} disabled={!item.terminationId}/>
-                            <Button variant="ghost" onClick={() => removeItem(index)}>
+                            <div className={cn("cursor-pointer", buttonVariants({ variant: "ghost"}))} onClick={() => removeItem(index)}>
                                 {
                                     loading ? <Loader className="h-4 w-4 animate-spin" /> : <X className="w-5 h-5 text-red-400" />
                                 }
-                            </Button>
+                            </div>
                         </div>
                     ))
                 }
