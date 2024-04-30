@@ -1,7 +1,7 @@
 "use client"
 
 import { InputDataConfig, getInputDataConfigAction } from "@/app/admin/configs/config-actions"
-import { deleteColocacionAction, updateColocacionAction, upsertBatchAreaItemAction, upsertBatchManoDeObraItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
+import { deleteColocacionAction, updateColocacionAction, upsertBatchAjusteItemAction, upsertBatchAreaItemAction, upsertBatchManoDeObraItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
 import { getWorkDAOAction } from "@/app/admin/works/work-actions"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
@@ -16,6 +16,7 @@ import { useEffect, useState } from "react"
 import AreaBox from "./area-box"
 import ManoDeObraBox from "./mo-box"
 import TerminationsBox from "./termination-box"
+import AjustesBox from "./ajuste-box"
 
 export type AreaItem = {
     id: string | undefined
@@ -51,6 +52,12 @@ export type ColocacionItem = {
     description: string | undefined | null
 }
 
+export type AjusteItem = {
+    id: string | undefined
+    valor: number | undefined | null
+    description: string | undefined
+}
+
 type Props= {
     searchParams: {
       workId: string
@@ -73,6 +80,7 @@ export default function AddItemsPage({ searchParams }: Props) {
     const [alzadas, setAlzadas] = useState<AreaItem[]>([])
     const [terminaciones, setTerminations] = useState<TerminationItem[]>([])
     const [manoDeObras, setManoDeObras] = useState<ManoDeObraItem[]>([])
+    const [ajustes, setAjustes] = useState<AjusteItem[]>([])
     const [colocacion, setColocacion] = useState<ColocacionItem>()
     
     const tramosWithData= tramos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
@@ -87,6 +95,9 @@ export default function AddItemsPage({ searchParams }: Props) {
 
     const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId)  
     const totalManoDeObrasWithData= manoDeObrasWithData.reduce((acc, item) => acc + (item.quantity ? item.quantity : 0), 0)
+
+    const ajustesWithData= ajustes.filter((item) => item.valor && item.valor > 0) 
+    const totalAjustesWithData= ajustesWithData.length
 
     const [loading, setLoading] = useState(false)
 
@@ -146,54 +157,62 @@ export default function AddItemsPage({ searchParams }: Props) {
         const manoDeObras= getManoDeObrasItems(manoDeObrasItem, inputDataConfig.manosDeObraIds)
         setManoDeObras(manoDeObras)
 
+        const ajustesItem= items.filter((item) => item.type === ItemType.AJUSTE)
+        const ajustes= getAjustesItems(ajustesItem)
+        setAjustes(ajustes)
+
     }, [work, inputDataConfig])
 
 
-    function handleSave() {
+    async function handleSave() {
         setLoading(true)
 
+        let areaSaved= false
+        let terminacionesSaved= false
+        let manoDeObrasSaved= false
+        let ajustesSaved= false
+
         const allItems= [...tramos, ...zocalos, ...alzadas]
+
         const areaItemsWithData= allItems.filter((itemArea) => itemArea.length && itemArea.width && itemArea.length > 0 && itemArea.width > 0)
-        console.log(areaItemsWithData)
-
-
         upsertBatchAreaItemAction(workId, areaItemsWithData)
-        .then((items) => {
-            if (items) {
-                // toast({title: "Items de áreas guardados" })
-            }
-        })
-        .catch((error) => {
-            toast({title: "Error", description: error.message, variant: "destructive"})
-        })
+        .then((items) => {if (items) areaSaved= true})
+        .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
 
         const terminacionesWithData= terminaciones.filter((item) => item.terminationId && (item.centimeters || item.length))  
         upsertBatchTerminationItemAction(workId, terminacionesWithData)
-        .then((items) => {
-            if (items) {
-                // toast({title: "Items de terminaciones guardados" })
-            }
-        })
-        .catch((error) => {
-            toast({title: "Error", description: error.message, variant: "destructive"})
-        })
+        .then((items) => {if (items) terminacionesSaved= true})
+        .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
 
         const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId)  
         upsertBatchManoDeObraItemAction(workId, manoDeObrasWithData)
-        .then((items) => {
-            if (items) {
-                toast({title: "Items guardados" })
-            }
-            setLoading(false)
-        })
-        .catch((error) => {
-            toast({title: "Error", description: error.message, variant: "destructive"})
-        })
+        .then((items) => {if (items) manoDeObrasSaved= true})
+        .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
+
+        const ajustesWithData= ajustes.filter((item) => item.valor)  
+        upsertBatchAjusteItemAction(workId, ajustesWithData)
+        .then((items) => {if (items) ajustesSaved= true})
+        .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
 
         if (colocacion !== undefined) {
             updateColocacion()
         }
 
+        const maxTimeToWait= 10000
+        let timeWaiting= 0
+        while (timeWaiting < maxTimeToWait) {
+            if (areaSaved && terminacionesSaved && manoDeObrasSaved && ajustesSaved) 
+                break
+            // if (timeToWait > maxTimeToWait) 
+            //     break
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+            timeWaiting+= 1000
+        }
+        setLoading(false)
+        if (timeWaiting >= maxTimeToWait) 
+            toast({title: "Error", description: "No se pudo guardar todos los items", variant: "destructive"})
+        else
+            toast({title: "Guardado", description: "Todos los items guardados"})
     }
 
     function updateColocacion() {
@@ -254,10 +273,17 @@ export default function AddItemsPage({ searchParams }: Props) {
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Terminaciones <span className="font-bold text-xl">{totalTerminationsWithData > 0 ? "(" + totalTerminationsWithData + ")" : ""}</span></p>
                 <TerminationsBox workId={workId} cantidad={1} itemTerminations={terminaciones} setItemTerminations={setTerminations} />
             </div>
+
             <div className="mt-10">
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Mano de Obra <span className="font-bold text-xl">{totalManoDeObrasWithData > 0 ? "(" + totalManoDeObrasWithData + ")" : ""}</span></p>
                 <ManoDeObraBox itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} />
             </div>
+
+            <div className="mt-10">
+                <p className="text-2xl font-bold mb-3 text-center lg:text-left">Ajustes globales del trabajo<span className="font-bold text-xl">{totalAjustesWithData > 0 ? "(" + totalAjustesWithData + ")" : ""}</span></p>
+                <AjustesBox items={ajustes} setAjustes={setAjustes} />
+            </div>
+
             <div className="mt-10">
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Colocación</p>
                 <div className="space-y-4 bg-white rounded-lg dark:bg-gray-800 p-4 border">
@@ -391,4 +417,34 @@ function getInitManoDeObrasItems(defaultManosDeObraIds: string[]) {
     })
     return items
 }
+
+function getAjustesItems(items: ItemDAO[]) {
+    const itemsFiltered= items.filter((item) => item.type === ItemType.AJUSTE)
+    const ajustesItemsMaped= itemsFiltered.map((item) => ({
+        id: item.id,
+        valor: item.valor,
+        description: item.description,
+        type: item.type,
+    }))
+
+    // if (ajustesItemsMaped.length === 0) {
+    //     const newAjustesItems= getInitAjustesItems()
+    //     return newAjustesItems
+    // }
+
+    return ajustesItemsMaped
+}
+
+// function getInitAjustesItems() {
+//     const items: AjusteItem[] = []
+//     for (let i = 0; i < 1; i++) {
+//         const itemAjuste: AjusteItem = {
+//             id: undefined,
+//             valor: 0,
+//             description: "",
+//         }
+//         items.push(itemAjuste)
+//     }
+//     return items
+// }
 

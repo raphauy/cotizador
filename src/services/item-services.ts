@@ -5,7 +5,7 @@ import { ClientType, ItemType } from "@prisma/client"
 import { ColorDAO } from "./color-services"
 import { TerminacionDAO, getTerminacionDAO } from "./terminacion-services"
 import { ManoDeObraDAO, ManoDeObraFormValues, getManoDeObraDAO } from "./manodeobra-services"
-import { AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
+import { AjusteItem, AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
 import { WorkTypeDAO } from "./worktype-services"
 import { formatCurrency } from "@/lib/utils"
 
@@ -291,6 +291,83 @@ export async function upsertManoDeObraItem(id: string | undefined, data: ManoDeO
   }
 }
 
+export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
+  const workId= data.workId
+  const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
+  const type= ItemType.MANO_DE_OBRA
+  const quantity= data.quantity ? Number(data.quantity) : 1
+  const work= await getFullWorkDAO(data.workId)
+  if (!work) throw new Error("Work not found")
+  const client= work.cotization.client
+  const clientType= client.type
+  const valor= calculateManoDeObraValue(data, manoDeObra, clientType)
+  const created = await prisma.item.create({
+    data: {
+      type,
+      quantity,
+      valor,
+      ajuste: data.ajuste ? Number(data.ajuste) : 0,
+      workId,
+      manoDeObraId: data.manoDeObraId,
+      centimetros: data.centimetros ? Number(data.centimetros) : 0,
+      largo: data.length ? Number(data.length) : 0,
+      ancho: data.width ? Number(data.width) : 0,
+    }
+  })
+  return created
+}
+
+
+export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormValues){
+  const workId= data.workId  
+  const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
+  const type= ItemType.MANO_DE_OBRA
+  const quantity= data.quantity ? Number(data.quantity) : 1
+  const work= await getFullWorkDAO(data.workId)
+  if (!work) throw new Error("Work not found")
+  const client= work.cotization.client
+  const clientType= client.type
+  const valor= calculateManoDeObraValue(data, manoDeObra, clientType)
+  const updated = await prisma.item.update({
+    where: {
+      id
+    },
+    data: {
+      type,
+      quantity,
+      valor,
+      ajuste: data.ajuste ? Number(data.ajuste) : 0,
+      workId,
+      manoDeObraId: data.manoDeObraId,
+      centimetros: data.centimetros ? Number(data.centimetros) : 0,
+      largo: data.length ? Number(data.length) : 0,
+      ancho: data.width ? Number(data.width) : 0,
+    }
+  })
+  return updated
+}
+
+export async function upsertBatchAjusteItem(workId: string, items: AjusteItem[]): Promise<boolean> {
+  for (let i = 0; i < items.length; i++) {
+    const dataItem: AjusteFormValues = {
+      workId,
+      value: items[i].valor + "",
+      description: items[i].description,
+    }
+    await upsertAjusteItem(items[i].id, dataItem)
+  }  
+
+  return true
+}
+
+async function upsertAjusteItem(id: string | undefined, data: AjusteFormValues) {
+  if (id) {
+    await updateAjusteItem(id, data)
+  } else {
+    await createAjusteItem(data)
+  }
+}
+
 
 export async function createTerminationItem(data: TerminationFormValues) {
   const workId= data.workId
@@ -347,61 +424,6 @@ export async function updateTerminationItem(id: string, data: TerminationFormVal
   return updated
 }
 
-export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
-  const workId= data.workId
-  const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
-  const type= ItemType.MANO_DE_OBRA
-  const quantity= data.quantity ? Number(data.quantity) : 1
-  const work= await getFullWorkDAO(data.workId)
-  if (!work) throw new Error("Work not found")
-  const client= work.cotization.client
-  const clientType= client.type
-  const valor= calculateManoDeObraValue(data, manoDeObra, clientType)
-  const created = await prisma.item.create({
-    data: {
-      type,
-      quantity,
-      valor,
-      ajuste: data.ajuste ? Number(data.ajuste) : 0,
-      workId,
-      manoDeObraId: data.manoDeObraId,
-      centimetros: data.centimetros ? Number(data.centimetros) : 0,
-      largo: data.length ? Number(data.length) : 0,
-      ancho: data.width ? Number(data.width) : 0,
-    }
-  })
-  return created
-}
-
-
-export async function updateManoDeObraItem(id: string, data: ManoDeObraItemFormValues){
-  const workId= data.workId  
-  const manoDeObra= await getManoDeObraDAO(data.manoDeObraId)
-  const type= ItemType.MANO_DE_OBRA
-  const quantity= data.quantity ? Number(data.quantity) : 1
-  const work= await getFullWorkDAO(data.workId)
-  if (!work) throw new Error("Work not found")
-  const client= work.cotization.client
-  const clientType= client.type
-  const valor= calculateManoDeObraValue(data, manoDeObra, clientType)
-  const updated = await prisma.item.update({
-    where: {
-      id
-    },
-    data: {
-      type,
-      quantity,
-      valor,
-      ajuste: data.ajuste ? Number(data.ajuste) : 0,
-      workId,
-      manoDeObraId: data.manoDeObraId,
-      centimetros: data.centimetros ? Number(data.centimetros) : 0,
-      largo: data.length ? Number(data.length) : 0,
-      ancho: data.width ? Number(data.width) : 0,
-    }
-  })
-  return updated
-}
 
 export async function createAjusteItem(data: AjusteFormValues) {
   const workId= data.workId

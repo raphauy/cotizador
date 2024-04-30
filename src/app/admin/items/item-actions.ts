@@ -1,7 +1,7 @@
 "use server"
   
-import { AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
-import { AjusteFormValues, ItemFormValues, ManoDeObraItemFormValues, TerminationFormValues, createAjusteItem, upsertBatchAreaItem, createItem, createManoDeObraItem, createTerminationItem, deleteItem, getFullItemDAO, updateAjusteItem, updateItem, updateManoDeObraItem, updateTerminationItem, upsertBatchTerminationItem, upsertBatchManoDeObraItem, updateColocacion } from "@/services/item-services"
+import { AjusteItem, AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
+import { AjusteFormValues, ItemFormValues, ManoDeObraItemFormValues, TerminationFormValues, createAjusteItem, upsertBatchAreaItem, createItem, createManoDeObraItem, createTerminationItem, deleteItem, getFullItemDAO, updateAjusteItem, updateItem, updateManoDeObraItem, updateTerminationItem, upsertBatchTerminationItem, upsertBatchManoDeObraItem, updateColocacion, upsertBatchAjusteItem } from "@/services/item-services"
 import { revalidatePath } from "next/cache"
 
 
@@ -49,6 +49,14 @@ export async function upsertBatchTerminationItemAction(workId: string, items: Te
 
 export async function upsertBatchManoDeObraItemAction(workId: string, items: ManoDeObraItem[]): Promise<boolean> {
     const updated= await upsertBatchManoDeObraItem(workId, items)
+
+    revalidatePath("/seller/cotizations/[cotizationId]", "page")
+    
+    return updated
+}
+
+export async function upsertBatchAjusteItemAction(workId: string, items: AjusteItem[]): Promise<boolean> {
+    const updated= await upsertBatchAjusteItem(workId, items)
 
     revalidatePath("/seller/cotizations/[cotizationId]", "page")
     
