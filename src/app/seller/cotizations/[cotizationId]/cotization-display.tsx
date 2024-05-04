@@ -37,7 +37,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                             <CardTitle className="flex items-center gap-5 text-2xl">
                                 <p className="text-green-900 font-bold">{"#" + completeWithZeros(cotization.number)}</p> 
                                 <Badge variant="secondary" className="bg-sky-100 border-sky-400 text-black">{cotization.type}</Badge>
-
+                                <Badge variant="secondary" className="bg-orange-100 border-orange-400 text-black">{cotization.client.type}</Badge>
                             </CardTitle>
                             <CardDescription className="flex items-center gap-4 text-lg">
                                 {cotization.client.name} 
