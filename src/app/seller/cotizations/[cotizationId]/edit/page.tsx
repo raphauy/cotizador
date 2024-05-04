@@ -3,10 +3,10 @@
 import { InputDataConfig, getInputDataConfigAction } from "@/app/admin/configs/config-actions"
 import { deleteColocacionAction, updateColocacionAction, upsertBatchAjusteItemAction, upsertBatchAreaItemAction, upsertBatchManoDeObraItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
 import { getWorkDAOAction } from "@/app/admin/works/work-actions"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "@/components/ui/use-toast"
-import { formatCurrency } from "@/lib/utils"
+import { cn, formatCurrency } from "@/lib/utils"
 import { ItemDAO } from "@/services/item-services"
 import { WorkDAO } from "@/services/work-services"
 import { ItemType } from "@prisma/client"
@@ -17,6 +17,7 @@ import AreaBox from "./area-box"
 import ManoDeObraBox from "./mo-box"
 import TerminationsBox from "./termination-box"
 import AjustesBox from "./ajuste-box"
+import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 
 export type AreaItem = {
     id: string | undefined
@@ -259,6 +260,16 @@ export default function AddItemsPage({ searchParams }: Props) {
             <Button variant="link" onClick={() => router.back()} className="px-0">
                 <ChevronLeft className="w-5 h-5" /> Volver
             </Button>
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between"> 
+                        <CardTitle className="flex items-center gap-1 lg:text-2xl">
+                            {work?.workType.name}{work?.reference && <p className="lg:text-lg text-muted-foreground">({work?.reference})</p>}
+                        </CardTitle>
+                        <p className="lg:text-lg text-muted-foreground">{work?.material.name} ({work?.color.name})</p>
+                    </div>
+                </CardHeader>
+            </Card>
             <div className="grid lg:grid-cols-3 gap-2">
                 <div>
                     <p className="text-2xl font-bold mt-4 mb-3 text-center lg:text-left">Tramos <span className="font-bold text-xl">{totalTramosWithData > 0 ? "(" + totalTramosWithData + ")" : ""}</span></p>
@@ -300,11 +311,11 @@ export default function AddItemsPage({ searchParams }: Props) {
 
             <div className="mt-10">
                 <div className="flex justify-end gap-4">
-                    <Button variant="outline" onClick={() => router.back()} className="w-40">
+                    <div onClick={() => router.back()} className={cn("w-40 cursor-pointer", buttonVariants({ variant: "outline" }))}>
                         Volver
-                    </Button>
+                    </div>
                     <Button onClick={handleSave} className="w-40">
-                        {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar</p>}
+                        {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar y seguir</p>}
                     </Button>
                     <Button onClick={saveAndBack} className="w-40">
                         {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar y volver</p>}

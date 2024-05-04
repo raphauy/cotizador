@@ -55,7 +55,7 @@ export default function AjusteForm({ index, item, setValor, setDescription }: Pr
     return (
         <div className="max-w-lg flex flex-col items-center w-full">
 
-            <div className="p-4 bg-white rounded-md min-w-[400px] border w-full space-y-2">
+            <div className="p-4 bg-white dark:bg-black rounded-md min-w-[400px] border w-full space-y-2">
                 <div className="flex items-center gap-2">
                     <Input placeholder="ej: 100" onChange={handleValorChange} value={inputValue} />
                     <p className="font-bold">USD</p>

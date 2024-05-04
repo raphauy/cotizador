@@ -29,11 +29,11 @@ export default async function CotizationPage({ params, searchParams }: Props) {
       <div className="flex flex-col w-full pt-4 gap-2 lg:flex-row">
         <CotizationDisplay cotization={cotization} creatorName={creator.name} sellerName={seller.name} selectedWorkId={workId} />
 
-        <p className={cn("text-xl mt-10 font-bold flex items-center gap-4 lg:hidden")}>
+        {/* <p className={cn("text-xl mt-10 font-bold flex items-center gap-4 lg:hidden")}>
           Editor de trabajos:
         </p>
 
-        <EditDisplay work={work} cotizationId={cotization.id} showDialog={cotization.works.length === 0} />
+        <EditDisplay work={work} cotizationId={cotization.id} showDialog={cotization.works.length === 0} /> */}
       </div>
     </div>
   )

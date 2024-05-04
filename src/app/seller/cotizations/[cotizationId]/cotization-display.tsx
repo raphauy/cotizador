@@ -28,7 +28,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
     const totalValue= works.reduce((acc, work) => acc + work.items.reduce((acc, item) => acc + (item.valor || 0), 0), 0)
 
     return (
-        <div className="lg:w-1/2 space-y-5">
+        <div className="space-y-5 w-full">
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between"> 
@@ -112,11 +112,13 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                 
             </div>
 
+            <div className="grid lg:grid-cols-2 gap-4">
             {
                 works.map(work => {
                     return (
-                        <Card key={work.id} className={cn(work.id === selectedWorkId ? "border-green-500 border-2" : "")}>
-                            <Link href={`/seller/cotizations/${cotization.id}?workId=${work.id}`}>
+                        <Card key={work.id} className={cn("flex flex-col justify-between", work.id === selectedWorkId ? "border-green-500 border-2" : "")}>
+                            <div>
+                            <Link href={`/seller/cotizations/${cotization.id}/edit?workId=${work.id}`}>
                                 <CardHeader>
                                     <div className="flex items-center justify-between"> 
                                         <CardTitle className="flex items-center gap-1">
@@ -130,14 +132,15 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                             <CardContent className="flex gap-2 justify-between text-muted-foreground">
                                 <ItemsList work={work} />
                             </CardContent>
+                            </div>
             
                             <CardContent className="flex items-center justify-between text-muted-foreground">
                                 <div className="pb-4 ml-3">
-                                    
+
                                 </div>
             
                                 <div className="flex items-center gap-2">
-                                    <Link href={`/seller/cotizations/${cotization.id}?workId=${work.id}`}>
+                                    <Link href={`/seller/cotizations/${cotization.id}/edit?workId=${work.id}`}>
                                         <Settings className="h-5 w-5" />
                                     </Link>
                                     <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} />
@@ -148,7 +151,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                     )
                 })
             }
-
+            </div>
         </div>
     )
 }
