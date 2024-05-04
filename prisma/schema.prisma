@@ -60,6 +60,7 @@ model Client {
     phone             String?                   // gennext: show.column
     email             String?                   // gennext: show.column
     slug              String                    // gennext: show.column 
+    note              String?                   // gennext: show.column
 
     type              ClientType                // gennext: show.column
 

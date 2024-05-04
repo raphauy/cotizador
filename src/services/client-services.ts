@@ -11,6 +11,7 @@ export type ClientDAO = {
 	phone: string | undefined
 	email: string | undefined
 	slug: string
+  note: string | undefined
 	type: ClientType
 	createdAt: Date
 	updatedAt: Date
@@ -23,6 +24,7 @@ export const clientSchema = z.object({
   email: z.string().optional().refine((email) => !email || z.string().email().safeParse(email).success, {
     message: "El email no es válido",
   }),
+  note: z.string().optional(),
   type: z.nativeEnum(ClientType),
 }).superRefine((data, ctx) => {
   if (!data.phone && !data.email) {

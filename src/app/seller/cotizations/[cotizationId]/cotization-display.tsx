@@ -2,9 +2,10 @@ import { DeleteWorkDialog, WorkDialog } from "@/app/admin/works/work-dialogs"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn, completeWithZeros, formatCurrency, formatWhatsAppStyle } from "@/lib/utils"
 import { CotizationDAO } from "@/services/cotization-services"
-import { Construction, Mail, Pencil, Phone, Settings } from "lucide-react"
+import { ClipboardPen, Construction, Mail, Pencil, Phone, Settings } from "lucide-react"
 import Link from "next/link"
 import { ClientDialog } from "../../clients/client-dialogs"
 import { ItemsList } from "./items-list"
@@ -20,7 +21,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
 
     const ownerIsSeller= cotization.creatorId === cotization.sellerId
 
-    const updateClientTrigger= <Pencil size={25} className="pr-2 hover:cursor-pointer text-muted-foreground"/> 
+    const updateClientTrigger= <Pencil size={26} className="pr-2 hover:cursor-pointer text-muted-foreground"/> 
 
     const works= cotization.works
 
@@ -41,6 +42,17 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                             <CardDescription className="flex items-center gap-4 text-lg">
                                 {cotization.client.name} 
                                 <ClientDialog id={cotization.clientId} updateTrigger={updateClientTrigger} />
+                                {
+                                    cotization.client.note &&
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <ClipboardPen size={20} />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p className="text-sm">{cotization.client.note}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                }
                             </CardDescription>
                         </div>
                         <p className="text-sm text-muted-foreground">{formatWhatsAppStyle(cotization.date)}</p>

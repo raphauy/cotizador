@@ -12,6 +12,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Loader } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ClientType } from "@prisma/client"
+import { Textarea } from "@/components/ui/textarea"
 
 export const clientTypes= Object.values(ClientType)
 
@@ -29,6 +30,7 @@ export function ClientForm({ id, closeDialog, onSelect }: Props) {
       name: "",
       phone: "",
       email: "",
+      note: "",
     },
     mode: "onChange",
   })
@@ -87,9 +89,9 @@ export function ClientForm({ id, closeDialog, onSelect }: Props) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input placeholder="Client's name" {...field} />
+                  <Input placeholder="Nombre del cliente" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -102,9 +104,9 @@ export function ClientForm({ id, closeDialog, onSelect }: Props) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone</FormLabel>
+                <FormLabel>Teléfono</FormLabel>
                 <FormControl>
-                  <Input placeholder="Client's phone" {...field} />
+                  <Input placeholder="Teléfono del cliente" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -119,7 +121,21 @@ export function ClientForm({ id, closeDialog, onSelect }: Props) {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="Client's email" {...field} />
+                  <Input placeholder="Email del cliente" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="note"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nota</FormLabel>
+                <FormControl>
+                  <Textarea rows={5} placeholder="Nota opcional" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
