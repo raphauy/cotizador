@@ -9,7 +9,7 @@ import { ItemDAO, recalculateValues } from "./item-services"
 export type WorkDAO = {
 	id: string
 	name: string
-  reference: string
+  reference: string | null
 	createdAt: Date
 	updatedAt: Date
   workType: WorkTypeDAO
@@ -122,7 +122,7 @@ export async function getFullWorksDAO(): Promise<WorkDAO[]> {
   return found as WorkDAO[]
 }
   
-export async function getFullWorkDAO(id: string) {
+export async function getFullWorkDAO(id: string): Promise<FullWorkDAO | null> {
   const found = await prisma.work.findUnique({
     where: {
       id
@@ -146,6 +146,6 @@ export async function getFullWorkDAO(id: string) {
       }
 		}
   })
-  return found
+  return found as FullWorkDAO | null
 }
     
