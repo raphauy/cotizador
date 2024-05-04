@@ -95,7 +95,7 @@ export function getShortItemDescription(item: ItemDAO): string {
     case ItemType.ALZADA:
       return `${item.quantity > 1 ? item.quantity + " Alzadas" : "Alzada"} ${item.largo}x${item.ancho} cm`
     case ItemType.TERMINACION:
-      return `${item.quantity > 1 ? item.quantity : ""} ${item.terminacion && item.terminacion.name} ${superficie ? "(+" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}` 
+      return `${item.quantity > 1 ? item.quantity : ""} ${item.terminacion && item.terminacion.name}  ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}` 
     case ItemType.MANO_DE_OBRA:
       return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${superficie ? "(" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`  
     case ItemType.AJUSTE:

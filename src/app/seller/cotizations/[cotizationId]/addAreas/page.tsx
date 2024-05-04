@@ -99,7 +99,7 @@ export default function AddItemsPage({ searchParams }: Props) {
     const ajustesWithData= ajustes.filter((item) => item.valor && item.valor > 0) 
     const totalAjustesWithData= ajustesWithData.length
 
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)    
 
     const router = useRouter()
 
@@ -198,7 +198,7 @@ export default function AddItemsPage({ searchParams }: Props) {
             updateColocacion()
         }
 
-        const maxTimeToWait= 10000
+        const maxTimeToWait= 20000
         let timeWaiting= 0
         while (timeWaiting < maxTimeToWait) {
             if (areaSaved && terminacionesSaved && manoDeObrasSaved && ajustesSaved) 
@@ -213,6 +213,11 @@ export default function AddItemsPage({ searchParams }: Props) {
             toast({title: "Error", description: "No se pudo guardar todos los items", variant: "destructive"})
         else
             toast({title: "Guardado", description: "Todos los items guardados"})
+    }
+
+    async function saveAndBack() {
+        await handleSave()
+        router.back()
     }
 
     function updateColocacion() {
@@ -301,7 +306,9 @@ export default function AddItemsPage({ searchParams }: Props) {
                     <Button onClick={handleSave} className="w-40">
                         {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar</p>}
                     </Button>
-                    
+                    <Button onClick={saveAndBack} className="w-40">
+                        {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar y volver</p>}
+                    </Button>                    
                 </div>
         </div>
        </div>

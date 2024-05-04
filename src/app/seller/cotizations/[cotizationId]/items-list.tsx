@@ -11,16 +11,13 @@ import OtherAccordion from "./other-accordion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/utils"
-import TerminationAccordion from "./termination-accordion"
+import NormalAccordion from "./normal-accordion"
+import TerminationAreaAccordion from "./termination-area-accordion"
 
 type Props = {
     work: WorkDAO
 }
 export function ItemsList({ work }: Props) {
-
-    const [idSelected, setIdSelected] = useState("")
-
-    const [loading, setLoading] = useState(false)
 
     const [items, setItems] = useState<ItemDAO[]>([])
     const [tramos, setTramos] = useState<ItemDAO[]>([])
@@ -57,18 +54,11 @@ export function ItemsList({ work }: Props) {
         // set items with the other types
         const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA && item.type !== ItemType.TERMINACION && item.type !== ItemType.MANO_DE_OBRA && item.type !== ItemType.AJUSTE && item.type !== ItemType.COLOCACION)
         setItems(otherItems)
-        setTotalValue(originalItems.reduce((acc, item) => acc + (item.valor || 0), 0))
+        // valorParcial is the sum of each item value multiplied by the quantity
+        const valorParcial= originalItems.reduce((acc, item) => acc + (item.valor || 0) * (item.quantity || 0), 0)
+        const valorTerminationArea= originalItems.reduce((acc, item) => acc + (item.valorAreaTerminacion || 0) * (item.quantity || 0), 0)
+        setTotalValue(valorParcial + valorTerminationArea)
     }, [work])
-
-    
-    
-    function handleSelectId(id: string) {
-        if (idSelected === id) {
-            setIdSelected("")
-        } else {
-            setIdSelected(id)
-        }
-    }
 
     if (work.items.length === 0) {
         return (
@@ -88,10 +78,11 @@ export function ItemsList({ work }: Props) {
                 <SurfaceAccordion surfaceItems={tramos} />
                 <SurfaceAccordion surfaceItems={zocalos} />
                 <SurfaceAccordion surfaceItems={alzadas} />
-                <TerminationAccordion terminationItems={terminaciones} header="Terminación" headerPlural="Terminaciones" />
-                <TerminationAccordion terminationItems={manosDeObras} header="Mano de obra" headerPlural="Manos de obra" />
-                <TerminationAccordion terminationItems={ajustes} header="Ajuste" headerPlural="Ajustes" /> 
-                <TerminationAccordion terminationItems={colocaciones} header="Colocación" headerPlural="Colocaciones" />  
+                <TerminationAreaAccordion terminationItems={terminaciones} header="Área de Terminación" headerPlural="Áreas de Terminación" />
+                <NormalAccordion items={terminaciones} header="Terminación" headerPlural="Terminaciones" />
+                <NormalAccordion items={manosDeObras} header="Mano de obra" headerPlural="Manos de obra" />
+                <NormalAccordion items={ajustes} header="Ajuste" headerPlural="Ajustes" /> 
+                <NormalAccordion items={colocaciones} header="Colocación" headerPlural="Colocaciones" />  
                 <OtherAccordion surfaceItems={items} />
             </Accordion>
             <div className="flex font-bold flex-row justify-between w-full pr-4 pt-4">

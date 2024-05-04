@@ -44,7 +44,7 @@ export const columns: ColumnDef<ItemDAO>[] = [
       return (
         <div className="flex items-center justify-end gap-4">
 
-          <p className="whitespace-nowrap">{formatCurrency((data.valor || 0) * data.quantity)}</p>
+          <p className="whitespace-nowrap">{formatCurrency(((data.valor || 0) + (data.valorAreaTerminacion || 0)) * data.quantity)}</p> 
           <div className="flex items-center">
             {
               data.type === ItemType.TERMINACION ?

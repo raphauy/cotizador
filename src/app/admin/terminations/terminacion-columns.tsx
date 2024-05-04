@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, CircleCheck } from "lucide-react"
 import { format } from "date-fns"
 import { DeleteTerminacionDialog, TerminacionDialog } from "./terminacion-dialogs"
+import { formatCurrency } from "@/lib/utils"
 
 
 export const columns: ColumnDef<TerminacionDAO>[] = [
@@ -28,15 +29,15 @@ export const columns: ColumnDef<TerminacionDAO>[] = [
         return (
           <Button variant="ghost" className="pl-0 dark:text-white"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Cliente Final $
+            Precio $
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
     cell: ({ row }) => {
       const data= row.original
       return (
-        <p className="ml-14">
-          {data.price && data.price.toLocaleString()}
+        <p className="ml-3">
+          {data.price && formatCurrency(data.price)}
         </p>
       )
     },

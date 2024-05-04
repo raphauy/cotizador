@@ -16,6 +16,8 @@ export default async function NewCotizationPage({ searchParams }: Props) {
   }
 
   const clients= await getClientsDAO()
+  console.log("count", clients.length)
+  
   const clientSelectors= clients.map((client) => ({
     id: client.id,
     name: client.name

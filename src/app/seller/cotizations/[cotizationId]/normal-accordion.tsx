@@ -7,16 +7,16 @@ import LineBox from "./superficie-box"
 type Props = {
     header: string
     headerPlural: string
-    terminationItems: ItemDAO[]
+    items: ItemDAO[]
 }
-export default function TerminationAccordion({ header, headerPlural, terminationItems }: Props) {
-    if (!terminationItems || terminationItems.length === 0) return null
+export default function NormalAccordion({ header, headerPlural, items }: Props) {
+    if (!items || items.length === 0) return null
 
-    const totalQuantity= terminationItems.reduce((acc, item) => acc + item.quantity, 0)
+    const totalQuantity= items.reduce((acc, item) => acc + item.quantity, 0)
     const title= totalQuantity === 1 ? totalQuantity + " " + header : totalQuantity + " " + headerPlural
     let areaTotal= 0
     let valueTotal= 0
-    terminationItems.forEach((item) => {
+    items.forEach((item) => {
         if (!item.valor) return
 
         areaTotal+= (item.centimetros || 0) / 100 * item.quantity 
@@ -31,7 +31,7 @@ export default function TerminationAccordion({ header, headerPlural, termination
                 </div>
             </AccordionTrigger>
             <AccordionContent>
-                {terminationItems.map((item) => { 
+                {items.map((item) => { 
                     return (
                         <div className="flex flex-row justify-between w-full" key={item.id}>
                             <p>{getShortItemDescription(item)}</p>

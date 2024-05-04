@@ -29,7 +29,6 @@ export function SellerSelector({ data, onSelect, selectedId }: Props) {
   const params= useParams()    
 
   useEffect(() => {
-    console.log("data", data)
     if (data) {
       setSelectors(data)
     }

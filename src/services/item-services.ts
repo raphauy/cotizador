@@ -1,6 +1,6 @@
 import * as z from "zod"
 import { prisma } from "@/lib/db"
-import { WorkDAO, getFullWorkDAO, getWorkDAO } from "./work-services"
+import { FullWorkDAO, WorkDAO, getFullWorkDAO, getWorkDAO } from "./work-services"
 import { ClientType, ItemType } from "@prisma/client"
 import { ColorDAO } from "./color-services"
 import { TerminacionDAO, getTerminacionDAO } from "./terminacion-services"
@@ -8,6 +8,8 @@ import { ManoDeObraDAO, ManoDeObraFormValues, getManoDeObraDAO } from "./manodeo
 import { AjusteItem, AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
 import { WorkTypeDAO } from "./worktype-services"
 import { formatCurrency } from "@/lib/utils"
+import { MaterialDAO } from "./material-services"
+import { CotizationDAO } from "./cotization-services"
 
 export type ItemDAO = {
 	id: string
@@ -20,6 +22,7 @@ export type ItemDAO = {
   superficie?: number | null | undefined
 	centimetros?: number | null | undefined
 	valor?: number | null | undefined
+  valorAreaTerminacion?: number | null | undefined
   ajuste?: number | null | undefined
   createdAt: Date
 	workId: string
@@ -135,14 +138,12 @@ export async function createItem(data: ItemFormValues) {
   return created
 }
 
-export async function updateItem(id: string, data: ItemFormValues) {
+export async function updateItem(id: string, data: ItemFormValues, work: WorkDAO) {
   const quantity= data.quantity ? Number(data.quantity) : 1
   const largo = data.largo ? Number(data.largo) : 0
   const ancho = data.ancho ? Number(data.ancho) : 0
   const superficie = largo * ancho / 10000
   const centimetros = data.centimetros ? Number(data.centimetros) : 0
-  const work= await getFullWorkDAO(data.workId)
-  if (!work) throw new Error("Work not found")
   const color= work.color
 
   const client= work.cotization.client
@@ -219,6 +220,9 @@ export async function getFullItemDAO(id: string) {
 }
 
 export async function upsertBatchAreaItem(workId: string, areaItems: AreaItem[]): Promise<boolean> {
+  const work= await getFullWorkDAO(workId)
+  if (!work) throw new Error("Work not found")
+
   for (let i = 0; i < areaItems.length; i++) {
     const dataItem: ItemFormValues = {
       workId,
@@ -227,13 +231,16 @@ export async function upsertBatchAreaItem(workId: string, areaItems: AreaItem[])
       ancho: areaItems[i].width?.toString(),
       quantity: areaItems[i].quantity?.toString(),
     }
-    await upsertAreaItem(areaItems[i].id, dataItem)
+    await upsertAreaItem(areaItems[i].id, dataItem, work as FullWorkDAO)
   }  
 
   return true
 }
 
 export async function upsertBatchTerminationItem(workId: string, items: TerminationItem[]): Promise<boolean> {
+  const work= await getFullWorkDAO(workId)
+  if (!work) throw new Error("Work not found")
+
   for (let i = 0; i < items.length; i++) {
     const dataItem: TerminationFormValues = {
       workId,
@@ -244,23 +251,23 @@ export async function upsertBatchTerminationItem(workId: string, items: Terminat
       centimetros: (items[i].centimeters || 0).toString(),
       ajuste: items[i].ajuste?.toString(),
     }
-    await upsertTerminationItem(items[i].id, dataItem)
+    await upsertTerminationItem(items[i].id, dataItem, work as FullWorkDAO)
   }  
 
   return true
 }
 
-export async function upsertTerminationItem(id: string | undefined, data: TerminationFormValues) {
+export async function upsertTerminationItem(id: string | undefined, data: TerminationFormValues, work: FullWorkDAO) {
   if (id) {
-    await updateTerminationItem(id, data)
+    await updateTerminationItem(id, data, work)
   } else {
     await createTerminationItem(data)
   }   
 }
 
-export async function upsertAreaItem(id: string | undefined, data: ItemFormValues) {
+export async function upsertAreaItem(id: string | undefined, data: ItemFormValues, work: FullWorkDAO) {
   if (id) {
-    await updateItem(id, data)
+    await updateItem(id, data, work)
   } else {
     await createItem(data)
   }   
@@ -377,8 +384,11 @@ export async function createTerminationItem(data: TerminationFormValues) {
   const client= work.cotization.client
   const clientType= client.type
   const color= work.color
-  // @ts-ignore
-  const valor= calculateTerminationValue(data, termination, clientType, color)
+  const valor= calculateTerminationValue(data, termination, clientType, color as ColorDAO)
+  const largo= data.length ? Number(data.length) : 0
+  const ancho= data.width ? Number(data.width) : 0
+  const superficie= largo * ancho / 10000
+  const valorAreaTerminacion = calculateAreaValue(clientType, superficie, color as ColorDAO)
   const created = await prisma.item.create({
     data: {
       type: ItemType.TERMINACION,
@@ -386,7 +396,9 @@ export async function createTerminationItem(data: TerminationFormValues) {
       centimetros: data.centimetros ? Number(data.centimetros) : 0,
       largo: data.length ? Number(data.length) : 0,
       ancho: data.width ? Number(data.width) : 0,
+      superficie,
       valor,
+      valorAreaTerminacion,
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
       terminacionId: data.terminationId,
@@ -395,16 +407,18 @@ export async function createTerminationItem(data: TerminationFormValues) {
   return created
 }
 
-export async function updateTerminationItem(id: string, data: TerminationFormValues){
+export async function updateTerminationItem(id: string, data: TerminationFormValues, work: FullWorkDAO) {
   const workId= data.workId
   const termination= await getTerminacionDAO(data.terminationId)
-  const work= await getFullWorkDAO(data.workId)
-  if (!work) throw new Error("Work not found")
   const client= work.cotization.client
   const clientType= client.type
   const color= work.color
   // @ts-ignore
   const valor= calculateTerminationValue(data, termination, clientType, color)
+  const largo= data.length ? Number(data.length) : 0
+  const ancho= data.width ? Number(data.width) : 0
+  const superficie= largo * ancho / 10000
+  const valorAreaTerminacion = calculateAreaValue(clientType, superficie, color)
   const updated = await prisma.item.update({
     where: {
       id
@@ -415,7 +429,9 @@ export async function updateTerminationItem(id: string, data: TerminationFormVal
       centimetros: data.centimetros ? Number(data.centimetros) : 0,
       largo: data.length ? Number(data.length) : 0,
       ancho: data.width ? Number(data.width) : 0,
+      superficie,
       valor,
+      valorAreaTerminacion,
       ajuste: data.ajuste ? Number(data.ajuste) : 0,
       workId,
       terminacionId: data.terminationId,
@@ -424,6 +440,17 @@ export async function updateTerminationItem(id: string, data: TerminationFormVal
   return updated
 }
 
+function calculateTerminationValue(item: TerminationFormValues, termination: TerminacionDAO, clientType: ClientType, color: ColorDAO): number {
+  let valorLineal= 0
+  let valorAjuste= item.ajuste ? Number(item.ajuste) : 0
+
+  // calular valor lineal en función de la terminación y los centímetros
+  const metros= item.centimetros ? Number(item.centimetros) / 100 : 0
+  valorLineal = termination.price * metros
+
+  const valorTotal= valorLineal + valorAjuste
+  return valorTotal
+}
 
 export async function createAjusteItem(data: AjusteFormValues) {
   const workId= data.workId
@@ -474,24 +501,6 @@ function calculateAreaValue(clientType: ClientType, superficie: number, color: C
   }
 }
 
-function calculateTerminationValue(item: TerminationFormValues, termination: TerminacionDAO, clientType: ClientType, color: ColorDAO): number {
-  let valorLineal= 0
-  let valorArea= 0
-  let valorAjuste= item.ajuste ? Number(item.ajuste) : 0
-
-  // calular valor lineal en función de la terminación y los centímetros
-  const metros= item.centimetros ? Number(item.centimetros) / 100 : 0
-  valorLineal = termination.price * metros
-
-  // calcular valor de la superficie en función de la superficie (largo x ancho) y el color
-  const largo= item.width ? Number(item.width) : 0
-  const ancho= item.length ? Number(item.length) : 0
-  const superficie= largo * ancho / 10000 
-  valorArea = calculateAreaValue(clientType, superficie, color)
-
-  const valorTotal= valorLineal + valorArea + valorAjuste
-  return valorTotal
-}
 
 export function calculateManoDeObraValue(item: ManoDeObraItemFormValues, manoDeObra: ManoDeObraDAO, clientType: ClientType): number {
   let valorUnitario= 0
@@ -547,10 +556,10 @@ export async function updateColocacion(workId: string) {
   const alzados= items.filter((item) => item.type === ItemType.ALZADA)
   const terminaciones= items.filter((item) => item.type === ItemType.TERMINACION)
 
-  const tramosArea= tramos.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) / 10000, 0)  
-  const zocalosArea= zocalos.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) / 10000, 0)
-  const alzadosArea= alzados.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) / 10000, 0)
-  const terminacionesArea= terminaciones.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) / 10000, 0)  
+  const tramosArea= tramos.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) * item.quantity / 10000, 0)  
+  const zocalosArea= zocalos.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) * item.quantity / 10000, 0)
+  const alzadosArea= alzados.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) * item.quantity / 10000, 0)
+  const terminacionesArea= terminaciones.reduce((acc, item) => acc + (item.largo || 0) * (item.ancho || 0) * item.quantity / 10000, 0)  
 
   const totalArea= tramosArea + zocalosArea + alzadosArea + terminacionesArea
 
@@ -558,10 +567,12 @@ export async function updateColocacion(workId: string) {
   const totalPrice= totalArea * pricePerMeter
 
   let description= ""
-  if (tramosArea > 0) description+= `Tramos: ${tramosArea}m²`
-  if (zocalosArea > 0) description+= `, Zócalos: ${zocalosArea}m²`
-  if (alzadosArea > 0) description+= `, Alzadas: ${alzadosArea}m²`
-  if (terminacionesArea > 0) description+= `, Terminaciones: ${terminacionesArea}m²`
+  console.log("tramosArea", tramosArea)
+  
+  if (tramosArea > 0) description+= `Tramos: ${tramosArea.toFixed(2)}m²`
+  if (zocalosArea > 0) description+= `, Zócalos: ${zocalosArea.toFixed(2)}m²`
+  if (alzadosArea > 0) description+= `, Alzadas: ${alzadosArea.toFixed(2)}m²`
+  if (terminacionesArea > 0) description+= `, Terminaciones: ${terminacionesArea.toFixed(2)}m²`
   description+= `\nTotal: ${totalArea.toFixed(2)}m².`
 
   const colocacionForm: ColocacionFormValues = {
@@ -601,4 +612,41 @@ function getWorkPrice(clientType: ClientType, workType: WorkTypeDAO): number {
       break
   }
   return price
+}
+
+
+export async function recalculateValues(workId: string): Promise<boolean> {
+  const work= await getFullWorkDAO(workId)
+  if (!work) throw new Error("Work not found")
+
+  const items= work.items
+
+  const areaItems= items.filter((item) => item.type === ItemType.TRAMO || item.type === ItemType.ZOCALO || item.type === ItemType.ALZADA)
+
+  for (let i = 0; i < areaItems.length; i++) {
+    const dataItem: ItemFormValues = {
+      workId,
+      type: areaItems[i].type,
+      largo: areaItems[i].largo?.toString(),
+      ancho: areaItems[i].ancho?.toString(),
+      quantity: areaItems[i].quantity?.toString(),
+    }
+    await upsertAreaItem(areaItems[i].id, dataItem, work as FullWorkDAO)
+  }
+
+  const terminacionesItems= items.filter((item) => item.type === ItemType.TERMINACION)
+  for (let i = 0; i < terminacionesItems.length; i++) {
+    const dataItem: TerminationFormValues = {
+      workId,
+      terminationId: terminacionesItems[i].terminacionId!,
+      quantity: terminacionesItems[i].quantity?.toString(),
+      length: terminacionesItems[i].largo?.toString(),
+      width: terminacionesItems[i].ancho?.toString(),
+      centimetros: (terminacionesItems[i].centimetros || 0).toString(),
+      ajuste: terminacionesItems[i].ajuste?.toString(),
+   }
+    await upsertTerminationItem(terminacionesItems[i].id, dataItem, work as FullWorkDAO)
+  }
+
+  return true
 }

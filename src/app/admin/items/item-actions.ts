@@ -2,6 +2,7 @@
   
 import { AjusteItem, AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/addAreas/page"
 import { AjusteFormValues, ItemFormValues, ManoDeObraItemFormValues, TerminationFormValues, createAjusteItem, upsertBatchAreaItem, createItem, createManoDeObraItem, createTerminationItem, deleteItem, getFullItemDAO, updateAjusteItem, updateItem, updateManoDeObraItem, updateTerminationItem, upsertBatchTerminationItem, upsertBatchManoDeObraItem, updateColocacion, upsertBatchAjusteItem } from "@/services/item-services"
+import { FullWorkDAO, getFullWorkDAO } from "@/services/work-services"
 import { revalidatePath } from "next/cache"
 
 
@@ -12,7 +13,9 @@ export async function getItemDAOAction(id: string){
 export async function createOrUpdateItemAction(id: string | null, data: ItemFormValues){       
     let updated= null
     if (id) {
-        updated= await updateItem(id, data)
+        const work= await getFullWorkDAO(data.workId)
+        if (!work) throw new Error("Work not found")
+        updated= await updateItem(id, data, work as FullWorkDAO)
     } else {
         updated= await createItem(data)
     }     
@@ -72,7 +75,9 @@ export async function createTerminationItemAction(data: TerminationFormValues){
 }
 
 export async function updateTerminationItemAction(id: string, data: TerminationFormValues){
-    const items= await updateTerminationItem(id, data)
+    const work= await getFullWorkDAO(data.workId)
+    if (!work) throw new Error("Work not found")
+    const items= await updateTerminationItem(id, data, work as FullWorkDAO)
 
     revalidatePath("/seller/cotizations/[cotizationId]", "page")
 

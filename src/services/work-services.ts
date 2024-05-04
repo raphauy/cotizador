@@ -4,7 +4,7 @@ import { MaterialDAO } from "./material-services"
 import { CotizationDAO } from "./cotization-services"
 import { WorkTypeDAO, getWorkTypeDAO } from "./worktype-services"
 import { ColorDAO } from "./color-services"
-import { ItemDAO } from "./item-services"
+import { ItemDAO, recalculateValues } from "./item-services"
 
 export type WorkDAO = {
 	id: string
@@ -20,6 +20,14 @@ export type WorkDAO = {
   colorId: string
 	cotization: CotizationDAO
 	cotizationId: string
+  items: ItemDAO[]
+}
+
+export type FullWorkDAO= WorkDAO & {
+  color: ColorDAO
+  cotization: CotizationDAO
+  workType: WorkTypeDAO
+  material: MaterialDAO
   items: ItemDAO[]
 }
 
@@ -69,12 +77,23 @@ export async function createWork(data: WorkFormValues) {
 }
 
 export async function updateWork(id: string, data: WorkFormValues) {
+  const work= await getWorkDAO(id)
+  const previusColorId= work.colorId
   const updated = await prisma.work.update({
     where: {
       id
     },
     data
   })
+
+  if (!updated) throw new Error("Hubo un error al actualizar el Trabajo")
+
+  const newColorId= updated.colorId
+  if (newColorId !== previusColorId) {
+    console.log("recalculando precios")    
+    await recalculateValues(id)
+  }
+
   return updated
 }
 

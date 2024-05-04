@@ -163,6 +163,7 @@ model Item {
   
   valor             Float?    @default(0)
   ajuste            Float?    @default(0)
+  valorAreaTerminacion Float?   @default(0)
 
   createdAt         DateTime  @default(now())             // gennext: skip.zod
 
