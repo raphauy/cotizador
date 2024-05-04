@@ -10,7 +10,8 @@ type Props = {
     terminationItems: ItemDAO[]
 }
 export default function TerminationAreaAccordion({ header, headerPlural, terminationItems }: Props) {
-    if (!terminationItems || terminationItems.length === 0) return null
+    const itemsWithValorAreaTerminacioncount= terminationItems.filter((item) => item.valorAreaTerminacion).length
+    if (!terminationItems || terminationItems.length === 0 || itemsWithValorAreaTerminacioncount === 0) return null
 
     //const totalQuantity= terminationItems.reduce((acc, item) => acc + item.quantity, 0)
     // totalQuantity is the sum of each item quantity which have a valorAreaTerminacion
