@@ -19,13 +19,8 @@ type Props= {
 export default function AreaBox({ workId, itemType, itemAreas, setItemAreas }: Props) {
     const [loading, setLoading] = useState(false)
 
-    const itemLabel= getItemLabel(itemType)
-
-    const itemsWithData= itemAreas.filter((item) => item.length && item.width && item.length > 0 && item.width > 0)
-    const totalItemsToSave= itemsWithData.reduce((acc, itemArea) => acc + (itemArea.quantity ? itemArea.quantity : 0), 0)
-
     function addItem() {
-        const newAreas= [...itemAreas, { id: undefined, quantity: 1, length: 0, width: 0, type: itemType }]
+        const newAreas= [...itemAreas, { id: undefined, quantity: 0, length: 0, width: 0, type: itemType }]
         setItemAreas(newAreas)
     }
 
@@ -57,12 +52,12 @@ export default function AreaBox({ workId, itemType, itemAreas, setItemAreas }: P
     }
 
     function handleLenghtChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
-        const value= e.target.value ? parseInt(e.target.value) : 0
+        const value= e.target.value ? parseFloat(e.target.value) : 0
         setItemAreas(itemAreas.map((itemArea, i) => i === index ? { ...itemArea, length: value } : itemArea))
     }
 
     function handleWidthChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
-        const value= e.target.value ? parseInt(e.target.value) : 0
+        const value= e.target.value ? parseFloat(e.target.value) : 0
         setItemAreas(itemAreas.map((itemArea, i) => i === index ? { ...itemArea, width: value } : itemArea))
     }
 
@@ -74,7 +69,7 @@ export default function AreaBox({ workId, itemType, itemAreas, setItemAreas }: P
                     itemAreas.map((itemArea, index) => (
                         <div key={index} className="grid grid-cols-[1fr,1fr,1fr,50px] gap-2 items-center">
                             <div className="flex items-center gap-2">
-                                <Input type="number" value={itemArea.quantity ? itemArea.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} /> 
+                                <Input type="number" value={itemArea.quantity ? itemArea.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} placeholder="cant"/> 
                                 x
                             </div>
                             <Input autoFocus={index === 0 && itemArea.type === ItemType.TRAMO} id={`item${index+1}-length`} placeholder="largo" type="number" value={itemArea.length ? itemArea.length : ""} onChange={(e) => handleLenghtChange(e, index)} />

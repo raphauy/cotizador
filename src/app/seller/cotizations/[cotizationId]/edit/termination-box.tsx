@@ -39,7 +39,7 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
 
 
     function addItem() {
-        const newAreas= [...itemTerminations, { id: undefined, terminationId: undefined, quantity: 1, length: 0, width: 0, centimeters: 0, ajuste: 0 }]
+        const newAreas= [...itemTerminations, { id: undefined, terminationId: undefined, quantity: 0, length: 0, width: 0, centimeters: 0, ajuste: 0 }]
         setItemTerminations(newAreas)
     }
 
@@ -72,7 +72,7 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
 
     function handleCentimetersChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
         const value= e.target.value ? parseInt(e.target.value) : 0
-        setItemTerminations(itemTerminations.map((itemTermination, i) => i === index ? { ...itemTermination, centimeters: value } : itemTermination))
+        setItemTerminations(itemTerminations.map((itemTermination, i) => i === index ? { ...itemTermination, centimeters: value, length: value } : itemTermination))
     }
 
     function handleLenghtChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
@@ -119,7 +119,7 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
                             }
 
                             <div className="flex items-center gap-2">
-                                <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.terminationId}/> 
+                                <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.terminationId} placeholder="cant"/> 
                                 x
                             </div>
                             <Input id={`item${index+1}-centimeters`} placeholder="lineal cm" type="number" value={item.centimeters ? item.centimeters : ""} onChange={(e) => handleCentimetersChange(e, index)} disabled={!item.terminationId}/>

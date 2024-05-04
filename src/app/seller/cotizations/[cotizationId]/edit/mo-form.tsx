@@ -21,7 +21,7 @@ type Props= {
     itemId: string | undefined
     index: number
     defaultManoDeObraId?: string | undefined
-    notifyMOSelected: (itemId: string | undefined, index: number, manoDeObraId: string | undefined) => void
+    notifyMOSelected: (itemId: string | undefined, index: number, manoDeObra: ManoDeObraDAO | undefined) => void
     manoDeObras: ManoDeObraDAO[]
 }
 export default function MOForm({ itemId, index, defaultManoDeObraId, notifyMOSelected, manoDeObras }: Props) {
@@ -37,7 +37,8 @@ export default function MOForm({ itemId, index, defaultManoDeObraId, notifyMOSel
     const manoDeObraId= form.watch("manoDeObraId")
 
     useEffect(() => {
-        notifyMOSelected(itemId, index, manoDeObraId)
+        const manoDeObra= manoDeObras.find((manoDeObra) => manoDeObra.id === manoDeObraId)
+        notifyMOSelected(itemId, index, manoDeObra)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [manoDeObraId])
     

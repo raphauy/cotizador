@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { ManoDeObraDAO } from "@/services/manodeobra-services"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown } from "lucide-react"
+import { ArrowUpDown, CheckCircle } from "lucide-react"
 import { format } from "date-fns"
 import { DeleteManoDeObraDialog, ManoDeObraDialog } from "./manodeobra-dialogs"
 
@@ -20,6 +20,14 @@ export const columns: ColumnDef<ManoDeObraDAO>[] = [
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
+    cell: ({ row }) => {
+      const data= row.original
+      return (
+        <p className="md:min-w-[250px]">
+          {data.name}
+        </p>
+      )
+    },
   },
 
   {
@@ -28,14 +36,14 @@ export const columns: ColumnDef<ManoDeObraDAO>[] = [
         return (
           <Button variant="ghost" className="pl-0 dark:text-white w-full"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Cliente Final $
+            CF $
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
     cell: ({ row }) => {
       const data= row.original
       return (
-        <p className="text-right w-28">
+        <p className="text-right mr-7">
           {data.clienteFinalPrice && data.clienteFinalPrice.toLocaleString()}
         </p>
       )
@@ -48,14 +56,14 @@ export const columns: ColumnDef<ManoDeObraDAO>[] = [
         return (
           <Button variant="ghost" className="pl-0 dark:text-white w-full"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Arquitecto/Estudio $
+            A/E $
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
     cell: ({ row }) => {
       const data= row.original
       return (
-        <p className="text-right w-28">
+        <p className="text-right mr-7">
           {data.arquitectoStudioPrice && data.arquitectoStudioPrice.toLocaleString()}
         </p>
       )
@@ -68,15 +76,45 @@ export const columns: ColumnDef<ManoDeObraDAO>[] = [
         return (
           <Button variant="ghost" className="pl-0 dark:text-white"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Distribuidor $
+            Dist. $
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
     cell: ({ row }) => {
       const data= row.original
       return (
-        <p className="text-right w-28">
+        <p className="text-right mr-7">
           {data.distribuidorPrice && data.distribuidorPrice.toLocaleString()}
+        </p>
+      )
+    },
+  },
+
+  {
+    accessorKey: "isLinear",
+    header: ({ column }) => {
+        return (<div>ml</div>)
+    },
+    cell: ({ row }) => {
+      const data= row.original
+      return (
+        <p>
+          {data.isLinear && <CheckCircle className="w-4 h-4 text-green-600" />}
+        </p>
+      )
+    },  
+  },
+
+  {
+    accessorKey: "isSurface",
+    header: ({ column }) => {
+        return (<div>m²</div>)
+    },
+    cell: ({ row }) => {
+      const data= row.original
+      return (
+        <p>
+          {data.isSurface && <CheckCircle className="w-4 h-4 text-green-600" />}
         </p>
       )
     },

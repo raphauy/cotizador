@@ -241,6 +241,9 @@ model ManoDeObra {
   arquitectoStudioPrice     Float @default(0)
   distribuidorPrice         Float @default(0)
 
+  isLinear             Boolean @default(false)               // genext: show.column
+  isSurface            Boolean @default(false)               // genext: show.column
+
   createdAt         DateTime  @default(now())                // gennext: skip.zod
   updatedAt         DateTime  @updatedAt                     // gennext: skip.zod
 

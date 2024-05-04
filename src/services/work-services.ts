@@ -140,6 +140,9 @@ export async function getFullWorkDAO(id: string) {
         orderBy: {
           createdAt: 'asc'
         },
+        include: {
+          manoDeObra: true,
+        }
       }
 		}
   })

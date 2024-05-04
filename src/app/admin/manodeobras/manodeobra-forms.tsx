@@ -8,8 +8,9 @@ import { deleteManoDeObraAction, createOrUpdateManoDeObraAction, getManoDeObraDA
 import { manoDeObraSchema, ManoDeObraFormValues } from '@/services/manodeobra-services'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
 
 type Props= {
   id?: string
@@ -24,6 +25,8 @@ export function ManoDeObraForm({ id, closeDialog }: Props) {
       clienteFinalPrice: "0",
       arquitectoStudioPrice: "0",
       distribuidorPrice: "0",
+      isLinear: false,
+      isSurface: false,
     },
     mode: "onChange",
   })
@@ -50,6 +53,8 @@ export function ManoDeObraForm({ id, closeDialog }: Props) {
           data.clienteFinalPrice && form.setValue("clienteFinalPrice", data.clienteFinalPrice.toString())
           data.arquitectoStudioPrice && form.setValue("arquitectoStudioPrice", data.arquitectoStudioPrice.toString())
           data.distribuidorPrice && form.setValue("distribuidorPrice", data.distribuidorPrice.toString())
+          data.isLinear && form.setValue("isLinear", data.isLinear)
+          data.isSurface && form.setValue("isSurface", data.isSurface)
         }
         Object.keys(form.getValues()).forEach((key: any) => {
           if (form.getValues(key) === null) {
@@ -118,6 +123,51 @@ export function ManoDeObraForm({ id, closeDialog }: Props) {
                   <Input placeholder="Precio para distribuidor" {...field} />
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isLinear"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">
+                    Mano de obra por metro lineals
+                  </FormLabel>
+                </div>
+                
+                <div className="pb-1">
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="isSurface"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">
+                    Mano de obra por metro cuadrado
+                  </FormLabel>
+                </div>
+                <div className="pb-1">
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </div>
               </FormItem>
             )}
           />

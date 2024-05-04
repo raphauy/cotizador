@@ -37,7 +37,7 @@ export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: P
     }, [])
 
     function addItem() {
-        const newAreas= [...itemManoDeObras, { id: undefined, manoDeObraId: undefined, quantity: 1, length: 0, width: 0, centimeters: 0, ajuste: 0 }]
+        const newAreas= [...itemManoDeObras, { id: undefined, manoDeObraId: undefined, quantity: 0, length: 0, width: 0, centimeters: 0, ajuste: 0, isLinear: false, isSurface: false }]
         setItemManoDeObras(newAreas)
     }
 
@@ -88,8 +88,8 @@ export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: P
         setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, ajuste: value } : item))
     }
 
-    function notifyMOSelected(itemId: string | undefined, index: number, manoDeObraId: string | undefined) {
-        setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, manoDeObraId: manoDeObraId } : item))
+    function notifyMOSelected(itemId: string | undefined, index: number, manoDeObra: ManoDeObraDAO | undefined) {
+        setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, manoDeObraId: manoDeObra?.id, isLinear: manoDeObra?.isLinear, isSurface: manoDeObra?.isSurface } : item))
     }
 
     return (
@@ -99,10 +99,10 @@ export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: P
                 <div className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
                     <p className="min-w-40">Mano de obra</p>
                     <p>Cantidad</p>
-                    {/* <p>Cm lineales</p> */}
-                    <p>Largo (cm)</p>
-                    <p>Ancho (cm)</p>
                     <p>Ajuste (USD)</p>
+                    {/* <p>Cm lineales</p>
+                    <p>Largo (cm)</p>
+                    <p>Ancho (cm)</p> */}
                     <p></p>
                 </div>
                 {
@@ -115,13 +115,21 @@ export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: P
                             <MOForm itemId={item.id} index={index} notifyMOSelected={notifyMOSelected} manoDeObras={manoDeObras} defaultManoDeObraId={item.manoDeObraId} />
                             }
                             <div className="flex items-center gap-2">
-                                <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.manoDeObraId}/> 
+                                <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.manoDeObraId} placeholder="cant"/>
                                 x
                             </div>
-                            {/* <Input id={`item${index+1}-centimeters`} placeholder="lineal cm" type="number" value={item.centimeters ? item.centimeters : ""} onChange={(e) => handleCentimetersChange(e, index)} disabled={!item.manoDeObraId}/> */}
-                            <Input id={`item${index+1}-length`} placeholder="largo cm" type="number" value={item.length ? item.length : ""} onChange={(e) => handleLenghtChange(e, index)} disabled={!item.manoDeObraId}/>
-                            <Input id={`item${index+1}-width`} placeholder="ancho cm" type="number" value={item.width ? item.width : ""} onChange={(e) => handleWidthChange(e, index)} disabled={!item.manoDeObraId}/>
                             <Input id={`item${index+1}-ajuste`} placeholder="ajuste" type="number" value={item.ajuste ? item.ajuste : ""} onChange={(e) => handleAjusteChange(e, index)} disabled={!item.manoDeObraId}/>
+                            {
+                                item.isLinear && <Input id={`item${index+1}-centimeters`} placeholder="lineal cm" type="number" value={item.centimeters ? item.centimeters : ""} onChange={(e) => handleCentimetersChange(e, index)} disabled={!item.manoDeObraId}/>
+                            }
+                            {
+                                item.isSurface && 
+                                <>
+                                    <Input id={`item${index+1}-length`} placeholder="largo cm" type="number" value={item.length ? item.length : ""} onChange={(e) => handleLenghtChange(e, index)} disabled={!item.manoDeObraId}/>
+                                    <Input id={`item${index+1}-width`} placeholder="ancho cm" type="number" value={item.width ? item.width : ""} onChange={(e) => handleWidthChange(e, index)} disabled={!item.manoDeObraId}/>
+                                </>
+                            }
+                            
                             <div className={cn("cursor-pointer", buttonVariants({ variant: "ghost" }))} onClick={() => removeItem(index)}>
                                 {
                                     loading ? <Loader className="h-4 w-4 animate-spin" /> : <X className="w-5 h-5 text-red-400" />

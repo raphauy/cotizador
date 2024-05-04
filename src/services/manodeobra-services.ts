@@ -7,6 +7,8 @@ export type ManoDeObraDAO = {
 	clienteFinalPrice: number
 	arquitectoStudioPrice: number
 	distribuidorPrice: number
+  isLinear: boolean
+  isSurface: boolean
 }
 
 export const manoDeObraSchema = z.object({
@@ -14,6 +16,8 @@ export const manoDeObraSchema = z.object({
   clienteFinalPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   arquitectoStudioPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
   distribuidorPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
+  isLinear: z.boolean().optional(),
+  isSurface: z.boolean().optional(),
 })
 
 export type ManoDeObraFormValues = z.infer<typeof manoDeObraSchema>

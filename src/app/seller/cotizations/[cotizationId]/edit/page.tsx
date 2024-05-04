@@ -40,6 +40,8 @@ export type TerminationItem = {
 export type ManoDeObraItem = {
     id: string | undefined
     manoDeObraId: string | undefined
+    isLinear: boolean | undefined
+    isSurface: boolean | undefined
     quantity: number | undefined | null
     length: number | undefined | null
     width: number | undefined | null
@@ -185,7 +187,7 @@ export default function AddItemsPage({ searchParams }: Props) {
         .then((items) => {if (items) terminacionesSaved= true})
         .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
 
-        const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId)  
+        const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId && (item.quantity || 0) > 0)
         upsertBatchManoDeObraItemAction(workId, manoDeObrasWithData)
         .then((items) => {if (items) manoDeObrasSaved= true})
         .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
@@ -370,7 +372,7 @@ function getInitAreaItems(cantidad: number, type: ItemType) {
     for (let i = 0; i < cantidad; i++) {
         const itemArea: AreaItem = {
             id: undefined,
-            quantity: 1,
+            quantity: 0,
             length: undefined,
             width: undefined,
             type: type,
@@ -386,7 +388,7 @@ function getInitTerminationsItems(cantidad: number) {
         const itemTermination: TerminationItem = {
             id: undefined,
             terminationId: undefined,
-            quantity: 1,
+            quantity: 0,
             length: undefined,
             width: undefined,
             centimeters: 0,
@@ -408,6 +410,8 @@ function getManoDeObrasItems(items: ItemDAO[], defaultManosDeObraIds: string[]) 
         centimeters: (item.centimetros ? item.centimetros : 0),
         ajuste: item.ajuste,
         type: item.type,
+        isLinear: item.manoDeObra?.isLinear,
+        isSurface: item.manoDeObra?.isSurface,
     }))
 
     if (manoDeObrasItemsMaped.length === 0) {
@@ -425,11 +429,13 @@ function getInitManoDeObrasItems(defaultManosDeObraIds: string[]) {
         const itemManoDeObra: ManoDeObraItem = {
             id: undefined,
             manoDeObraId: defaultManoDeObraId,
-            quantity: 1,
+            quantity: 0,
             length: undefined,
             width: undefined,
             centimeters: 0,
             ajuste: 0,
+            isLinear: false,
+            isSurface: false,
         }
         items.push(itemManoDeObra)
     })
