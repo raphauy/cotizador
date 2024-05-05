@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Pencil, PlusCircle, Trash2 } from "lucide-react";
+import { PlusCircle, Settings, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { DeleteWorkForm, WorkForm } from "./work-forms";
 
@@ -12,7 +12,7 @@ type Props= {
 }
 
 const addTrigger= <Button><PlusCircle size={22} className="mr-2"/>Crear Trabajo</Button>
-const updateTrigger= <Pencil size={28} className="pr-2 hover:cursor-pointer"/>
+const updateTrigger= <Settings size={28} className="pr-2 hover:cursor-pointer text-muted-foreground"/>
 
 export function WorkDialog({ id, cotizationId }: Props) {
   const [open, setOpen] = useState(false);

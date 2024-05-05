@@ -130,17 +130,19 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                     return (
                         <Card key={work.id} className={cn("flex flex-col justify-between", work.id === selectedWorkId ? "border-green-500 border-2" : "")}>
                             <div>
-                            <Link href={`/seller/cotizations/${cotization.id}/edit?workId=${work.id}`}>
                                 <CardHeader>
                                     <div className="flex items-center justify-between"> 
-                                        <CardTitle className="flex items-center gap-1">
-                                            {work.workType.name}{work.reference && <p className="text-sm text-muted-foreground">({work.reference})</p>}
-                                        </CardTitle>
-                                        <p className="text-sm text-muted-foreground">{work.material.name} ({work.color.name})</p>
+                                        <Link href={`/seller/cotizations/${cotization.id}/edit?workId=${work.id}`} className="w-full space-y-2">
+                                            <CardTitle className="flex items-center gap-1">
+                                                {work.workType.name}
+                                                {work.reference && <p className="text-sm text-muted-foreground">({work.reference})</p>}
+                                            </CardTitle>
+                                            <p className="text-sm text-muted-foreground">{work.material.name} ({work.color.name})</p>
+                                        </Link>
+                                        <WorkDialog id={work.id} cotizationId={work.cotizationId} />
                                     </div>
                                     <Separator />
                                 </CardHeader>
-                            </Link>
                             <CardContent className="flex gap-2 justify-between text-muted-foreground">
                                 <ItemsList work={work} />
                             </CardContent>
@@ -152,9 +154,6 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                 </div>
             
                                 <div className="flex items-center gap-2">
-                                    <Link href={`/seller/cotizations/${cotization.id}/edit?workId=${work.id}`}>
-                                        <Settings className="h-5 w-5" />
-                                    </Link>
                                     <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} />
                                 </div>
                             </CardContent>
