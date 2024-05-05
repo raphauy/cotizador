@@ -26,8 +26,15 @@ export default async function CotizationPage({ params, searchParams }: Props) {
     
   return (
     <div className="w-full flex flex-col items-end">
-      <div className="flex flex-col w-full pt-4 gap-2 lg:flex-row">
+      <div className="flex flex-col w-full pt-4 gap-2">
         <CotizationDisplay cotization={cotization} creatorName={creator.name} sellerName={seller.name} selectedWorkId={workId} />
+
+        {cotization.works.length === 0 && 
+          <div className="flex items-center justify-center">
+            <WorkDialog cotizationId={cotization.id} />
+          </div>
+        }
+        
 
         {/* <p className={cn("text-xl mt-10 font-bold flex items-center gap-4 lg:hidden")}>
           Editor de trabajos:
