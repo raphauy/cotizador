@@ -10,6 +10,7 @@ import { WorkTypeDAO } from "./worktype-services"
 import { formatCurrency } from "@/lib/utils"
 import { MaterialDAO } from "./material-services"
 import { CotizationDAO } from "./cotization-services"
+import { ColocacionDAO, getColocacionDAO } from "./colocacion-services"
 
 export type ItemDAO = {
 	id: string
@@ -31,6 +32,8 @@ export type ItemDAO = {
   terminacion: TerminacionDAO
   manoDeObraId: string
   manoDeObra: ManoDeObraDAO
+  colocacionId: string
+  colocacion: ColocacionDAO
 }
 
 export const itemSchema = z.object({
@@ -81,6 +84,7 @@ export type AjusteFormValues = z.infer<typeof ajusteSchema>
 
 export const colocacionSchema = z.object({
   workId: z.string().min(1, "workId is required."),
+  colocacionId: z.string().min(1, "colocacionId is required."),
   type: z.nativeEnum(ItemType).refine((val) => val === ItemType.COLOCACION),
   valor: z.number(),
   description: z.string().optional(),
@@ -214,6 +218,7 @@ export async function getFullItemDAO(id: string) {
       },
       terminacion: true,
       manoDeObra: true,
+      colocacion: true,
 		}
   })
   return found
@@ -541,7 +546,7 @@ export function calculateManoDeObraValue(item: ManoDeObraItemFormValues, manoDeO
   return valorTotal
 }
 
-export async function updateColocacion(workId: string) {
+export async function updateColocacion(workId: string, colocacionId: string) {
   console.log('updateColocacion')
   
   const work= await getFullWorkDAO(workId)
@@ -563,8 +568,10 @@ export async function updateColocacion(workId: string) {
 
   const totalArea= tramosArea + zocalosArea + alzadosArea + terminacionesArea
 
-  const pricePerMeter= getWorkPrice(clientType, workType)
-  const totalPrice= totalArea * pricePerMeter
+  const colocacion= await getColocacionDAO(colocacionId)
+  console.log("pricePerMeter", colocacion?.price)
+
+  const totalPrice= totalArea * colocacion?.price
 
   let description= ""
   console.log("tramosArea", tramosArea)
@@ -580,6 +587,7 @@ export async function updateColocacion(workId: string) {
     type: ItemType.COLOCACION,
     valor: totalPrice,
     description,
+    colocacionId,
   }
 
   const itemColocacion= items.find((item) => item.type === ItemType.COLOCACION)

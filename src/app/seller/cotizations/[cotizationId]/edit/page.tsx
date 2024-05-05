@@ -18,6 +18,9 @@ import ManoDeObraBox from "./mo-box"
 import TerminationsBox from "./termination-box"
 import AjustesBox from "./ajuste-box"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
+import { ColocacionDAO } from "@/services/colocacion-services"
+import ColocationForm from "./colocation-form"
+import { getColocacionsDAOAction } from "@/app/admin/colocations/colocacion-actions"
 
 export type AreaItem = {
     id: string | undefined
@@ -53,6 +56,7 @@ export type ColocacionItem = {
     id: string
     valor: number
     description: string | undefined | null
+    colocacionId: string | undefined
 }
 
 export type AjusteItem = {
@@ -86,6 +90,8 @@ export default function AddItemsPage({ searchParams }: Props) {
     const [ajustes, setAjustes] = useState<AjusteItem[]>([])
     const [colocacion, setColocacion] = useState<ColocacionItem>()
     
+    const [colocaciones, setColocaciones] = useState<ColocacionDAO[]>([])
+
     const tramosWithData= tramos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
     const totalTramosWithData= tramosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
     const zocalosWithData= zocalos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
@@ -105,6 +111,14 @@ export default function AddItemsPage({ searchParams }: Props) {
     const [loading, setLoading] = useState(false)    
 
     const router = useRouter()
+
+    useEffect(() => {
+        getColocacionsDAOAction()
+        .then((colocaciones) => {
+            setColocaciones(colocaciones)
+        })
+        
+    }, [])
 
     useEffect(() => {
         getInputDataConfigAction()
@@ -128,7 +142,8 @@ export default function AddItemsPage({ searchParams }: Props) {
                     setColocacion({
                         id: item.id,
                         valor: item.valor ? item.valor : 0,
-                        description: item.description
+                        description: item.description,
+                        colocacionId: item.colocacionId
                     })
                 }
             }
@@ -197,8 +212,8 @@ export default function AddItemsPage({ searchParams }: Props) {
         .then((items) => {if (items) ajustesSaved= true})
         .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
 
-        if (colocacion !== undefined) {
-            updateColocacion()
+        if (colocacion && colocacion.colocacionId) {
+            updateColocacion(colocacion.colocacionId)
         }
 
         const maxTimeToWait= 20000
@@ -223,14 +238,17 @@ export default function AddItemsPage({ searchParams }: Props) {
         router.back()
     }
 
-    function updateColocacion() {
-        updateColocacionAction(workId)
-        .then((colocacion) => {
-            if (colocacion) {
+    function updateColocacion(colocacionId: string) {
+        if (!colocacionId) return
+
+        updateColocacionAction(workId, colocacionId)
+        .then((colocacionResponse) => {
+            if (colocacionResponse) {
                 setColocacion({
-                    id: colocacion.id,
-                    valor: colocacion.valor ? colocacion.valor : 0,
-                    description: colocacion.description
+                    id: colocacionResponse.id,
+                    valor: colocacionResponse.valor ? colocacionResponse.valor : 0,
+                    description: colocacionResponse.description,
+                    colocacionId: colocacionResponse.colocacionId ? colocacionResponse.colocacionId : undefined
                 })
             }
         })
@@ -238,6 +256,21 @@ export default function AddItemsPage({ searchParams }: Props) {
             toast({title: "Error", description: error.message, variant: "destructive"})
         })
     }
+
+    function notifyColocationSelected(itemId: string | undefined, colocacionSelected: ColocacionDAO | undefined) {
+        console.log("notifyColocationSelected")
+        if (colocacion) {
+            setColocacion({
+                ...colocacion,
+                colocacionId: colocacionSelected?.id ? colocacionSelected?.id : undefined
+            })
+            if (colocacionSelected) {
+                updateColocacion(colocacionSelected?.id)
+            }
+            
+        }
+    }
+
 
     function toggleColocacion() {
         const enabled= colocacion !== undefined
@@ -253,7 +286,11 @@ export default function AddItemsPage({ searchParams }: Props) {
                 toast({title: "Error", description: error.message, variant: "destructive"})
             })
         } else {
-            updateColocacion()
+            const firstId= colocaciones[0].id
+            if (firstId) {
+                updateColocacion(firstId)
+            }
+            
         }
     }
 
@@ -305,7 +342,12 @@ export default function AddItemsPage({ searchParams }: Props) {
             <div className="mt-10">
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Colocación</p>
                 <div className="space-y-4 bg-white rounded-lg dark:bg-gray-800 p-4 border">
-                    <Switch onCheckedChange={toggleColocacion} checked={colocacion !== undefined} />
+                    <div className="flex items-center gap-4">
+                        <Switch onCheckedChange={toggleColocacion} checked={colocacion !== undefined} />
+                        {
+                            colocacion && colocaciones[0] && <ColocationForm itemId={colocacion.id} defaultColocacionId={colocacion.colocacionId ? colocacion.colocacionId : colocaciones[0].id} notifyColocationSelected={notifyColocationSelected} colocaciones={colocaciones} />
+                        }
+                    </div>
                     <p className="whitespace-pre-line">{colocacion?.description}</p>
                     <p>{colocacion?.valor ? formatCurrency(colocacion?.valor) : ""}</p>
                 </div>

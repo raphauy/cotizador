@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { AlignVerticalDistributeStart, ArrowDownWideNarrow, CircleDollarSign, Combine, LayoutDashboard, ListChecks, Megaphone, Pickaxe, Receipt, Settings, User } from "lucide-react"
+import { AlignVerticalDistributeStart, ArrowDownWideNarrow, Combine, Layers3, LayoutDashboard, Pickaxe, Settings, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -44,9 +44,15 @@ const data= [
         disabled: false
     },
     {
+        href: `/admin/colocations`,
+        icon: Layers3,   
+        text: "Colocaciones",
+        disabled: false
+    },
+    {
         href: `/admin/configs`,
         icon: Settings,   
-        text: "Configuraciones",
+        text: "Conf",
         disabled: false
     },
 ]
@@ -63,7 +69,7 @@ export default function MenuAdmin() {
                     return (
                         <li key={index} className={cn("border-b-primary w-full lg:w-fit text-center", path === item.href && "border-b-2")}> 
                             <Link href={item.disabled ? "#" : item.href}>
-                                <Button variant="ghost" disabled={item.disabled} className="px-3">
+                                <Button variant="ghost" disabled={item.disabled} className="px-2">
                                     <item.icon className="w-4 h-4 mr-1 mb-0.5" />
                                     <p className="hidden lg:block">{item.text}</p> 
                                 </Button>

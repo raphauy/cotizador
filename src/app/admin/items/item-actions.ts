@@ -124,8 +124,8 @@ export async function deleteColocacionAction(id: string){
     return deleted
 }
 
-export async function updateColocacionAction(workId: string){
-    const colocacion= await updateColocacion(workId)
+export async function updateColocacionAction(workId: string, colocacionId: string){
+    const colocacion= await updateColocacion(workId, colocacionId)
 
     revalidatePath("/seller/cotizations/[cotizationId]", "page")
 
