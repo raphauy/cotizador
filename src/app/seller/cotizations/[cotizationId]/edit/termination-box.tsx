@@ -71,17 +71,17 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
     }
 
     function handleCentimetersChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
-        const value= e.target.value ? parseInt(e.target.value) : 0
+        const value= e.target.value ? parseFloat(e.target.value) : 0
         setItemTerminations(itemTerminations.map((itemTermination, i) => i === index ? { ...itemTermination, centimeters: value, length: value } : itemTermination))
     }
 
     function handleLenghtChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
-        const value= e.target.value ? parseInt(e.target.value) : 0
+        const value= e.target.value ? parseFloat(e.target.value) : 0
         setItemTerminations(itemTerminations.map((itemTermination, i) => i === index ? { ...itemTermination, length: value } : itemTermination))
     }
 
     function handleWidthChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
-        const value= e.target.value ? parseInt(e.target.value) : 0
+        const value= e.target.value ? parseFloat(e.target.value) : 0
         setItemTerminations(itemTerminations.map((itemTermination, i) => i === index ? { ...itemTermination, width: value } : itemTermination))
     }
 
