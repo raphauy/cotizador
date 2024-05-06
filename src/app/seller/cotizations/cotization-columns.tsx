@@ -8,6 +8,7 @@ import { DeleteCotizationDialog } from "./cotization-dialogs"
 import Link from "next/link"
 import { completeWithZeros, formatWhatsAppStyle } from "@/lib/utils"
 import { StatusSelector } from "./[cotizationId]/status-selector"
+import { DateRange } from "./cotization-table"
 
 
 export const columns: ColumnDef<CotizationDAO>[] = [
@@ -123,6 +124,22 @@ export const columns: ColumnDef<CotizationDAO>[] = [
     )},
     cell: ({ row }) => {
       return <p>{formatWhatsAppStyle(row.original.date)}</p>
+    },
+    filterFn: (row, id, value) => {
+      const dateRange= value as DateRange
+      const startDate = dateRange.startDate
+      const endDate = dateRange.endDate
+      const columnValue = row.getValue(id) as Date
+
+      if (startDate && endDate) {
+        return columnValue.getTime() >= startDate.getTime() && columnValue.getTime() <= endDate.getTime()
+      } else if (startDate) {
+        return columnValue.getTime() >= startDate.getTime()
+      } else if (endDate) {
+        return columnValue.getTime() <= endDate.getTime()
+      }
+      
+      return true
     },
   },
   {

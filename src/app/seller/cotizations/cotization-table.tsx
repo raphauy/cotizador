@@ -11,7 +11,14 @@ import { DataTablePagination } from "@/components/data-table/data-table-paginati
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter"
 import { CotizationStatus, CotizationType } from "@prisma/client"
-  
+import { DateRangePicker } from "@/components/data-table/date-range-picker"
+import { DatePickerToFilter } from "@/components/data-table/date-picker"
+
+export type DateRange = {
+  startDate: Date | undefined
+  endDate: Date | undefined
+}
+
 interface DataTableToolbarProps<TData> {
   table: TanstackTable<TData>;
   clientNames: string[]
@@ -24,62 +31,107 @@ export function DataTableToolbar<TData>({ table, sellerNames, clientNames }: Dat
   const statuses = Object.values(CotizationStatus)
   const types = Object.values(CotizationType)
 
+  const [dateRange, setDateRange] = React.useState<DateRange>({
+    startDate: undefined,
+    endDate: undefined
+  })
+
+
+  function handleInitDateChange(initDate: Date | undefined) {
+    if (initDate) {
+      const newDateRange: DateRange = {
+        startDate: initDate,
+        endDate: dateRange.endDate
+      }
+      table.getColumn("date")?.setFilterValue(newDateRange)
+      setDateRange(newDateRange)
+    }
+  }
+
+  function handleEndDateChange(endDate: Date | undefined) {
+    if (endDate) {
+      const newDateRange: DateRange = {
+        startDate: dateRange.startDate,
+        endDate: endDate
+      }
+      table.getColumn("date")?.setFilterValue(newDateRange)
+      setDateRange(newDateRange)
+    }
+  }
+
+  function resetFilters() {
+    table.resetColumnFilters()
+    setDateRange({
+      startDate: undefined, 
+      endDate: undefined
+    })
+  }  
+
   return (
     <div className="flex gap-1 dark:text-white items-center">
 
-      {table.getColumn("clientName") && clientNames && (
-        <DataTableFacetedFilter
-          column={table.getColumn("clientName")}
-          title="Cliente"
-          options={clientNames}          
-        />
-      )}
+      <div className="space-y-2">        
+        <div className="flex gap-1 dark:text-white items-center">
 
-      {table.getColumn("sellerName") && sellerNames && (
-        <DataTableFacetedFilter
-          column={table.getColumn("sellerName")}
-          title="Vendedor"
-          options={sellerNames}
-        />
-      )}
+          {table.getColumn("clientName") && clientNames && (
+            <DataTableFacetedFilter
+              column={table.getColumn("clientName")}
+              title="Cliente"
+              options={clientNames}          
+            />
+          )}
 
-      {table.getColumn("status") && statuses && (
-        <DataTableFacetedFilter
-          column={table.getColumn("status")}
-          title="Estado"
-          options={statuses}
-        />
-      )}
+          {table.getColumn("sellerName") && sellerNames && (
+            <DataTableFacetedFilter
+              column={table.getColumn("sellerName")}
+              title="Vendedor"
+              options={sellerNames}
+            />
+          )}
 
-      {table.getColumn("type") && types && (
-        <DataTableFacetedFilter
-          column={table.getColumn("type")}
-          title="Tipo"
-          options={types}
-        />
-      )}
+          {table.getColumn("status") && statuses && (
+            <DataTableFacetedFilter
+              column={table.getColumn("status")}
+              title="Estado"
+              options={statuses}
+            />
+          )}
 
-      <Input className="max-w-xs" placeholder="filtro por número..."
-          value={(table.getColumn("number")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => table.getColumn("number")?.setFilterValue(event.target.value)}                
-      />
-      
-  
-      <Input className="max-w-xs" placeholder="filtro por obra..."
-          value={(table.getColumn("obra")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => table.getColumn("obra")?.setFilterValue(event.target.value)}                
-      />
+          {table.getColumn("type") && types && (
+            <DataTableFacetedFilter
+              column={table.getColumn("type")}
+              title="Tipo"
+              options={types}
+            />
+          )}
+
+          <Input className="max-w-xs" placeholder="filtro por número..."
+              value={(table.getColumn("number")?.getFilterValue() as string) ?? ""}
+              onChange={(event) => table.getColumn("number")?.setFilterValue(event.target.value)}                
+          />
           
-      {isFiltered && (
-        <Button
-          variant="ghost"
-          onClick={() => table.resetColumnFilters()}
-          className="h-8 px-2 lg:px-3"
-        >
-          Reset
-          <X className="w-4 h-4 ml-2" />
-        </Button>
-      )}
+          <Input className="max-w-xs" placeholder="filtro por obra..."
+              value={(table.getColumn("obra")?.getFilterValue() as string) ?? ""}
+              onChange={(event) => table.getColumn("obra")?.setFilterValue(event.target.value)}                
+          />
+
+        </div>
+
+        <div className="flex gap-1 dark:text-white items-center">
+          <DatePickerToFilter filteredDate={dateRange.startDate} setFilteredDate={handleInitDateChange} label="Desde"/>
+          <DatePickerToFilter filteredDate={dateRange.endDate} setFilteredDate={handleEndDateChange} label="Hasta"/>
+          {isFiltered && (
+            <Button
+              variant="ghost"
+              onClick={resetFilters}
+              className="h-8 px-2 lg:px-3"
+            >
+              Reset
+              <X className="w-4 h-4 ml-2" />
+            </Button>
+          )}
+        </div>
+      </div>          
     </div>
   )
 }

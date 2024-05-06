@@ -73,7 +73,8 @@ export async function getCotizationDAO(id: string) {
 }
     
 export async function createCotization(data: CotizationFormValues) {
-  // TODO: implement createCotization
+  console.log(data)
+  
   const created = await prisma.cotization.create({
     data
   })

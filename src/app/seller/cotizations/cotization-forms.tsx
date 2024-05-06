@@ -90,7 +90,7 @@ export function CotizationForm({ clientSelectors, sellerSelectors, cotization }:
 
   return (
     <div className="p-6 bg-white rounded-md max-w-xl border w-full mx-auto dark:bg-black">
-
+      <p>User: {user?.name}</p>
       <div className="space-y-2 mb-6">
         <p>Cliente:</p>
         <div className="flex items-center justify-between gap-4">
