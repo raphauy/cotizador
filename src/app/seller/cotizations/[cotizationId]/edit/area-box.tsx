@@ -69,10 +69,10 @@ export default function AreaBox({ workId, itemType, itemAreas, setItemAreas }: P
                     itemAreas.map((itemArea, index) => (
                         <div key={index} className="grid grid-cols-[1fr,1fr,1fr,50px] gap-2 items-center">
                             <div className="flex items-center gap-2">
-                                <Input type="number" value={itemArea.quantity ? itemArea.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} placeholder="cant"/> 
+                                <Input autoFocus={index === 0 && itemArea.type === ItemType.TRAMO} type="number" value={itemArea.quantity ? itemArea.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} placeholder="cant"/> 
                                 x
                             </div>
-                            <Input autoFocus={index === 0 && itemArea.type === ItemType.TRAMO} id={`item${index+1}-length`} placeholder="largo" type="number" value={itemArea.length ? itemArea.length : ""} onChange={(e) => handleLenghtChange(e, index)} />
+                            <Input id={`item${index+1}-length`} placeholder="largo" type="number" value={itemArea.length ? itemArea.length : ""} onChange={(e) => handleLenghtChange(e, index)} />
                             <Input id={`item${index+1}-width`} placeholder="ancho" type="number" value={itemArea.width ? itemArea.width : ""} onChange={(e) => handleWidthChange(e, index)} />
                             <div className={cn("cursor-pointer", buttonVariants({ variant: "ghost" }))} onClick={() => removeItem(index)}>
                                 {

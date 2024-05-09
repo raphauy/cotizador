@@ -80,6 +80,8 @@ export default function AddItemsPage({ searchParams }: Props) {
         alzadosPorDefecto: 0,
     })
 
+    const [saveCount, setSaveCount] = useState(0)
+
     const [work, setWork] = useState<WorkDAO>()
 
     const [tramos, setTramos] = useState<AreaItem[]>([])
@@ -151,7 +153,7 @@ export default function AddItemsPage({ searchParams }: Props) {
         .catch((error) => {
             toast({title: "Error", description: error.message, variant: "destructive"})
         })
-    }, [workId])
+    }, [workId, saveCount])
 
     useEffect(() => {
         if (!work || !inputDataConfig) return
@@ -231,6 +233,8 @@ export default function AddItemsPage({ searchParams }: Props) {
             toast({title: "Error", description: "No se pudo guardar todos los items", variant: "destructive"})
         else
             toast({title: "Guardado", description: "Todos los items guardados"})
+
+        setSaveCount(saveCount + 1)
     }
 
     async function saveAndBack() {
@@ -272,7 +276,7 @@ export default function AddItemsPage({ searchParams }: Props) {
     }
 
 
-    function toggleColocacion() {
+    async function toggleColocacion() {
         const enabled= colocacion !== undefined
         if (enabled) {
             deleteColocacionAction(colocacion.id)
@@ -288,6 +292,7 @@ export default function AddItemsPage({ searchParams }: Props) {
         } else {
             const firstId= colocaciones[0].id
             if (firstId) {
+                await handleSave()
                 updateColocacion(firstId)
             }
             
