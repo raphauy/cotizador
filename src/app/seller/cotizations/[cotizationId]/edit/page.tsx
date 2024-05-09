@@ -350,7 +350,11 @@ export default function AddItemsPage({ searchParams }: Props) {
                     <div className="flex items-center gap-4">
                         <Switch onCheckedChange={toggleColocacion} checked={colocacion !== undefined} />
                         {
-                            colocacion && colocaciones[0] && <ColocationForm itemId={colocacion.id} defaultColocacionId={colocacion.colocacionId ? colocacion.colocacionId : colocaciones[0].id} notifyColocationSelected={notifyColocationSelected} colocaciones={colocaciones} />
+                            colocacion && colocaciones[0] && 
+                                <ColocationForm itemId={colocacion.id} defaultColocacionId={colocacion.colocacionId ? colocacion.colocacionId : colocaciones[0].id} notifyColocationSelected={notifyColocationSelected} colocaciones={colocaciones} />
+                        }
+                        {
+                            loading && <Loader className="h-4 w-4 animate-spin" />
                         }
                     </div>
                     <p className="whitespace-pre-line">{colocacion?.description}</p>
