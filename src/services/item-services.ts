@@ -606,23 +606,6 @@ export async function updateColocacion(workId: string, colocacionId: string) {
   }
 }
 
-function getWorkPrice(clientType: ClientType, workType: WorkTypeDAO): number {
-  let price= 0
-  switch (clientType) {
-    case ClientType.CLIENTE_FINAL:
-      price= workType.clienteFinalPrice
-      break
-    case ClientType.ARQUITECTO_ESTUDIO:
-      price= workType.arquitectoStudioPrice
-      break
-    case ClientType.DISTRIBUIDOR:
-      price= workType.distribuidorPrice
-      break
-  }
-  return price
-}
-
-
 export async function recalculateValues(workId: string): Promise<boolean> {
   const work= await getFullWorkDAO(workId)
   if (!work) throw new Error("Work not found")
