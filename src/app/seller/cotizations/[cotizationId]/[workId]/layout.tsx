@@ -18,7 +18,7 @@ export default async function AdminLayout({ children, params }: Props) {
   const data= await getNotesDAOByWorkId(workId)  
 
   return (
-    <div className="flex flex-col items-center flex-grow p-1 w-full max-w-[1350px]">
+    <div className="flex flex-col items-center flex-grow p-1 w-full max-w-[1350px] mb-10">
       {children}
       <div className="flex w-full flex-col h-full mt-10 bg-white dark:bg-gray-800 border p-4 rounded-lg">
           <div className="flex gap-2 justify-between text-muted-foreground w-full h-10">

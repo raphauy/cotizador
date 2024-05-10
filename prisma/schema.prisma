@@ -128,10 +128,6 @@ model WorkType {
   id                String    @id @default(cuid())
   name              String                                   // genext: show.column 
 
-  clienteFinalPrice         Float @default(0)
-  arquitectoStudioPrice     Float @default(0)
-  distribuidorPrice         Float @default(0)
-
   createdAt         DateTime  @default(now())                // gennext: skip.zod
   updatedAt         DateTime  @updatedAt                     // gennext: skip.zod
 
@@ -212,7 +208,7 @@ model Work {
   createdAt         DateTime  @default(now())                // gennext: skip.zod
   updatedAt         DateTime  @updatedAt                     // gennext: skip.zod
 
-  workType          WorkType  @relation(fields: [workTypeId], references: [id], onDelete: Cascade)
+  workType          WorkType  @relation(fields: [workTypeId], references: [id])
   workTypeId        String
 
   material          Material  @relation(fields: [materialId], references: [id], onDelete: NoAction)

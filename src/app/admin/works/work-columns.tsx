@@ -26,7 +26,7 @@ export const columns: ColumnDef<WorkDAO>[] = [
     cell: ({ row }) => {
       const data= row.original
 
-      const deleteDescription= `Do you want to delete Work ${data.id}?`
+      const deleteDescription= `Seguro que desea eliminar el trabajo ${data.name}?`
  
       return (
         <div className="flex items-center justify-end gap-2">

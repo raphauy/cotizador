@@ -5,19 +5,12 @@ export type WorkTypeDAO = {
 	id: string
 	name: string
 
-  clienteFinalPrice: number
-  arquitectoStudioPrice: number
-  distribuidorPrice: number
-
 	createdAt: Date
 	updatedAt: Date
 }
 
 export const workTypeSchema = z.object({
 	name: z.string().min(1, "name is required."),
-  clienteFinalPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
-	arquitectoStudioPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
-	distribuidorPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
 })
 
 export type WorkTypeFormValues = z.infer<typeof workTypeSchema>
@@ -42,39 +35,33 @@ export async function getWorkTypeDAO(id: string) {
 }
     
 export async function createWorkType(data: WorkTypeFormValues) {
-  const clienteFinalPrice = data.clienteFinalPrice ? Number(data.clienteFinalPrice) : 0
-  const arquitectoStudioPrice = data.arquitectoStudioPrice ? Number(data.arquitectoStudioPrice) : 0
-  const distribuidorPrice = data.distribuidorPrice ? Number(data.distribuidorPrice) : 0
   const created = await prisma.workType.create({
-    data: {
-      ...data,
-      clienteFinalPrice,
-      arquitectoStudioPrice,
-      distribuidorPrice,
-    }
+    data
   })
   return created
 }
 
 export async function updateWorkType(id: string, data: WorkTypeFormValues) {
-  const clienteFinalPrice = data.clienteFinalPrice ? Number(data.clienteFinalPrice) : 0
-  const arquitectoStudioPrice = data.arquitectoStudioPrice ? Number(data.arquitectoStudioPrice) : 0
-  const distribuidorPrice = data.distribuidorPrice ? Number(data.distribuidorPrice) : 0
   const updated = await prisma.workType.update({
     where: {
       id
     },
-    data: {
-      ...data,
-      clienteFinalPrice,
-      arquitectoStudioPrice,
-      distribuidorPrice,
-    }
+    data
   })
   return updated
 }
 
 export async function deleteWorkType(id: string) {
+  const works= await prisma.work.findMany({
+    where: {
+      workTypeId: id
+    },
+  })
+  console.log("works count", works.length)
+  
+  if (works.length > 0) {
+    throw new Error("No se puede eliminar este tipo de trabajo ya que tiene trabajos asociados.")
+  }
   const deleted = await prisma.workType.delete({
     where: {
       id

@@ -21,9 +21,6 @@ export function WorkTypeForm({ id, closeDialog }: Props) {
     resolver: zodResolver(workTypeSchema),
     defaultValues: {
       name: "",
-      clienteFinalPrice: "0",
-      arquitectoStudioPrice: "0",
-      distribuidorPrice: "0",
     },
     mode: "onChange",
   })
@@ -47,9 +44,6 @@ export function WorkTypeForm({ id, closeDialog }: Props) {
       getWorkTypeDAOAction(id).then((data) => {
         if (data) {
           form.setValue("name", data.name)
-          form.setValue("clienteFinalPrice", data.clienteFinalPrice.toString())
-          form.setValue("arquitectoStudioPrice", data.arquitectoStudioPrice.toString())
-          form.setValue("distribuidorPrice", data.distribuidorPrice.toString())
         }
         Object.keys(form.getValues()).forEach((key: any) => {
           if (form.getValues(key) === null) {
@@ -73,48 +67,6 @@ export function WorkTypeForm({ id, closeDialog }: Props) {
                 <FormLabel>Name</FormLabel>
                 <FormControl>
                   <Input placeholder="WorkType's name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
-            name="clienteFinalPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio de cliente final</FormLabel>
-                <FormControl>
-                  <Input placeholder="Precio de cliente final" {...field} type="number" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="arquitectoStudioPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio de arquitecto studio</FormLabel>
-                <FormControl> 
-                  <Input placeholder="Precio de arquitecto studio" {...field} type="number" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="distribuidorPrice"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Precio de distribuidor</FormLabel>
-                <FormControl>
-                  <Input placeholder="Precio de distribuidor" {...field} type="number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

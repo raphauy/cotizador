@@ -22,70 +22,11 @@ export const columns: ColumnDef<WorkTypeDAO>[] = [
     )},
   },
   {
-    accessorKey: "clienteFinalPrice",
-    header: ({ column }) => {
-        return (
-          <Button variant="ghost" className="pl-0 dark:text-white w-full"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Cliente Final $
-            <ArrowUpDown className="w-4 h-4 ml-1" />
-          </Button>
-    )},
-    cell: ({ row }) => {
-      const data= row.original
-      return (
-        <p className="text-right w-28">
-          {data.clienteFinalPrice && data.clienteFinalPrice.toLocaleString()}
-        </p>
-      )
-    },
-  },
-
-  {
-    accessorKey: "arquitectoStudioPrice",
-    header: ({ column }) => {
-        return (
-          <Button variant="ghost" className="pl-0 dark:text-white w-full"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Arquitecto/Estudio $
-            <ArrowUpDown className="w-4 h-4 ml-1" />
-          </Button>
-    )},
-    cell: ({ row }) => {
-      const data= row.original
-      return (
-        <p className="text-right w-28">
-          {data.arquitectoStudioPrice && data.arquitectoStudioPrice.toLocaleString()}
-        </p>
-      )
-    },
-  },
-
-  {
-    accessorKey: "distribuidorPrice",
-    header: ({ column }) => {
-        return (
-          <Button variant="ghost" className="pl-0 dark:text-white"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Distribuidor $
-            <ArrowUpDown className="w-4 h-4 ml-1" />
-          </Button>
-    )},
-    cell: ({ row }) => {
-      const data= row.original
-      return (
-        <p className="text-right w-28">
-          {data.distribuidorPrice && data.distribuidorPrice.toLocaleString()}
-        </p>
-      )
-    },
-  },
-  {
     id: "actions",
     cell: ({ row }) => {
       const data= row.original
 
-      const deleteDescription= `Do you want to delete WorkType ${data.id}?`
+      const deleteDescription= `Seguro que desea eliminar el tipo de trabajo ${data.name}?`
  
       return (
         <div className="flex items-center justify-end gap-2">
