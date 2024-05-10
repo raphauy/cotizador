@@ -1,26 +1,26 @@
 "use client"
 
+import { getColocacionsDAOAction } from "@/app/admin/colocations/colocacion-actions"
 import { InputDataConfig, getInputDataConfigAction } from "@/app/admin/configs/config-actions"
 import { deleteColocacionAction, updateColocacionAction, upsertBatchAjusteItemAction, upsertBatchAreaItemAction, upsertBatchManoDeObraItemAction, upsertBatchTerminationItemAction } from "@/app/admin/items/item-actions"
 import { getWorkDAOAction } from "@/app/admin/works/work-actions"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "@/components/ui/use-toast"
 import { cn, formatCurrency } from "@/lib/utils"
+import { ColocacionDAO } from "@/services/colocacion-services"
 import { ItemDAO } from "@/services/item-services"
 import { WorkDAO } from "@/services/work-services"
 import { ItemType } from "@prisma/client"
 import { ChevronLeft, Loader } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import AjustesBox from "./ajuste-box"
 import AreaBox from "./area-box"
+import ColocationForm from "./colocation-form"
 import ManoDeObraBox from "./mo-box"
 import TerminationsBox from "./termination-box"
-import AjustesBox from "./ajuste-box"
-import { Card, CardHeader, CardTitle } from "@/components/ui/card"
-import { ColocacionDAO } from "@/services/colocacion-services"
-import ColocationForm from "./colocation-form"
-import { getColocacionsDAOAction } from "@/app/admin/colocations/colocacion-actions"
 
 export type AreaItem = {
     id: string | undefined
@@ -66,12 +66,12 @@ export type AjusteItem = {
 }
 
 type Props= {
-    searchParams: {
+    params: {
       workId: string
     }
 }
-export default function AddItemsPage({ searchParams }: Props) {
-    const workId= searchParams.workId
+export default function AddItemsPage({ params }: Props) {
+    const workId= params.workId
 
     const [inputDataConfig, setInputDataConfig] = useState<InputDataConfig>({
         manosDeObraIds: [],

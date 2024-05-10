@@ -73,8 +73,6 @@ export async function getFullNotesDAO() {
     orderBy: {
       id: 'asc'
     },
-    include: {
-		}
   })
   return found as NoteDAO[]
 }
@@ -84,9 +82,18 @@ export async function getFullNoteDAO(id: string) {
     where: {
       id
     },
-    include: {
-		}
   })
   return found as NoteDAO
 }
     
+export async function getNotesDAOByWorkId(workId: string) {
+  const found = await prisma.note.findMany({
+    where: {
+      workId
+    },
+    orderBy: {
+      id: 'asc'
+    },
+  })
+  return found as NoteDAO[]
+}

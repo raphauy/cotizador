@@ -16,7 +16,7 @@ export async function createOrUpdateNoteAction(id: string | null, data: NoteForm
         updated= await createNote(data)
     }     
 
-    revalidatePath("/seller/notes")
+    revalidatePath("/seller/cotizations/[cotizationId]/edit", "page")
 
     return updated as NoteDAO
 }
@@ -24,7 +24,7 @@ export async function createOrUpdateNoteAction(id: string | null, data: NoteForm
 export async function deleteNoteAction(id: string): Promise<NoteDAO | null> {    
     const deleted= await deleteNote(id)
 
-    revalidatePath("/seller/notes")
+    revalidatePath("/seller/cotizations/[cotizationId]/edit", "page")
 
     return deleted as NoteDAO
 }

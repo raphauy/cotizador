@@ -64,7 +64,7 @@ export function ItemsList({ work }: Props) {
         return (
             <div className="h-24 flex flex-col justify-center items-center w-full border rounded-md">
                 <p>Aún no hay Items</p>
-                <Link href={`/seller/cotizations/${work.cotizationId}/edit?workId=${work.id}`}>  
+                <Link href={`/seller/cotizations/${work.cotizationId}/${work.id}`}>  
                     <Button variant="link" className="mt-0.5">Editar este trabajo</Button>
                 </Link>
             </div>
