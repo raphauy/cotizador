@@ -8,7 +8,7 @@ export type NoteDAO = {
 	createdAt: Date
 	updatedAt: Date
 	userId: string
-	cotizationId: string
+	workId: string
 }
 
 export const noteSchema = z.object({
@@ -16,7 +16,7 @@ export const noteSchema = z.object({
   private: z.boolean(),
 	
 	userId: z.string().min(1, "userId is required."),
-	cotizationId: z.string().min(1, "cotizationId is required."),
+	workId: z.string().min(1, "cotizationId is required."),
 })
 
 export type NoteFormValues = z.infer<typeof noteSchema>

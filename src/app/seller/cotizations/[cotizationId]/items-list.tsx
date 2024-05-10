@@ -87,7 +87,7 @@ export function ItemsList({ work }: Props) {
             </Accordion>
             <div className="flex font-bold flex-row justify-between w-full pr-4 pt-4">
                 <p>Total</p>
-                <p className="w-20">{formatCurrency(totalValue)}</p>
+                <p className="text-right">{formatCurrency(totalValue)}</p>
             </div>
         </div>
     )

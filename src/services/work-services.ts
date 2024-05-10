@@ -5,6 +5,7 @@ import { CotizationDAO } from "./cotization-services"
 import { WorkTypeDAO, getWorkTypeDAO } from "./worktype-services"
 import { ColorDAO } from "./color-services"
 import { ItemDAO, recalculateValues } from "./item-services"
+import { NoteDAO } from "./note-services"
 
 export type WorkDAO = {
 	id: string
@@ -21,6 +22,7 @@ export type WorkDAO = {
 	cotization: CotizationDAO
 	cotizationId: string
   items: ItemDAO[]
+  notes: NoteDAO[]
 }
 
 export type FullWorkDAO= WorkDAO & {
@@ -143,7 +145,8 @@ export async function getFullWorkDAO(id: string): Promise<FullWorkDAO | null> {
         include: {
           manoDeObra: true,
         }
-      }
+      },
+      notes: true,
 		}
   })
   return found as FullWorkDAO | null

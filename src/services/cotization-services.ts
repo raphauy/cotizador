@@ -153,8 +153,9 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
                   cotizationId: true
                 }
               }
-            }
-          }
+            },
+          },
+          notes: true
         },
         orderBy: {
           createdAt: 'desc'

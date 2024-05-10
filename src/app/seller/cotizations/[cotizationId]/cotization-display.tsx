@@ -10,6 +10,9 @@ import Link from "next/link"
 import { ClientDialog } from "../../clients/client-dialogs"
 import { ItemsList } from "./items-list"
 import { StatusSelector } from "./status-selector"
+import { NoteDialog } from "../../notes/note-dialogs"
+import { DataTable } from "../../notes/note-table"
+import { columns } from "../../notes/note-columns"
 
 type Props= {
     cotization: CotizationDAO
@@ -140,23 +143,29 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                             <p className="text-sm text-muted-foreground">{work.material.name} ({work.color.name})</p>
                                         </Link>
                                         <WorkDialog id={work.id} cotizationId={work.cotizationId} />
+                                        <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} />
                                     </div>
                                     <Separator />
                                 </CardHeader>
-                            <CardContent className="flex gap-2 justify-between text-muted-foreground">
-                                <ItemsList work={work} />
-                            </CardContent>
+                                <CardContent className="flex gap-2 justify-between text-muted-foreground">
+                                    <ItemsList work={work} />
+                                </CardContent>
                             </div>
-            
-                            <CardContent className="flex items-center justify-between text-muted-foreground">
-                                <div className="pb-4 ml-3">
-
-                                </div>
-            
-                                <div className="flex items-center gap-2">
-                                    <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} />
-                                </div>
+                            <CardContent>
+                                <Separator className="mt-5"/>
                             </CardContent>
+                            <div className="flex flex-col h-full">
+                                <CardContent className="flex gap-2 justify-between text-muted-foreground w-full h-10">
+                                    <p className="font-bold">Notas</p>
+                                    <NoteDialog workId={work.id} />
+                                </CardContent>
+                                <CardContent className="text-muted-foreground w-full">
+                                {
+                                    work.notes.length > 0 &&
+                                    <DataTable columns={columns} data={work.notes} subject="Note"/>
+                                }
+                                </CardContent>
+                            </div>
             
                         </Card>
                     )

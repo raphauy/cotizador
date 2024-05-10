@@ -12,7 +12,7 @@ type Props= {
 }
 
 const addTrigger= <Button><PlusCircle size={22} className="mr-2"/>Crear Trabajo</Button>
-const updateTrigger= <Settings size={28} className="pr-2 hover:cursor-pointer text-muted-foreground"/>
+const updateTrigger= <Settings size={25} className="mr-2 hover:cursor-pointer text-muted-foreground"/>
 
 export function WorkDialog({ id, cotizationId }: Props) {
   const [open, setOpen] = useState(false);
@@ -44,7 +44,7 @@ export function DeleteWorkDialog({ id, description }: DeleteProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Trash2 size={28} className="pr-2 hover:cursor-pointer"/>
+        <Trash2 size={25} className="hover:cursor-pointer text-red-400"/>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -8,21 +8,33 @@ import { deleteNoteAction, createOrUpdateNoteAction, getNoteDAOAction } from "./
 import { noteSchema, NoteFormValues } from '@/services/note-services'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Loader } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
+import { useSession } from "next-auth/react"
 
 type Props= {
   id?: string
+  workId: string
   closeDialog: () => void
 }
 
-export function NoteForm({ id, closeDialog }: Props) {
+export function NoteForm({ id, workId, closeDialog }: Props) {
+  const session= useSession()
+
   const form = useForm<NoteFormValues>({
     resolver: zodResolver(noteSchema),
-    defaultValues: {},
+    defaultValues: {
+      private: false,
+      text: "",
+      workId: workId,
+      userId: session?.data?.user?.id,
+    },
     mode: "onChange",
   })
   const [loading, setLoading] = useState(false)
+
 
   const onSubmit = async (data: NoteFormValues) => {
     setLoading(true)
@@ -62,46 +74,38 @@ export function NoteForm({ id, closeDialog }: Props) {
             name="text"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Text</FormLabel>
+                <FormLabel>Texto</FormLabel>
                 <FormControl>
-                  <Input placeholder="Note's text" {...field} />
+                  <Textarea rows={8} placeholder="Texto de la nota" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          
-      
-          <FormField
-            control={form.control}
-            name="userId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>UserId</FormLabel>
-                <FormControl>
-                  <Input placeholder="Note's userId" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-      
-          <FormField
-            control={form.control}
-            name="cotizationId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>CotizationId</FormLabel>
-                <FormControl>
-                  <Input placeholder="Note's cotizationId" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
 
+          <FormField
+            control={form.control}
+            name="private"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">
+                    Interno
+                  </FormLabel>
+                  <FormDescription>
+                    Si se marca esta casilla, la nota no se mostrará en la lista de notas para el cliente.
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />          
+      
         <div className="flex justify-end">
             <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancel</Button>
             <Button type="submit" className="w-32 ml-2">
@@ -114,7 +118,13 @@ export function NoteForm({ id, closeDialog }: Props) {
   )
 }
 
-export function DeleteNoteForm({ id, closeDialog }: Props) {
+type DeleteProps= {
+  id?: string
+  closeDialog: () => void
+}
+
+
+export function DeleteNoteForm({ id, closeDialog }: DeleteProps) {
   const [loading, setLoading] = useState(false)
 
   async function handleDelete() {

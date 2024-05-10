@@ -98,7 +98,6 @@ model Cotization {
   client            Client    @relation(fields: [clientId], references: [id], onDelete: Restrict) // genext: skip.list
   clientId          String
 
-  notes             Note[]                                                                     // genext: skip.list
   works             Work[]                                                                     // genext: skip.list
 
   // Usuario que ingresa la cotización
@@ -120,8 +119,9 @@ model Note {
 
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)    // genext: skip.list
   userId            String
-  cotization        Cotization @relation(fields: [cotizationId], references: [id], onDelete: Cascade) // genext: skip.list
-  cotizationId      String
+
+  work              Work?      @relation(fields: [workId], references: [id], onDelete: Cascade)    // genext: skip.list
+  workId            String?
 }
 
 model WorkType {
@@ -225,6 +225,7 @@ model Work {
   cotizationId      String
 
   items             Item[]                                   // genext: skip.list
+  notes             Note[]                                   // genext: skip.list
 }
 
 model Terminacion {

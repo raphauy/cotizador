@@ -9,12 +9,13 @@ import { getNoteDAOAction } from "./note-actions"
 
 type Props= {
   id?: string
+  workId: string
 }
 
-const addTrigger= <Button><PlusCircle size={22} className="mr-2"/>Create Note</Button>
-const updateTrigger= <Pencil size={30} className="pr-2 hover:cursor-pointer"/>
+const addTrigger= <Button variant="link" className="px-2"><PlusCircle size={22} className=""/></Button> 
+const updateTrigger= <Pencil size={28} className="pr-2 hover:cursor-pointer text-muted-foreground"/>
 
-export function NoteDialog({ id }: Props) {
+export function NoteDialog({ id, workId }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -24,10 +25,9 @@ export function NoteDialog({ id }: Props) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{id ? 'Update' : 'Create'} Note
-          </DialogTitle>
+          <DialogTitle>{id ? 'Actualizar nota' : 'Crear nota'}</DialogTitle>
         </DialogHeader>
-        <NoteForm closeDialog={() => setOpen(false)} id={id} />
+        <NoteForm closeDialog={() => setOpen(false)} id={id} workId={workId} />
       </DialogContent>
     </Dialog>
   )
@@ -44,7 +44,7 @@ export function DeleteNoteDialog({ id, description }: DeleteProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Trash2 className="hover:cursor-pointer"/>
+        <Trash2 size={20} className="hover:cursor-pointer text-muted-foreground"/>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
