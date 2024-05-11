@@ -16,15 +16,15 @@ export default function ColumnPanelBox({ cotization }: Props) {
     
   return (
         <Link href={`/seller/cotizations/${cotization.id}`}>
-            <div className={cn("px-1 rounded-md", cotizationId === cotization.id ? "bg-green-100 dark:bg-gray-800" : "")}>
+            <div className={cn("px-2", cotizationId === cotization.id ? "bg-green-100 dark:bg-gray-800" : "")}>
                 <div className="flex items-center justify-between">
                     <Button variant="link" className="pl-0 dark:text-white">
                         #{completeWithZeros(cotization.number)}
                     </Button>
                     <p className="text-xs">{formatWhatsAppStyle(cotization.date)}</p>
                 </div>
+                <p className="font-bold text-right">{cotization.clientName}</p> 
             </div>
-            <p className="font-bold text-right">{cotization.clientName}</p> 
         </Link>
     )
 }

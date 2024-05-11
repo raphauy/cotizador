@@ -112,7 +112,7 @@ export function DataTable<TData, TValue>({
     return null
 
   return (
-    <div className="space-y-4 dark:text-white w-48 mt-4">
+    <div className="space-y-4 dark:text-white w-56 mt-4">
       <DataTableToolbar table={table} sellerNames={sellerNames} clientNames={clientNames}/>
       <div className="border rounded-md  bg-white dark:bg-gray-800 ">
         <Table>
@@ -142,7 +142,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="p-0">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
