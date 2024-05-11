@@ -3,6 +3,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button"
 import { reloadOriginalNotes } from "@/services/cotization-services"
 import { CotizationNoteDAO } from "@/services/cotizationnote-services"
+import { RefreshCcw } from "lucide-react"
 import { revalidatePath } from "next/cache"
 
 type Props= {
@@ -25,8 +26,10 @@ export default function CotizationNotesBox({ cotizationId, initialNotes }: Props
                 </AccordionTrigger>
                 <AccordionContent>
                     <NotesBox initialNotes={initialNotes} />
-                    <form action={onReloadNotes} className="flex justify-end">
-                        <Button className="mt-4" variant="outline">Recargar notas originales</Button>
+                    <form action={onReloadNotes} className="flex justify-end">                        
+                        <Button className="mt-4" variant="outline">
+                            <RefreshCcw className="mr-2 h-4 w-4"/><p>Recargar notas originales</p>                            
+                        </Button>
                     </form>
                 </AccordionContent>
 
