@@ -39,6 +39,14 @@ export async function getCotizationNoteDAO(id: string) {
 }
     
 export async function createCotizationNote(data: CotizationNoteFormValues) {
+  const cotizationId = data.cotizationId || null
+  let notesCount = 0
+  notesCount = await prisma.cotizationNote.count({
+    where: {
+      cotizationId,
+    },
+  })
+  data.order = notesCount + 1
   const created = await prisma.cotizationNote.create({
     data
   })

@@ -23,12 +23,11 @@ export function CotizationNoteForm({ id, closeDialog }: Props) {
     resolver: zodResolver(cotizationNoteSchema),
     defaultValues: {
       text: "",
+      order: 0,
     },
     mode: "onChange",
   })
   const [loading, setLoading] = useState(false)
-
-  const router= useRouter()
 
   const onSubmit = async (data: CotizationNoteFormValues) => {
     setLoading(true)
