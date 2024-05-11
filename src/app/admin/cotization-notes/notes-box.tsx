@@ -33,8 +33,8 @@ export default function NotesBox({ initialNotes }: Props) {
         {
             notes.map((note, index) => {
                 return (
-                    <Reorder.Item key={note.id} value={note} className="flex items-center justify-between w-full text-muted-foreground border-b hover:bg-slate-50 h-12 px-4">
-                        <p className="cursor-pointer w-full">{note.text}</p>
+                    <Reorder.Item key={note.id} value={note} className="flex items-center justify-between w-full text-muted-foreground border-b hover:bg-slate-50 min-h-12 px-4">
+                        <p className="cursor-pointer w-full py-2 pr-3 whitespace-pre-line">{note.text}</p>
                         <div className="flex items-center">
                             <CotizationNoteDialog id={note.id} />
                             <DeleteCotizationNoteDialog id={note.id} description={`seguro que quieres eliminar la nota ${note.text}?`} />
