@@ -12,7 +12,9 @@ type Props = {
 export default function ColumnPanelBox({ cotization }: Props) {
     const params= useParams()
     const cotizationId= params.cotizationId
-    return (
+    console.log(cotizationId)
+    
+  return (
         <Link href={`/seller/cotizations/${cotization.id}`}>
             <div className={cn("px-1 rounded-md", cotizationId === cotization.id ? "bg-green-100 dark:bg-gray-800" : "")}>
                 <div className="flex items-center justify-between">
@@ -22,6 +24,7 @@ export default function ColumnPanelBox({ cotization }: Props) {
                     <p className="text-xs">{formatWhatsAppStyle(cotization.date)}</p>
                 </div>
             </div>
+            <p className="font-bold text-right">{cotization.clientName}</p> 
         </Link>
     )
 }
