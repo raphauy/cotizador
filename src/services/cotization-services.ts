@@ -4,6 +4,7 @@ import { CotizationStatus, CotizationType } from "@prisma/client"
 import { ClientDAO } from "./client-services"
 import { UserDAO } from "./user-services"
 import { WorkDAO } from "./work-services"
+import { CotizationNoteDAO, copyOriginalNotes } from "./cotizationnote-services"
 
 export type CotizationDAO = {
 	id: string
@@ -22,6 +23,7 @@ export type CotizationDAO = {
   sellerId: string
   sellerName: string
   works: WorkDAO[]
+  cotizationNotes: CotizationNoteDAO[]
 }
 
 export const cotizationSchema = z.object({
@@ -56,6 +58,7 @@ export async function getCotizationDAO(id: string) {
       creator: true,
       seller: true,
       works: true,
+      cotizationsNotes: true,
     }
   })
   if (!found) return null
@@ -66,7 +69,8 @@ export async function getCotizationDAO(id: string) {
     clientName: found.client?.name,
     creatorName: found.creator?.name,
     sellerName: found.seller.name,
-    works: found.works as WorkDAO[]
+    works: found.works as WorkDAO[],
+    cotizationNotes: found.cotizationsNotes
   }
 
   return res 
@@ -78,6 +82,10 @@ export async function createCotization(data: CotizationFormValues) {
   const created = await prisma.cotization.create({
     data
   })
+  if (created) {
+    await copyOriginalNotes(created.id)
+  }
+
   return created
 }
 
@@ -111,6 +119,7 @@ export async function getFullCotizationsDAO() {
       creator: true,
       seller: true,
       works: true,
+      cotizationsNotes: true,
 		}
   })
   const res: CotizationDAO[]= []
@@ -121,7 +130,8 @@ export async function getFullCotizationsDAO() {
       clientName: cotization.client?.name,
       creatorName: cotization.creator?.name,
       sellerName: cotization.seller.name,
-      works: cotization.works as WorkDAO[]
+      works: cotization.works as WorkDAO[],
+      cotizationNotes: cotization.cotizationsNotes
     })
   })
   return res
@@ -160,6 +170,11 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
         orderBy: {
           createdAt: 'desc'
         }    
+      },
+      cotizationsNotes: {
+        orderBy: {
+          order: 'asc'
+        }
       }
 		},
   })
@@ -172,7 +187,8 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
     creatorName: found.creator?.name,
     sellerName: found.seller.name,
     // @ts-ignore
-    works: found.works as WorkDAO[]
+    works: found.works as WorkDAO[],
+    cotizationNotes: found.cotizationsNotes
   }
   return res
 }
@@ -214,6 +230,7 @@ export async function getFullCotizationsDAOByUser(userId: string) {
       creator: true,
       seller: true,
       works: true,
+      cotizationsNotes: true,
     }
   })
 
@@ -225,9 +242,46 @@ export async function getFullCotizationsDAOByUser(userId: string) {
       clientName: cotization.client?.name,
       creatorName: cotization.creator?.name,
       sellerName: cotization.seller.name,
-      works: cotization.works as WorkDAO[]
+      works: cotization.works as WorkDAO[],
+      cotizationNotes: cotization.cotizationsNotes
     })
   })
 	
  	return res
+}
+
+export async function reloadOriginalNotes(cotizationId: string) {
+  // delete all notes of the cotization and recreate them copying the original notes
+  const cotization = await prisma.cotization.findUnique({
+    where: {
+      id: cotizationId,
+    },
+  })
+  if (!cotization) {
+    throw new Error("Cotization not found")
+  }
+  // delete all notes of the cotization and recreate them copying the original notes
+  const cotizationNotes = await prisma.cotizationNote.deleteMany({
+    where: {
+      cotizationId: cotizationId,
+    },
+  })
+  const originalNotes = await prisma.cotizationNote.findMany({
+    where: {
+      cotizationId: null,
+    },
+    orderBy: {
+      order: 'asc'
+    },
+  })
+  for (let i = 0; i < originalNotes.length; i++) {
+    const note = originalNotes[i]
+    await prisma.cotizationNote.create({
+      data: {
+        text: note.text,
+        order: i,
+        cotizationId: cotizationId,
+      }
+    })
+  }
 }

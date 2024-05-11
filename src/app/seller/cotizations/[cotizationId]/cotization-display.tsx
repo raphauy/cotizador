@@ -13,6 +13,7 @@ import { StatusSelector } from "./status-selector"
 import { NoteDialog } from "../../notes/note-dialogs"
 import { DataTable } from "../../notes/note-table"
 import { columns } from "../../notes/note-columns"
+import CotizationNotesBox from "./cotization-notes-box"
 
 type Props= {
     cotization: CotizationDAO
@@ -111,6 +112,10 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                         </Link>
                     </CardContent>
                 </div>
+            </Card>
+
+            <Card className="px-4">
+                <CotizationNotesBox initialNotes={cotization.cotizationNotes} cotizationId={cotization.id} />
             </Card>
 
             <div className="flex items-center justify-between pt-10">

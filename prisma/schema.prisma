@@ -99,6 +99,7 @@ model Cotization {
   clientId          String
 
   works             Work[]                                                                     // genext: skip.list
+  cotizationsNotes  CotizationNote[]                                                            // genext: skip.list
 
   // Usuario que ingresa la cotización
   creator           User      @relation(name: "CotizationCreator", fields: [creatorId], references: [id], onDelete: Restrict)
@@ -279,4 +280,16 @@ model Colocacion {
   updatedAt         DateTime  @updatedAt                     // gennext: skip.zod
 
   items             Item[]                                   // genext: skip.list
+}
+
+model CotizationNote {
+  id                String    @id @default(cuid())
+  order             Int       @default(0)
+  text              String                                  // genext: show.column
+
+  createdAt         DateTime  @default(now())               // gennext: skip.zod  
+  updatedAt         DateTime  @updatedAt                    // gennext: skip.zod
+
+  cotization        Cotization? @relation(fields: [cotizationId], references: [id], onDelete: Cascade)
+  cotizationId      String?
 }

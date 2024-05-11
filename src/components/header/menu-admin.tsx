@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { AlignVerticalDistributeStart, ArrowDownWideNarrow, Combine, Layers3, LayoutDashboard, Pickaxe, Settings, User } from "lucide-react"
+import { AlignVerticalDistributeStart, ArrowDownWideNarrow, Combine, Layers3, LayoutDashboard, ListCollapse, Notebook, Pickaxe, Settings, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -10,7 +10,7 @@ const data= [
     {
       href: `/admin`,
       icon: LayoutDashboard,
-      text: "Dashboard",
+      text: "",
       disabled: false
     },
     {
@@ -47,6 +47,12 @@ const data= [
         href: `/admin/colocations`,
         icon: Layers3,   
         text: "Colocaciones",
+        disabled: false
+    },
+    {
+        href: `/admin/cotization-notes`,
+        icon: ListCollapse,   
+        text: "Notas",
         disabled: false
     },
     {
