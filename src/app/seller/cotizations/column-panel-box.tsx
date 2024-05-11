@@ -1,0 +1,27 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import { cn, completeWithZeros, formatWhatsAppStyle } from "@/lib/utils"
+import { CotizationDAO } from "@/services/cotization-services"
+import Link from "next/link"
+import { useParams } from "next/navigation"
+
+type Props = {
+  cotization: CotizationDAO
+}
+export default function ColumnPanelBox({ cotization }: Props) {
+    const params= useParams()
+    const cotizationId= params.cotizationId
+    return (
+        <Link href={`/seller/cotizations/${cotization.id}`}>
+            <div className={cn("px-1 rounded-md", cotizationId === cotization.id ? "bg-green-100 dark:bg-gray-800" : "")}>
+                <div className="flex items-center justify-between">
+                    <Button variant="link" className="pl-0 dark:text-white">
+                        #{completeWithZeros(cotization.number)}
+                    </Button>
+                    <p className="text-xs">{formatWhatsAppStyle(cotization.date)}</p>
+                </div>
+            </div>
+        </Link>
+    )
+}

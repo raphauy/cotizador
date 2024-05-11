@@ -27,7 +27,7 @@ export const columns: ColumnDef<CotizationDAO>[] = [
       return (
         <Link href={`/seller/cotizations/${row.original.id}`}>
             <Button variant="link" className="pl-0 dark:text-white">
-              {completeWithZeros(row.original.number)}
+              #{completeWithZeros(row.original.number)}
             </Button>
         </Link>
       )

@@ -1,20 +1,34 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { UserRole } from "@prisma/client";
+import { getFullCotizationsDAO, getFullCotizationsDAOByUser } from "@/services/cotization-services";
+import { DataTable } from "./cotizations/cotization-table-panel";
+import { columns } from "./cotizations/cotization-columns-panel";
 
 interface Props {
   children: React.ReactNode;
 }
 
 export default async function AdminLayout({ children }: Props) {
-  const currentUser = await getCurrentUser()
+  const user = await getCurrentUser()
 
-  if (!currentUser) {
+  if (!user) {
     return redirect("/auth/login")
   }
+  let data
+  if (user.role === UserRole.ADMIN) {
+    data=await getFullCotizationsDAO()
+  } else {
+    data=await getFullCotizationsDAOByUser(user.id)
+  }
+
+  const clientNames= Array.from(new Set(data.map((cotization) => cotization.clientName)))
+  const sellerNames= Array.from(new Set(data.map((cotization) => cotization.sellerName)))
 
   return (
-    <div className="flex flex-col items-center flex-grow p-1 w-full">
+    <div className="flex w-full gap-2 mt-3 h-full">
+      <DataTable columns={columns} data={data} subject="Cotization" sellerNames={sellerNames} clientNames={clientNames}/>
       <TooltipProvider delayDuration={0}>
         {children}
       </TooltipProvider>
