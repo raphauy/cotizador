@@ -106,7 +106,6 @@ export function DataTable<TData, TValue>({
 
   const path= usePathname()
   const pathCount= path.split("/").length
-  console.log(pathCount)
   
   if ((path !== "/seller" && !path.startsWith("/seller/cotizations/")) || pathCount > 4)
     return null

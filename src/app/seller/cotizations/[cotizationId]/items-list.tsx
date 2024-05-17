@@ -1,23 +1,24 @@
 "use client"
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { ItemDAO } from "@/services/item-services"
-import { WorkDAO } from "@/services/work-services"
-import { useEffect, useState } from "react"
-import SuperficieBox from "./superficie-box"
-import { ItemType } from "@prisma/client"
-import SurfaceAccordion from "./surface-accordion"
-import OtherAccordion from "./other-accordion"
-import Link from "next/link"
+import { Accordion } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { formatCurrency } from "@/lib/utils"
+import { ItemDAO } from "@/services/item-services"
+import { OptionalColorsTotalResult } from "@/services/optional-colors-services"
+import { WorkDAO } from "@/services/work-services"
+import { ItemType } from "@prisma/client"
+import Link from "next/link"
+import { useEffect, useState } from "react"
 import NormalAccordion from "./normal-accordion"
+import OtherAccordion from "./other-accordion"
+import SurfaceAccordion from "./surface-accordion"
 import TerminationAreaAccordion from "./termination-area-accordion"
 
 type Props = {
     work: WorkDAO
+    optionalColorsTotalResults: OptionalColorsTotalResult[]
 }
-export function ItemsList({ work }: Props) {
+export function ItemsList({ work, optionalColorsTotalResults }: Props) {
 
     const [items, setItems] = useState<ItemDAO[]>([])
     const [tramos, setTramos] = useState<ItemDAO[]>([])
@@ -85,10 +86,18 @@ export function ItemsList({ work }: Props) {
                 <NormalAccordion items={colocaciones} header="Colocación" headerPlural="Colocaciones" />  
                 <OtherAccordion surfaceItems={items} />
             </Accordion>
-            <div className="flex font-bold flex-row justify-between w-full pr-4 pt-4">
+            <div className="flex font-bold flex-row justify-between w-full pt-4 mb-2">
                 <p>Total</p>
                 <p className="text-right">{formatCurrency(totalValue)}</p>
             </div>
+            {
+                optionalColorsTotalResults.map((result, index) => (
+                    <div key={index} className="flex flex-row items-center justify-between w-full">
+                        <p className="text-sm">{result.materialName} ({result.colorName})</p>
+                        <p className="text-right">{formatCurrency(result.totalValue)}</p>
+                    </div>
+                ))
+            }
         </div>
     )
 }

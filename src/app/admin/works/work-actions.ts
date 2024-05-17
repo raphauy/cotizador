@@ -1,7 +1,9 @@
 "use server"
   
+import { ColorDAO } from "@/services/color-services"
+import { OptionalColorsTotalResult, calculateTotalWorkValue, getComplementaryOptionalColorsDAO, getOptionalColorsDAO, setOptionalColors } from "@/services/optional-colors-services"
+import { WorkDAO, WorkFormValues, createWork, deleteWork, getFullWorkDAO, updateWork } from "@/services/work-services"
 import { revalidatePath } from "next/cache"
-import { WorkDAO, WorkFormValues, createWork, updateWork, getFullWorkDAO, deleteWork } from "@/services/work-services"
 
 
 export async function getWorkDAOAction(id: string){
@@ -27,5 +29,21 @@ export async function deleteWorkAction(id: string): Promise<WorkDAO | null> {
     revalidatePath("/admin/works")
 
     return deleted as WorkDAO
+}
+
+export async function getOptionalColorsDAOAction(workId: string): Promise<ColorDAO[]> {
+    return getOptionalColorsDAO(workId)
+}
+
+export async function getComplementaryOptionalColorsDAOAction(workId: string): Promise<ColorDAO[]> {
+    return getComplementaryOptionalColorsDAO(workId)
+}
+
+export async function setOptionalColorsAction(workId: string, colors: ColorDAO[]) {
+    const res= await setOptionalColors(workId, colors)
+
+    revalidatePath("/seller/cotizations")
+
+    return res
 }
 

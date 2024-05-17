@@ -1,11 +1,13 @@
-import * as z from "zod"
 import { prisma } from "@/lib/db"
-import { MaterialDAO } from "./material-services"
+import { ClientType, ItemType } from "@prisma/client"
+import * as z from "zod"
+import { ColorDAO, getColorsDAO } from "./color-services"
 import { CotizationDAO } from "./cotization-services"
-import { WorkTypeDAO, getWorkTypeDAO } from "./worktype-services"
-import { ColorDAO } from "./color-services"
-import { ItemDAO, recalculateValues } from "./item-services"
+import { ItemDAO, ManoDeObraItemFormValues, calculateManoDeObraValue, recalculateAreaValues } from "./item-services"
+import { MaterialDAO } from "./material-services"
 import { NoteDAO } from "./note-services"
+import { WorkTypeDAO, getWorkTypeDAO } from "./worktype-services"
+import { ManoDeObraDAO } from "./manodeobra-services"
 
 export type WorkDAO = {
 	id: string
@@ -23,6 +25,7 @@ export type WorkDAO = {
 	cotizationId: string
   items: ItemDAO[]
   notes: NoteDAO[]
+  optionalColors: ColorDAO[]
 }
 
 export type FullWorkDAO= WorkDAO & {
@@ -93,7 +96,7 @@ export async function updateWork(id: string, data: WorkFormValues) {
   const newColorId= updated.colorId
   if (newColorId !== previusColorId) {
     console.log("recalculando precios")    
-    await recalculateValues(id)
+    await recalculateAreaValues(id)
   }
 
   return updated
@@ -144,6 +147,7 @@ export async function getFullWorkDAO(id: string): Promise<FullWorkDAO | null> {
         },
         include: {
           manoDeObra: true,
+          terminacion: true,
         }
       },
       notes: true,
@@ -151,4 +155,3 @@ export async function getFullWorkDAO(id: string): Promise<FullWorkDAO | null> {
   })
   return found as FullWorkDAO | null
 }
-    

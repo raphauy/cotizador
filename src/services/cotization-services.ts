@@ -151,6 +151,11 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
           workType: true,
           material: true,
           color: true,
+          optionalColors: {
+            include: {
+              material: true
+            }
+          },
           items: {
             orderBy: {
               createdAt: 'asc'

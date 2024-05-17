@@ -13,7 +13,6 @@ type Props = {
 export default function ColumnPanelBox({ cotization }: Props) {
     const params= useParams()
     const cotizationId= params.cotizationId
-    console.log(cotizationId)
     
   return (
         <Link href={`/seller/cotizations/${cotization.id}`}>

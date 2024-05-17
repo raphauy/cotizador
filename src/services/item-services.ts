@@ -264,17 +264,17 @@ export async function upsertBatchTerminationItem(workId: string, items: Terminat
 
 export async function upsertTerminationItem(id: string | undefined, data: TerminationFormValues, work: FullWorkDAO) {
   if (id) {
-    await updateTerminationItem(id, data, work)
+    return await updateTerminationItem(id, data, work)
   } else {
-    await createTerminationItem(data)
+    return await createTerminationItem(data)
   }   
 }
 
 export async function upsertAreaItem(id: string | undefined, data: ItemFormValues, work: FullWorkDAO) {
   if (id) {
-    await updateItem(id, data, work)
+    return await updateItem(id, data, work)
   } else {
-    await createItem(data)
+    return await createItem(data)
   }   
 }
 
@@ -606,14 +606,16 @@ export async function updateColocacion(workId: string, colocacionId: string) {
   }
 }
 
-export async function recalculateValues(workId: string): Promise<boolean> {
+export async function recalculateAreaValues(workId: string): Promise<number> {
   const work= await getFullWorkDAO(workId)
   if (!work) throw new Error("Work not found")
 
   const items= work.items
 
-  const areaItems= items.filter((item) => item.type === ItemType.TRAMO || item.type === ItemType.ZOCALO || item.type === ItemType.ALZADA)
+  const areaItems= items.filter((item) => item.type === ItemType.TRAMO || item.type === ItemType.ZOCALO || item.type === ItemType.ALZADA || item.type === ItemType.TERMINACION)
+  console.log("areaItems count: ", areaItems.length)
 
+  let totalValue= 0
   for (let i = 0; i < areaItems.length; i++) {
     const dataItem: ItemFormValues = {
       workId,
@@ -622,10 +624,16 @@ export async function recalculateValues(workId: string): Promise<boolean> {
       ancho: areaItems[i].ancho?.toString(),
       quantity: areaItems[i].quantity?.toString(),
     }
-    await upsertAreaItem(areaItems[i].id, dataItem, work as FullWorkDAO)
+    const updated= await upsertAreaItem(areaItems[i].id, dataItem, work as FullWorkDAO)
+    const value= updated.valor ?? 0
+    totalValue+= value * updated.quantity
   }
+  console.log("areaItems: ", totalValue)
+  
 
   const terminacionesItems= items.filter((item) => item.type === ItemType.TERMINACION)
+  console.log("terminacionesItems count: ", terminacionesItems.length)
+  
   for (let i = 0; i < terminacionesItems.length; i++) {
     const dataItem: TerminationFormValues = {
       workId,
@@ -636,8 +644,12 @@ export async function recalculateValues(workId: string): Promise<boolean> {
       centimetros: (terminacionesItems[i].centimetros || 0).toString(),
       ajuste: terminacionesItems[i].ajuste?.toString(),
    }
-    await upsertTerminationItem(terminacionesItems[i].id, dataItem, work as FullWorkDAO)
+    const updated= await upsertTerminationItem(terminacionesItems[i].id, dataItem, work as FullWorkDAO)
+    const value= updated.valor ?? 0
+    const subtotal= value * updated.quantity
+    console.log("subtotal: ", subtotal)
+    totalValue+= subtotal
   }
 
-  return true
+  return totalValue
 }

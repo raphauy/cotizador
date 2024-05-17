@@ -14,6 +14,8 @@ import { NoteDialog } from "../../notes/note-dialogs"
 import { DataTable } from "../../notes/note-table"
 import { columns } from "../../notes/note-columns"
 import CotizationNotesBox from "./cotization-notes-box"
+import { OptionalColorsBoxDialog } from "@/app/admin/works/optional-works-box"
+import { OptionalColorsTotalResult, calculateTotalWorkValue } from "@/services/optional-colors-services"
 
 type Props= {
     cotization: CotizationDAO
@@ -134,7 +136,9 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
 
             <div className="grid lg:grid-cols-2 gap-4">
             {
-                works.map(work => {
+                works.map(async (work) => {
+                    const optionalColors= work.optionalColors
+                    const optionalColorsTotalResults: OptionalColorsTotalResult[]= await calculateTotalWorkValue(work.id, optionalColors)
                     return (
                         <Card key={work.id} className={cn("flex flex-col justify-between", work.id === selectedWorkId ? "border-green-500 border-2" : "")}>
                             <div>
@@ -147,13 +151,14 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                             </CardTitle>
                                             <p className="text-sm text-muted-foreground">{work.material.name} ({work.color.name})</p>
                                         </Link>
+                                        <OptionalColorsBoxDialog workId={work.id} />
                                         <WorkDialog id={work.id} cotizationId={work.cotizationId} />
                                         <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} />
                                     </div>
                                     <Separator />
                                 </CardHeader>
                                 <CardContent className="flex gap-2 justify-between text-muted-foreground">
-                                    <ItemsList work={work} />
+                                    <ItemsList work={work} optionalColorsTotalResults={optionalColorsTotalResults} />
                                 </CardContent>
                             </div>
                             <CardContent>

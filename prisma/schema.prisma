@@ -191,6 +191,7 @@ model Color {
   materialId        String
 
   works             Work[]                                   // genext: skip.list
+  optionalWorks     Work[]    @relation("WorkOptionalColors")
 
 }
 
@@ -217,6 +218,8 @@ model Work {
 
   color             Color     @relation(fields: [colorId], references: [id], onDelete: NoAction)
   colorId           String
+
+  optionalColors    Color[]    @relation("WorkOptionalColors")
 
   cotization        Cotization @relation(fields: [cotizationId], references: [id], onDelete: Cascade)
   cotizationId      String
