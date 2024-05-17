@@ -1,21 +1,25 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
+import { cn } from "@/lib/utils"
 import { ColorDAO } from "@/services/color-services"
 import { MaterialDAO } from "@/services/material-services"
 import { WorkFormValues, workSchema } from '@/services/work-services'
 import { WorkTypeDAO } from "@/services/worktype-services"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader } from "lucide-react"
+import { CaretSortIcon } from "@radix-ui/react-icons"
+import { CheckIcon, Loader } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
 import { getColorsDAOByMaterialIdAction, getMaterialsDAOAction } from "../colors/color-actions"
 import { getWorkTypesDAOAction } from "../worktypes/worktype-actions"
 import { createOrUpdateWorkAction, deleteWorkAction, getWorkDAOAction } from "./work-actions"
-import { Input } from "@/components/ui/input"
 
 type Props= {
   id?: string
@@ -34,8 +38,9 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
   })
   const [materials, setMaterials] = useState<MaterialDAO[]>([])
   const [worktype, setWorktype] = useState<WorkTypeDAO[]>([])
-  const [color, setColor] = useState<ColorDAO[]>([])
+  const [colors, setColors] = useState<ColorDAO[]>([])
   const [loading, setLoading] = useState(false)
+  const [colorPopoverOpen, setColorPopoverOpen] = useState(false)
 
   const watchMaterialId = useWatch({ name: "materialId", control: form.control })
 
@@ -67,12 +72,13 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
     setLoading(true)
     getColorsDAOByMaterialIdAction(watchMaterialId)
     .then((data) => {
-      setColor(data)
+      setColors(data)
     })
     .finally(() => {
       setLoading(false)
     })
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchMaterialId])
 
   const onSubmit = async (data: WorkFormValues) => {
@@ -108,6 +114,7 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
 
   return (
     <div className="p-4 bg-white rounded-md">
+      
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 
@@ -160,30 +167,60 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="colorId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Color:</FormLabel>
-                <Select onValueChange={(value) => field.onChange(value)} value={field.value}
-                >
+        <FormField
+          control={form.control}
+          name="colorId"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Color:</FormLabel>
+              <Popover open={colorPopoverOpen} onOpenChange={setColorPopoverOpen}>
+                <PopoverTrigger asChild>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un Color" />
-                    </SelectTrigger>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className={cn("justify-between",!field.value && "text-muted-foreground")}
+                    >
+                      {field.value
+                        ? colors.find((color) => color.id === field.value)?.name
+                        : "Seleccionar color"}
+                      <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
                   </FormControl>
-                  <SelectContent>
-                    {color.map(color => (
-                      <SelectItem key={color.id} value={color.id}>{color.name}</SelectItem>  
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+                </PopoverTrigger>
+                <PopoverContent className="p-0 w-96">
+                  <Command>
+                    <CommandInput placeholder="Busca un color..." />
+                    <CommandEmpty>Color no encontrado.</CommandEmpty>
+                    <CommandGroup className="h-48 overflow-y-auto">
+                      {colors.map((color) => (
+                        <CommandItem
+                          value={color.name}
+                          key={color.id}
+                          onSelect={() => {
+                            form.setValue("colorId", color.id)
+                            setColorPopoverOpen(false)
+                          }}
+                        >
+                          <CheckIcon
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              color.id === field.value
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {color.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
           <FormField
             control={form.control}
             name="reference"
