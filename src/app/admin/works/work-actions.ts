@@ -47,3 +47,6 @@ export async function setOptionalColorsAction(workId: string, colors: ColorDAO[]
     return res
 }
 
+export async function calculateTotalWorkValueAction(workId: string, colors: ColorDAO[]): Promise<OptionalColorsTotalResult[]> {
+    return calculateTotalWorkValue(workId, colors)
+}

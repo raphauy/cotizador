@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn, completeWithZeros, formatCurrency, formatWhatsAppStyle } from "@/lib/utils"
 import { CotizationDAO } from "@/services/cotization-services"
-import { ClipboardPen, Construction, Mail, Pencil, Phone, Settings } from "lucide-react"
+import { ClipboardPen, Construction, Eye, Mail, Pencil, Phone, Settings } from "lucide-react"
 import Link from "next/link"
 import { ClientDialog } from "../../clients/client-dialogs"
 import { ItemsList } from "./items-list"
@@ -16,6 +16,7 @@ import { columns } from "../../notes/note-columns"
 import CotizationNotesBox from "./cotization-notes-box"
 import { OptionalColorsBoxDialog } from "@/app/admin/works/optional-works-box"
 import { OptionalColorsTotalResult, calculateTotalWorkValue } from "@/services/optional-colors-services"
+import { Button } from "@/components/ui/button"
 
 type Props= {
     cotization: CotizationDAO
@@ -107,10 +108,16 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                     <div className="pb-4 ml-3">
                         <StatusSelector id={cotization.id} status={cotization.status} />
                     </div>
-                    
-                    <CardContent className="flex gap-2 justify-end text-muted-foreground">
+
+                    {/* <Link href={`/seller/cotizations/${cotization.id}/preview`} >
+                        <Button variant="outline" className="gap-2 text-verde-abbate mb-3">
+                            <Eye className="h-5 w-5" />Preview
+                        </Button>
+                    </Link> */}
+
+                    <CardContent className="flex gap-4 justify-end text-muted-foreground">
                         <Link href={`/seller/cotizations/new?id=${cotization.id}`}>
-                            <Pencil className="h-5 w-5" />
+                            <Pencil className="h-6 w-6 mt-0.5" />
                         </Link>
                     </CardContent>
                 </div>

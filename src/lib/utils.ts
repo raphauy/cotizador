@@ -107,8 +107,8 @@ export function getShortItemDescription(item: ItemDAO): string {
   }
 }
 
-export function formatCurrency(value: number): string {
-  return Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(value)  
+export function formatCurrency(value: number, decimals = 2): string {
+  return Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(value)
 }
 
 
