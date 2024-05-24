@@ -33,6 +33,7 @@ export default function PrintableCotization({ cotization }: Props) {
             {
                 cotization.cotizationNotes.length > 0 &&
                 <div className="flex flex-col">
+                    <p className="font-bold mb-1">Notas:</p>
                 {
                     cotization.cotizationNotes.map((note) => {
                         return (
