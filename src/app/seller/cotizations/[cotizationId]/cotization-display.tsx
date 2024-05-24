@@ -109,11 +109,11 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                         <StatusSelector id={cotization.id} status={cotization.status} />
                     </div>
 
-                    {/* <Link href={`/seller/cotizations/${cotization.id}/preview`} >
+                    <Link href={`/seller/cotizations/${cotization.id}/preview`} >
                         <Button variant="outline" className="gap-2 text-verde-abbate mb-3">
                             <Eye className="h-5 w-5" />Preview
                         </Button>
-                    </Link> */}
+                    </Link>
 
                     <CardContent className="flex gap-4 justify-end text-muted-foreground">
                         <Link href={`/seller/cotizations/new?id=${cotization.id}`}>

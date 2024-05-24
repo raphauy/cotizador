@@ -15,7 +15,6 @@ export default function PrintableCotization({ cotization }: Props) {
     const works= cotization.works
 
     const totalValue= works.reduce((acc, work) => acc + work.items.reduce((acc, item) => acc + (item.valor || 0), 0), 0)
-    const totalValueStr= formatCurrency(totalValue)
 
     return (
         <div className="space-y-2 w-full p-10">
@@ -29,6 +28,23 @@ export default function PrintableCotization({ cotization }: Props) {
             </div>
 
             <WorksList works={works} />
+
+            <div className="notas text-gray-800 pt-2">
+            {
+                cotization.cotizationNotes.length > 0 &&
+                <div className="flex flex-col">
+                {
+                    cotization.cotizationNotes.map((note) => {
+                        return (
+                            <div className="flex items-center gap-2" key={note.id}>
+                                <p className="text-sm pb-3">{note.text}</p>
+                            </div>
+                        )
+                    })
+                }
+                </div>
+            }
+            </div>
 
             {/* <div className={cn("text-xl font-bold w-full flex items-center gap-4",works.length === 0 && "justify-center")}>
                 <p>

@@ -75,6 +75,24 @@ const PrintButton2 = ({ cotization }: RequestEvaluationDocumentButtonProps) => {
         yPosition += imgHeight + paddingY;
       }
 
+      // Capturar y agregar Notas
+      const notasElement = element.querySelector('.notas');
+      if (notasElement) {
+        const canvas = await html2canvas(notasElement as HTMLElement, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - paddingX * 2;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        if (yPosition + imgHeight > pageHeight - paddingY) {
+          pdf.addPage();
+          yPosition = paddingY;
+        }
+
+        pdf.addImage(imgData, 'PNG', paddingX, yPosition, imgWidth, imgHeight);
+        yPosition += imgHeight + paddingY;
+      }
+
+
       pdf.save(`Presupuesto-${"#" + completeWithZeros(cotization.number)}.pdf`);
     }
   };
