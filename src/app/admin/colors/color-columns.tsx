@@ -43,14 +43,14 @@ export const columns: ColumnDef<ColorDAO>[] = [
         return (
           <Button variant="ghost" className="pl-0 dark:text-white w-full"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Cliente Final $
+            CF $
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
     cell: ({ row }) => {
       const data= row.original
       return (
-        <p className="text-right w-28">
+        <p className="text-right mr-7">
           {data.clienteFinalPrice && data.clienteFinalPrice.toLocaleString()}
         </p>
       )
@@ -63,14 +63,14 @@ export const columns: ColumnDef<ColorDAO>[] = [
         return (
           <Button variant="ghost" className="pl-0 dark:text-white w-full"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Arquitecto/Estudio $
+            A/E $
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
     cell: ({ row }) => {
       const data= row.original
       return (
-        <p className="text-right w-28">
+        <p className="text-right mr-7">
           {data.arquitectoStudioPrice && data.arquitectoStudioPrice.toLocaleString()}
         </p>
       )
@@ -83,14 +83,14 @@ export const columns: ColumnDef<ColorDAO>[] = [
         return (
           <Button variant="ghost" className="pl-0 dark:text-white"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-            Precio Distribuidor $
+            Dist. $
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
     cell: ({ row }) => {
       const data= row.original
       return (
-        <p className="text-right w-28">
+        <p className="text-right mr-10">
           {data.distribuidorPrice && data.distribuidorPrice.toLocaleString()}
         </p>
       )

@@ -10,11 +10,12 @@ async function main() {
   console.log("Seeding...")
 
   //await seedAdmin()
-  //await seedMaterials()
+  await seedMaterials()
   //await seedWorkTypes()
   //await seedManoDeObra()
-  
+
+  console.log("Seeding done")
 }
 
-//main()
+main()
 
