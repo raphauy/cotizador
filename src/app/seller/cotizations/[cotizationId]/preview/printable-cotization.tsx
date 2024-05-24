@@ -38,12 +38,14 @@ export default function PrintableCotization({ cotization }: Props) {
                     cotization.cotizationNotes.map((note) => {
                         return (
                             <div className="flex items-center gap-2" key={note.id}>
-                                <p className="text-sm pb-3">{note.text}</p>
+                                <p className="text-sm pb-1">{note.text}</p>
                             </div>
                         )
                     })
                 }
+                    <p className="mt-4 text-xl">Marmoleria Anibal Abbate</p>
                 </div>
+
             }
             </div>
 
