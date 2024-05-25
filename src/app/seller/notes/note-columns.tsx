@@ -26,7 +26,7 @@ export const columns: ColumnDef<NoteDAO>[] = [
       const deleteDescription= `seguro que quieres eliminar la nota ${data.text}?`
       return (
         <div className="flex items-center justify-between w-full">
-          <div className="">
+          <div className="whitespace-pre-line">
             {data.text}
           </div>
           <div className="flex items-center">

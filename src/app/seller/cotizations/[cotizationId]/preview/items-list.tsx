@@ -101,7 +101,7 @@ export function ItemsList({ work }: Props) {
                     work.notes.map((note) => {
                         return (
                             <div className="flex items-center gap-2" key={note.id}>
-                                <p className="text-sm pb-3">{note.text}</p>
+                                <p className="text-sm pb-3 whitespace-pre-line">{note.text}</p>
                             </div>
                         )
                     })
