@@ -12,7 +12,7 @@ type Props= {
   id?: string
 }
 
-const addTrigger= <Button><PlusCircle size={22} className="mr-2"/>Create ManoDeObra</Button>
+const addTrigger= <Button><PlusCircle size={22} className="mr-2"/>Crear ManoDeObra</Button>
 const updateTrigger= <Pencil size={30} className="pr-2 hover:cursor-pointer"/>
 
 export function ManoDeObraDialog({ id }: Props) {
@@ -25,8 +25,7 @@ export function ManoDeObraDialog({ id }: Props) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{id ? 'Update' : 'Create'} ManoDeObra
-          </DialogTitle>
+          <DialogTitle>{id ? 'Actualizar ManoDeObra' : 'Crear ManoDeObra'}</DialogTitle>
         </DialogHeader>
         <ManoDeObraForm closeDialog={() => setOpen(false)} id={id} />
       </DialogContent>

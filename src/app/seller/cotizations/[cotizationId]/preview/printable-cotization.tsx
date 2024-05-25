@@ -38,7 +38,7 @@ export default function PrintableCotization({ cotization }: Props) {
                     cotization.cotizationNotes.map((note) => {
                         return (
                             <div className="flex items-center gap-2" key={note.id}>
-                                <p className="text-sm pb-1">{note.text}</p>
+                                <p className="text-sm pb-1 whitespace-pre-line">{note.text}</p>
                             </div>
                         )
                     })

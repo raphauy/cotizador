@@ -75,9 +75,9 @@ export function ManoDeObraForm({ id, closeDialog }: Props) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Nombre</FormLabel>
                 <FormControl>
-                  <Input placeholder="ManoDeObra's name" {...field} />
+                  <Input placeholder="Nombre de la mano de obra" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -90,7 +90,7 @@ export function ManoDeObraForm({ id, closeDialog }: Props) {
             name="clienteFinalPrice"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Price</FormLabel>
+                <FormLabel>Precio al público</FormLabel>
                 <FormControl>
                   <Input placeholder="Precio para cliente final" {...field} />
                 </FormControl>
