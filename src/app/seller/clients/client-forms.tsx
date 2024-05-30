@@ -68,7 +68,11 @@ export function ClientForm({ id, closeDialog, onSelect }: Props) {
     if (id) {
       getClientDAOAction(id).then((data) => {
         if (data) {
-          form.reset(data)
+          form.setValue('name', data.name)
+          data.phone && form.setValue('phone', data.phone)
+          data.email && form.setValue('email', data.email)
+          data.note && form.setValue('note', data.note)
+          form.setValue('type', data.type)
         }
         Object.keys(form.getValues()).forEach((key: any) => {
           if (form.getValues(key) === null) {
