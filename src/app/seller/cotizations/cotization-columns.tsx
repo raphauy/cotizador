@@ -27,7 +27,7 @@ export const columns: ColumnDef<CotizationDAO>[] = [
       return (
         <Link href={`/seller/cotizations/${row.original.id}`}>
             <Button variant="link" className="pl-0 dark:text-white">
-              #{completeWithZeros(row.original.number)}
+              {row.original.label}
             </Button>
         </Link>
       )
@@ -147,7 +147,7 @@ export const columns: ColumnDef<CotizationDAO>[] = [
     cell: ({ row }) => {
       const data= row.original
 
-      const deleteDescription= `Seguro que desea eliminar la cotización ${completeWithZeros(data.number)}?`
+      const deleteDescription= `Seguro que desea eliminar la cotización ${data.label}?`
  
       return (
         <div className="flex items-center justify-end gap-2">

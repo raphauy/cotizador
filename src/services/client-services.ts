@@ -1,17 +1,16 @@
-import * as z from "zod"
 import { prisma } from "@/lib/db"
-import { CotizationDAO } from "./cotization-services"
-import { getCotizationsDAO } from "./cotization-services"
-import { ClientType } from "@prisma/client"
 import { generateSlug } from "@/lib/utils"
+import { ClientType } from "@prisma/client"
+import * as z from "zod"
+import { CotizationDAO } from "./cotization-services"
 
 export type ClientDAO = {
 	id: string
 	name: string
-	phone: string | undefined
-	email: string | undefined
+	phone: string | undefined | null
+	email: string | undefined | null
 	slug: string
-  note: string | undefined
+  note: string | undefined | null
 	type: ClientType
 	createdAt: Date
 	updatedAt: Date
@@ -91,19 +90,7 @@ export async function deleteClient(id: string) {
 
 
 
-export async function getFullClientsDAO() {
-  const found = await prisma.client.findMany({
-    orderBy: {
-      id: 'asc'
-    },
-    include: {
-			cotizations: true,
-		}
-  })
-  return found as ClientDAO[]
-}
-  
-export async function getFullClientDAO(id: string) {
+export async function getFullClientDAO(id: string): Promise<ClientDAO | null> {
   const found = await prisma.client.findUnique({
     where: {
       id
@@ -112,6 +99,8 @@ export async function getFullClientDAO(id: string) {
 			cotizations: true,
 		}
   })
+
+  // @ts-ignore
   return found as ClientDAO
 }
 

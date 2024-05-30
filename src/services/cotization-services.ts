@@ -1,14 +1,16 @@
-import * as z from "zod"
 import { prisma } from "@/lib/db"
+import * as z from "zod"
+import { completeWithZeros } from "@/lib/utils"
 import { CotizationStatus, CotizationType } from "@prisma/client"
 import { ClientDAO } from "./client-services"
-import { UserDAO } from "./user-services"
-import { WorkDAO } from "./work-services"
 import { CotizationNoteDAO, copyOriginalNotes } from "./cotizationnote-services"
+import { WorkDAO } from "./work-services"
 
 export type CotizationDAO = {
 	id: string
 	number: number
+  version: number
+  label: string
 	status: CotizationStatus
 	type: CotizationType
   date: Date
@@ -24,6 +26,7 @@ export type CotizationDAO = {
   sellerName: string
   works: WorkDAO[]
   cotizationNotes: CotizationNoteDAO[]
+  originalCotizationId: string | null
 }
 
 export const cotizationSchema = z.object({
@@ -36,16 +39,6 @@ export const cotizationSchema = z.object({
 })
 
 export type CotizationFormValues = z.infer<typeof cotizationSchema>
-
-
-export async function getCotizationsDAO() {
-  const found = await prisma.cotization.findMany({
-    orderBy: {
-      number: 'desc'
-    },
-  })
-  return found as CotizationDAO[]
-}
 
 
 export async function getCotizationDAO(id: string) {
@@ -80,13 +73,33 @@ export async function createCotization(data: CotizationFormValues) {
   console.log(data)
   
   const created = await prisma.cotization.create({
-    data
-  })
+      data,
+      include: {
+        client: true,
+        creator: true,
+        seller: true,
+        works: true,
+        cotizationsNotes: true,
+      },
+    })
   if (created) {
     await copyOriginalNotes(created.id)
   }
 
-  return created
+  const label= "#" + completeWithZeros(created.number)
+  await prisma.cotization.update({where: {id: created.id},data: {label}})
+
+  const res: CotizationDAO = {
+    ...created,
+    client: created.client as ClientDAO,
+    clientName: created.client?.name,
+    creatorName: created.creator?.name,
+    sellerName: created.seller.name,
+    works: created.works as WorkDAO[],
+    cotizationNotes: created.cotizationsNotes
+  }
+
+  return res
 }
 
 export async function updateCotization(id: string, data: CotizationFormValues) {
@@ -104,15 +117,31 @@ export async function deleteCotization(id: string) {
     where: {
       id
     },
+    include: {
+      client: true,
+      creator: true,
+      seller: true,
+      works: true,
+      cotizationsNotes: true,
+    }
   })
-  return deleted
+  const res: CotizationDAO = {
+    ...deleted,
+    client: deleted.client as ClientDAO,
+    clientName: deleted.client?.name,
+    creatorName: deleted.creator?.name,
+    sellerName: deleted.seller.name,
+    works: deleted.works as WorkDAO[],
+    cotizationNotes: deleted.cotizationsNotes
+  }
+  return res
 }
 
 
 export async function getFullCotizationsDAO() {
   const found = await prisma.cotization.findMany({
     orderBy: {
-      number: 'desc'
+      createdAt: 'desc'
     },
     include: {
       client: true,
@@ -180,7 +209,8 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
         orderBy: {
           order: 'asc'
         }
-      }
+      },
+      versions: true
 		},
   })
   if (!found) return null
@@ -216,7 +246,10 @@ export async function setStatus(id: string, status: CotizationStatus) {
       status
     },
   })
-  return updated
+  if (!updated) 
+    return false
+  
+  return true
 }
 
 export async function getFullCotizationsDAOByUser(userId: string) {
@@ -228,7 +261,7 @@ export async function getFullCotizationsDAOByUser(userId: string) {
       ]
     },
     orderBy: {
-      number: 'desc'
+      createdAt: 'desc'
     },
     include: {
       client: true,
@@ -289,4 +322,181 @@ export async function reloadOriginalNotes(cotizationId: string) {
       }
     })
   }
+}
+
+export async function createVersion(cotizationId: string) {
+  const cotization = await prisma.cotization.findUnique({
+    where: {
+      id: cotizationId,
+    },
+    include: {
+      works: {
+        include: {
+          items: true,
+        },
+      },
+      cotizationsNotes: true,
+    },
+  })
+
+  if (!cotization) {
+    throw new Error("No se encontró la cotización")
+  }
+
+  // Identificar la cotización original
+  const originalId = cotization.originalCotizationId || cotization.id
+  const originalCotization = await prisma.cotization.findUnique({
+    where: {
+      id: originalId,
+    },
+  })
+
+  if (!originalCotization) {
+    throw new Error("No se encontró la cotización original")
+  }
+
+  // Contar todas las versiones existentes del original para determinar el nuevo número de versión
+  const versionsCount = await prisma.cotization.count({
+    where: {
+      originalCotizationId: originalId,
+    },
+  })
+
+  const newVersionNumber = versionsCount + 1
+  const newLabel = `#${completeWithZeros(originalCotization.number)}-${newVersionNumber}`
+
+  // Crear la nueva cotización
+  const newCotization = await prisma.cotization.create({
+    data: {
+      number: originalCotization.number,
+      version: newVersionNumber,
+      label: newLabel,
+      status: cotization.status,
+      type: cotization.type,
+      date: cotization.date,
+      obra: cotization.obra,
+      clientId: cotization.clientId,
+      creatorId: cotization.creatorId,
+      sellerId: cotization.sellerId,
+      originalCotizationId: originalId,
+    },
+  })
+
+  // Copiar los trabajos asociados junto con sus items
+  for (const work of cotization.works) {
+    const newWork = await prisma.work.create({
+      data: {
+        name: work.name,
+        reference: work.reference,
+        workTypeId: work.workTypeId,
+        materialId: work.materialId,
+        colorId: work.colorId,
+        cotizationId: newCotization.id,
+      },
+    })
+
+    for (const item of work.items) {
+      await prisma.item.create({
+        data: {
+          type: item.type,
+          orden: item.orden,
+          description: item.description,
+          quantity: item.quantity,
+          largo: item.largo,
+          ancho: item.ancho,
+          superficie: item.superficie,
+          centimetros: item.centimetros,
+          valor: item.valor,
+          ajuste: item.ajuste,
+          valorAreaTerminacion: item.valorAreaTerminacion,
+          workId: newWork.id,
+          terminacionId: item.terminacionId,
+          manoDeObraId: item.manoDeObraId,
+          colocacionId: item.colocacionId,
+        },
+      })
+    }
+  }
+
+  // Copiar las notas asociadas
+  for (const note of cotization.cotizationsNotes) {
+    await prisma.cotizationNote.create({
+      data: {
+        text: note.text,
+        order: note.order,
+        cotizationId: newCotization.id,
+      },
+    })
+  }
+
+  return newCotization
+}
+
+export async function getVersions(cotizationId: string) {
+  const found = await prisma.cotization.findUnique({
+    where: {
+      id: cotizationId,
+    },
+    include: {
+      versions: true,
+    },
+  })
+
+  if (!found) {
+    throw new Error("No se encontró la cotización")
+  }
+
+  const originalCotizationId= found.originalCotizationId
+  if (originalCotizationId) {
+    // there is an original cotization, so we need to get the original versions
+    const originalCotization= await prisma.cotization.findUnique({
+      where: {
+        id: originalCotizationId,
+      },
+      include: {
+        versions: true,
+      },
+    })
+    if (!originalCotization) {
+      throw new Error("No se encontró la cotización original")
+    }
+    return originalCotization.versions
+  }
+
+  return found.versions
+}
+
+export async function getNextLabel(cotizationId: string) {
+  const found = await prisma.cotization.findUnique({
+    where: {
+      id: cotizationId,
+    },
+    include: {
+      versions: true,
+    },
+  })
+
+  if (!found) {
+    throw new Error("No se encontró la cotización")
+  }
+
+  const originalCotizationId= found.originalCotizationId
+  if (originalCotizationId) {
+    // there is an original cotization, so we need to get the original versions
+    const originalCotization= await prisma.cotization.findUnique({
+      where: {
+        id: originalCotizationId,
+      },
+      include: {
+        versions: true,
+      },
+    })
+    if (!originalCotization) {
+      throw new Error("No se encontró la cotización original")
+    }
+    return originalCotization.label + "-" + (originalCotization.versions.length+1)
+  }
+
+  const versions= found.versions
+  return found.label + "-" + (versions.length+1)
 }

@@ -1,7 +1,7 @@
 "use server"
   
 import { revalidatePath } from "next/cache"
-import { CotizationDAO, CotizationFormValues, createCotization, updateCotization, getFullCotizationDAO, deleteCotization, setStatus } from "@/services/cotization-services"
+import { CotizationDAO, CotizationFormValues, createCotization, updateCotization, getFullCotizationDAO, deleteCotization, setStatus, getVersions, getNextLabel, createVersion } from "@/services/cotization-services"
 import { CotizationStatus } from "@prisma/client"
 
 
@@ -31,9 +31,30 @@ export async function deleteCotizationAction(id: string): Promise<CotizationDAO 
 }
 
 export async function setStatusAction(id: string, status: CotizationStatus) {
-    const updated= await setStatus(id, status)
+    const ok= await setStatus(id, status)
 
     revalidatePath("/seller/cotizations")
 
-    return updated as CotizationDAO
+    return ok
+}
+
+export async function getVersionsCountAction(cotizationId: string) {
+    const found= await getVersions(cotizationId)
+    return found.length
+}
+
+export async function getVersionsAction(cotizationId: string) {
+    const found= await getVersions(cotizationId)
+    return found
+}
+
+export async function getNextLabelAction(cotizationId: string) {
+    const found= await getNextLabel(cotizationId)
+    return found
+}
+
+export async function createVersionAction(cotizationId: string) {
+    const version= await createVersion(cotizationId)
+    revalidatePath("/seller/cotizations/[cotizationId]", "page")
+    return version
 }

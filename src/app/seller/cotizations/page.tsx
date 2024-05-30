@@ -1,11 +1,11 @@
-import { getCotizationsDAO, getFullCotizationsDAO, getFullCotizationsDAOByUser } from "@/services/cotization-services"
-import { DataTable } from "./cotization-table"
-import { columns } from "./cotization-columns"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
-import { getCurrentRole, getCurrentUser } from "@/lib/utils"
+import { getCurrentUser } from "@/lib/utils"
+import { getFullCotizationsDAO, getFullCotizationsDAOByUser } from "@/services/cotization-services"
 import { UserRole } from "@prisma/client"
+import { PlusCircle } from "lucide-react"
+import Link from "next/link"
+import { columns } from "./cotization-columns"
+import { DataTable } from "./cotization-table"
 
 export default async function UsersPage() {
   
@@ -20,8 +20,8 @@ export default async function UsersPage() {
     data=await getFullCotizationsDAOByUser(user.id)
   }
 
-  const clientNames= Array.from(new Set(data.map((cotization) => cotization.clientName)))
-  const sellerNames= Array.from(new Set(data.map((cotization) => cotization.sellerName)))
+  const clientNames= Array.from(new Set(data.map((cotization) => cotization.client.name)))
+  const sellerNames= Array.from(new Set(data.map((cotization) => cotization.client.name)))
 
   return (
     <div className="w-full">      

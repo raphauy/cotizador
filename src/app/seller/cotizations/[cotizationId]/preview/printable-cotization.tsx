@@ -43,7 +43,7 @@ export default function PrintableCotization({ cotization }: Props) {
                         )
                     })
                 }
-                    <p className="mt-4 text-xl pb-3">Marmoleria Anibal Abbate</p>
+                    <p className="mt-4 text-xl pb-3">Marmolería Aníbal Abbate</p>
                 </div>
 
             }

@@ -23,8 +23,8 @@ export default async function AdminLayout({ children }: Props) {
     data=await getFullCotizationsDAOByUser(user.id)
   }
 
-  const clientNames= Array.from(new Set(data.map((cotization) => cotization.clientName)))
-  const sellerNames= Array.from(new Set(data.map((cotization) => cotization.sellerName)))
+  const clientNames= Array.from(new Set(data.map((cotization) => cotization.client.name)))
+  const sellerNames= Array.from(new Set(data.map((cotization) => cotization.client.name)))
 
   return (
     <div className="flex w-full gap-2 mt-3 h-full">

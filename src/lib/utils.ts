@@ -34,7 +34,7 @@ export function generateSlug(name: string): string {
 }
 
 export function completeWithZeros(number: number): string {
-  return number.toString().padStart(5, "0")
+  return number.toString().padStart(6, "0")
 }
 
 export function formatWhatsAppStyle(date: Date | string): string {

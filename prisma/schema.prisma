@@ -87,6 +87,9 @@ enum CotizationType {
 model Cotization {
   id                String    @id @default(cuid())
   number            Int         @default(autoincrement()) // gennext: show.column
+  version           Int         @default(0)               // Número de versión, 0 para original
+  label             String      @default("#")              // Etiqueta para mostrar en la UI
+
   status            CotizationStatus @default(BORRADOR)  // genext: show.column
   type              CotizationType                       // genext: show.column
   date              DateTime  @default(now())            // genext: show.column
@@ -108,6 +111,13 @@ model Cotization {
   // Usuario cotizador
   seller            User      @relation(name: "CotizationSeller", fields: [sellerId], references: [id], onDelete: Restrict)
   sellerId          String
+
+  // Referencia a la cotización original (null si es original)
+  originalCotization  Cotization? @relation("OriginalCotization", fields: [originalCotizationId], references: [id], onDelete: Cascade)
+  originalCotizationId String?
+
+  // Relación inversa para las versiones
+  versions          Cotization[] @relation("OriginalCotization")
 }
 
 model Note {

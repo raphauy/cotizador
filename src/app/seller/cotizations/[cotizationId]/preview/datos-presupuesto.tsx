@@ -1,5 +1,4 @@
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { completeWithZeros } from "@/lib/utils"
 import { CotizationDAO } from "@/services/cotization-services"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
@@ -14,7 +13,7 @@ export default function DatosPresupuesto({ cotization }: Props) {
     <Card>
         <CardHeader className="px-4 pt-2 pb-3">
             <CardTitle className="flex items-start justify-between w-full">
-                <p className="font-bold text-xl">{"Presupuesto #" + completeWithZeros(cotization.number)}</p> 
+                <p className="font-bold text-xl">{"Presupuesto " + cotization.label}</p> 
                 <p className="text-sm">{format(cotization.date, "d 'de' MMMM 'de' yyyy", { locale: es })}</p>
             </CardTitle>
             <CardDescription className="flex justify-between text-gray-800">

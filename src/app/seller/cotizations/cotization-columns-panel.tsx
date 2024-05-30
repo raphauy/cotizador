@@ -3,12 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { CotizationDAO } from "@/services/cotization-services"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Pencil } from "lucide-react"
-import { DeleteCotizationDialog } from "./cotization-dialogs"
-import Link from "next/link"
-import { completeWithZeros, formatWhatsAppStyle } from "@/lib/utils"
-import { StatusSelector } from "./[cotizationId]/status-selector"
-import { DateRange } from "./cotization-table"
+import { ArrowUpDown } from "lucide-react"
 import ColumnPanelBox from "./column-panel-box"
 
 

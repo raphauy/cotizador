@@ -1,22 +1,23 @@
+import { OptionalColorsBoxDialog } from "@/app/admin/works/optional-works-box"
 import { DeleteWorkDialog, WorkDialog } from "@/app/admin/works/work-dialogs"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { cn, completeWithZeros, formatCurrency, formatWhatsAppStyle } from "@/lib/utils"
+import { cn, formatCurrency, formatWhatsAppStyle } from "@/lib/utils"
 import { CotizationDAO } from "@/services/cotization-services"
-import { ClipboardPen, Construction, Eye, Mail, Pencil, Phone, Settings } from "lucide-react"
+import { OptionalColorsTotalResult, calculateTotalWorkValue } from "@/services/optional-colors-services"
+import { ClipboardPen, Construction, Eye, Mail, Pencil, Phone, PlusCircle } from "lucide-react"
 import Link from "next/link"
 import { ClientDialog } from "../../clients/client-dialogs"
-import { ItemsList } from "./items-list"
-import { StatusSelector } from "./status-selector"
+import { columns } from "../../notes/note-columns"
 import { NoteDialog } from "../../notes/note-dialogs"
 import { DataTable } from "../../notes/note-table"
-import { columns } from "../../notes/note-columns"
 import CotizationNotesBox from "./cotization-notes-box"
-import { OptionalColorsBoxDialog } from "@/app/admin/works/optional-works-box"
-import { OptionalColorsTotalResult, calculateTotalWorkValue } from "@/services/optional-colors-services"
-import { Button } from "@/components/ui/button"
+import { ItemsList } from "./items-list"
+import { StatusSelector } from "./status-selector"
+import { VersionSelector } from "./version-selector"
 
 type Props= {
     cotization: CotizationDAO
@@ -42,7 +43,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                     <div className="flex items-center justify-between"> 
                         <div>
                             <CardTitle className="flex items-center gap-5 text-2xl">
-                                <p className="text-green-900 font-bold">{"#" + completeWithZeros(cotization.number)}</p> 
+                                <p className="text-green-900 font-bold">{cotization.label}</p> 
                                 <Badge variant="secondary" className="bg-sky-100 border-sky-400 text-black">{cotization.type}</Badge>
                                 <Badge variant="secondary" className="bg-orange-100 border-orange-400 text-black">{cotization.client.type}</Badge>
                             </CardTitle>
@@ -109,11 +110,20 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                         <StatusSelector id={cotization.id} status={cotization.status} />
                     </div>
 
-                    <Link href={`/seller/cotizations/${cotization.id}/preview`} >
-                        <Button variant="outline" className="gap-2 text-verde-abbate mb-3">
-                            <Eye className="h-5 w-5" />Preview
-                        </Button>
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <Link href={`/seller/cotizations/${cotization.id}/preview`} >
+                            <Button variant="outline" className="gap-2 text-verde-abbate mb-3 w-36">
+                                <Eye className="h-5 w-5" />Preview
+                            </Button>
+                        </Link>
+                        <Link href={`/seller/cotizations/version?id=${cotization.id}`} >
+                            <Button variant="outline" className="gap-2 text-verde-abbate mb-3 px-2 w-36">
+                                <PlusCircle className="h-5 w-5" />Crear versión
+                            </Button>
+                        </Link>
+                        <VersionSelector cotization={cotization} />
+                    </div>
+
 
                     <CardContent className="flex gap-4 justify-end text-muted-foreground">
                         <Link href={`/seller/cotizations/new?id=${cotization.id}`}>

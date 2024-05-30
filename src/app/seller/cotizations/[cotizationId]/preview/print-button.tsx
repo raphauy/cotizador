@@ -1,14 +1,13 @@
 "use client";
 
 import { Button } from '@/components/ui/button';
-import { completeWithZeros } from '@/lib/utils';
 import { CotizationDAO } from '@/services/cotization-services';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { ChevronLeft, FileTextIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import PrintableCotization from './printable-cotization';
-import { useRouter } from 'next/navigation';
 
 interface RequestEvaluationDocumentButtonProps {
   cotization: CotizationDAO;
@@ -93,7 +92,7 @@ const PrintButton2 = ({ cotization }: RequestEvaluationDocumentButtonProps) => {
       }
 
 
-      pdf.save(`Presupuesto-${"#" + completeWithZeros(cotization.number)}.pdf`);
+      pdf.save(`Presupuesto-${cotization.label}.pdf`);
     }
   };
   return (
