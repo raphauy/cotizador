@@ -460,11 +460,21 @@ export async function getVersions(cotizationId: string) {
     if (!originalCotization) {
       throw new Error("No se encontró la cotización original")
     }
-    return originalCotization.versions
+    const res= originalCotization.versions
+    // add original cotization to the list at the start
+    res.unshift(originalCotization)
+    return res
   }
 
-  return found.versions
+  if (found.versions.length === 0) {
+    return []
+  }
+  const res= found.versions
+  // add original cotization to the list at the start
+  res.unshift(found)
+  return res
 }
+
 
 export async function getNextLabel(cotizationId: string) {
   const found = await prisma.cotization.findUnique({

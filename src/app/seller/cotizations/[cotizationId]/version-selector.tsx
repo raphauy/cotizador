@@ -68,6 +68,8 @@ export function VersionSelector({ cotization }: Props) {
 
   if (!cotization.id) return null
 
+  if (data.length === 0) return null
+
   return (
     <div className="flex items-center w-full mb-3 text-verde-abbate">
       <Popover open={open} onOpenChange={setOpen}>
