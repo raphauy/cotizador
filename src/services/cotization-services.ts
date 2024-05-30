@@ -333,6 +333,8 @@ export async function createVersion(cotizationId: string) {
       works: {
         include: {
           items: true,
+          notes: true,
+          optionalColors: true,
         },
       },
       cotizationsNotes: true,
@@ -413,6 +415,30 @@ export async function createVersion(cotizationId: string) {
           terminacionId: item.terminacionId,
           manoDeObraId: item.manoDeObraId,
           colocacionId: item.colocacionId,
+        },
+      })
+    }
+
+    for (const note of work.notes) {
+      await prisma.note.create({
+        data: {
+          text: note.text,
+          private: note.private,
+          workId: newWork.id,
+          userId: note.userId,
+        },
+      })
+    }
+
+    for (const optionalColor of work.optionalColors) {
+      await prisma.work.update({
+        where: {
+          id: newWork.id,
+        },
+        data: {
+          optionalColors: {
+            connect: { id: optionalColor.id },
+          },
         },
       })
     }
