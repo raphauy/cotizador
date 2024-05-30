@@ -375,7 +375,7 @@ export async function createVersion(cotizationId: string) {
       label: newLabel,
       status: cotization.status,
       type: cotization.type,
-      date: cotization.date,
+      date: new Date(),
       obra: cotization.obra,
       clientId: cotization.clientId,
       creatorId: cotization.creatorId,
