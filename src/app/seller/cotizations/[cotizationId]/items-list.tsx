@@ -99,7 +99,7 @@ export function ItemsList({ work, optionalColorsTotalResults, clientType, colorP
 
                     return(
                     <div key={index} className="flex flex-row items-center justify-between w-full">
-                        <p className="text-sm">{result.materialName} ({result.colorName})</p>
+                        <p className="text-sm">{result.materialName} {result.colorName}</p>
                         <div className="flex flex-row items-center gap-2">
                             <p className="text-sm">({formatCurrency(result.colorPrice, 0)})</p>
                             <p className="text-right">{formatCurrency(result.totalValue, 0)}</p>
