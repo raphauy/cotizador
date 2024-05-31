@@ -192,6 +192,7 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
             include: {
               terminacion: true,
               manoDeObra: true,
+              colocacion: true,
               work: {
                 select: {
                   cotizationId: true

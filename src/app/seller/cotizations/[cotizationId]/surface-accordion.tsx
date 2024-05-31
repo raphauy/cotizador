@@ -6,8 +6,9 @@ import LineBox from "./superficie-box"
 
 type Props = {
     surfaceItems: ItemDAO[]
+    colorPrice: number
 }
-export default function SurfaceAccordion({ surfaceItems }: Props) {
+export default function SurfaceAccordion({ surfaceItems, colorPrice }: Props) {
     if (!surfaceItems || surfaceItems.length === 0) return null
 
     const type= surfaceItems[0].type

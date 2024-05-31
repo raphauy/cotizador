@@ -67,7 +67,11 @@ export function ItemsList({ work }: Props) {
         const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA && item.type !== ItemType.TERMINACION && item.type !== ItemType.MANO_DE_OBRA && item.type !== ItemType.AJUSTE && item.type !== ItemType.COLOCACION)
         setItems(otherItems)
         // valorParcial is the sum of each item value multiplied by the quantity
-        const valorParcial= originalItems.reduce((acc, item) => acc + (item.valor || 0) * (item.quantity || 0), 0)
+        // const valorParcial= originalItems.reduce((acc, item) => acc + (item.valor || 0) * (item.quantity || 0), 0)
+        const valorParcial= originalItems
+        .filter((item) => item.type !== ItemType.COLOCACION)
+        .reduce((acc, item) => acc + (item.valor || 0) * (item.quantity || 0), 0)
+
         const valorTerminationArea= originalItems.reduce((acc, item) => acc + (item.valorAreaTerminacion || 0) * (item.quantity || 0), 0)
         setTotalValue(valorParcial + valorTerminationArea)
     }, [work])

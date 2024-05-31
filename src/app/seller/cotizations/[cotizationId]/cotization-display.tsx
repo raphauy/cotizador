@@ -161,6 +161,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                 works.map(async (work) => {
                     const optionalColors= work.optionalColors
                     const optionalColorsTotalResults: OptionalColorsTotalResult[]= await calculateTotalWorkValue(work.id, optionalColors)
+                    const colorPrice= cotization.client.type === "CLIENTE_FINAL" ? work.color.clienteFinalPrice : cotization.client.type === "ARQUITECTO_ESTUDIO" ? work.color.arquitectoStudioPrice : work.color.distribuidorPrice
                     return (
                         <Card key={work.id} className={cn("flex flex-col justify-between", work.id === selectedWorkId ? "border-green-500 border-2" : "")}>
                             <div>
@@ -171,7 +172,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                                 {work.workType.name}
                                                 {work.reference && <p className="text-sm text-muted-foreground">({work.reference})</p>}
                                             </CardTitle>
-                                            <p className="text-sm text-muted-foreground">{work.material.name} ({work.color.name})</p>
+                                            <p className="text-sm text-muted-foreground">{work.material.name} {work.color.name} ({formatCurrency(colorPrice, 0)})</p>
                                         </Link>
                                         <OptionalColorsBoxDialog workId={work.id} />
                                         <WorkDialog id={work.id} cotizationId={work.cotizationId} />
@@ -180,7 +181,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                     <Separator />
                                 </CardHeader>
                                 <CardContent className="flex gap-2 justify-between text-muted-foreground">
-                                    <ItemsList work={work} optionalColorsTotalResults={optionalColorsTotalResults} />
+                                    <ItemsList work={work} optionalColorsTotalResults={optionalColorsTotalResults} clientType={cotization.client.type} colorPrice={colorPrice} />
                                 </CardContent>
                             </div>
                             <CardContent>

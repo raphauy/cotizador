@@ -6,19 +6,22 @@ import { formatCurrency } from "@/lib/utils"
 import { ItemDAO } from "@/services/item-services"
 import { OptionalColorsTotalResult } from "@/services/optional-colors-services"
 import { WorkDAO } from "@/services/work-services"
-import { ItemType } from "@prisma/client"
+import { ClientType, ItemType } from "@prisma/client"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import NormalAccordion from "./normal-accordion"
 import OtherAccordion from "./other-accordion"
 import SurfaceAccordion from "./surface-accordion"
 import TerminationAreaAccordion from "./termination-area-accordion"
+import ColocacionBox from "./colocacion-box"
 
 type Props = {
     work: WorkDAO
+    clientType: ClientType
+    colorPrice: number
     optionalColorsTotalResults: OptionalColorsTotalResult[]
 }
-export function ItemsList({ work, optionalColorsTotalResults }: Props) {
+export function ItemsList({ work, optionalColorsTotalResults, clientType, colorPrice }: Props) {
 
     const [items, setItems] = useState<ItemDAO[]>([])
     const [tramos, setTramos] = useState<ItemDAO[]>([])
@@ -56,7 +59,9 @@ export function ItemsList({ work, optionalColorsTotalResults }: Props) {
         const otherItems= originalItems.filter((item) => item.type !== ItemType.TRAMO && item.type !== ItemType.ZOCALO && item.type !== ItemType.ALZADA && item.type !== ItemType.TERMINACION && item.type !== ItemType.MANO_DE_OBRA && item.type !== ItemType.AJUSTE && item.type !== ItemType.COLOCACION)
         setItems(otherItems)
         // valorParcial is the sum of each item value multiplied by the quantity
-        const valorParcial= originalItems.reduce((acc, item) => acc + (item.valor || 0) * (item.quantity || 0), 0)
+        const valorParcial= originalItems
+        .filter((item) => item.type !== ItemType.COLOCACION)
+        .reduce((acc, item) => acc + (item.valor || 0) * (item.quantity || 0), 0)
         const valorTerminationArea= originalItems.reduce((acc, item) => acc + (item.valorAreaTerminacion || 0) * (item.quantity || 0), 0)
         setTotalValue(valorParcial + valorTerminationArea)
     }, [work])
@@ -76,14 +81,13 @@ export function ItemsList({ work, optionalColorsTotalResults }: Props) {
         <div className="flex flex-col items-center w-full">
 
             <Accordion type="single" collapsible className="w-full">
-                <SurfaceAccordion surfaceItems={tramos} />
-                <SurfaceAccordion surfaceItems={zocalos} />
-                <SurfaceAccordion surfaceItems={alzadas} />
-                <TerminationAreaAccordion terminationItems={terminaciones} header="Área de Terminación" headerPlural="Áreas de Terminación" />
-                <NormalAccordion items={terminaciones} header="Terminación" headerPlural="Terminaciones" />
-                <NormalAccordion items={manosDeObras} header="Mano de obra" headerPlural="Manos de obra" />
-                <NormalAccordion items={ajustes} header="Ajuste" headerPlural="Ajustes" /> 
-                <NormalAccordion items={colocaciones} header="Colocación" headerPlural="Colocaciones" />  
+                <SurfaceAccordion surfaceItems={tramos} colorPrice={colorPrice} />
+                <SurfaceAccordion surfaceItems={zocalos} colorPrice={colorPrice} />
+                <SurfaceAccordion surfaceItems={alzadas} colorPrice={colorPrice} />
+                <TerminationAreaAccordion terminationItems={terminaciones} header="Área de Terminación" headerPlural="Áreas de Terminación" colorPrice={colorPrice} />
+                <NormalAccordion items={terminaciones} header="Terminación" headerPlural="Terminaciones" clientType={clientType} />
+                <NormalAccordion items={manosDeObras} header="Mano de obra" headerPlural="Manos de obra" clientType={clientType} />
+                <NormalAccordion items={ajustes} header="Ajuste" headerPlural="Ajustes" clientType={clientType} />
                 <OtherAccordion surfaceItems={items} />
             </Accordion>
             <div className="flex font-bold flex-row justify-between w-full pt-4 mb-2">
@@ -91,13 +95,21 @@ export function ItemsList({ work, optionalColorsTotalResults }: Props) {
                 <p className="text-right">{formatCurrency(totalValue)}</p>
             </div>
             {
-                optionalColorsTotalResults.map((result, index) => (
+                optionalColorsTotalResults.map((result, index) => {
+
+                    return(
                     <div key={index} className="flex flex-row items-center justify-between w-full">
                         <p className="text-sm">{result.materialName} ({result.colorName})</p>
-                        <p className="text-right">{formatCurrency(result.totalValue)}</p>
+                        <div className="flex flex-row items-center gap-2">
+                            <p className="text-sm">({formatCurrency(result.colorPrice, 0)})</p>
+                            <p className="text-right">{formatCurrency(result.totalValue, 0)}</p>
+                        </div>
                     </div>
-                ))
+                )})
             }
+            <div className="w-full mt-4">
+                <ColocacionBox items={colocaciones} clientType={clientType} />
+            </div>
         </div>
     )
 }

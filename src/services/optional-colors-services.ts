@@ -9,6 +9,7 @@ export type OptionalColorsTotalResult = {
   colorId: string
   materialName: string
   colorName: string
+  colorPrice: number
   totalValue: number
 }
 
@@ -94,6 +95,7 @@ export async function calculateTotalWorkValue(workId: string, colors: ColorDAO[]
       colorId: color.id,
       materialName: color.material.name,
       colorName: color.name,
+      colorPrice,
       totalValue
     }
     return res
@@ -110,13 +112,13 @@ async function calculateTotalWorkValueForColor(work: WorkDAO, colorPrice: number
   const totalTerminationValue= await calculateTerminationValues(work)
   const totalManoDeObraValue= await calculateManoDeObraValues(work)
   const totalAjusteValue= await calculateAjusteValues(work)
-  const totalColocacionValue= await calculateColocacionValues(work)
+  //const totalColocacionValue= await calculateColocacionValues(work)
 
   totalValue+= totalAreaValue
   totalValue+= totalTerminationValue
   totalValue+= totalManoDeObraValue
   totalValue+= totalAjusteValue
-  totalValue+= totalColocacionValue
+  //totalValue+= totalColocacionValue
 
   return totalValue
 }

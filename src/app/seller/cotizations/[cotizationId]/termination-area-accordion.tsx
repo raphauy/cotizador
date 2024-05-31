@@ -8,8 +8,9 @@ type Props = {
     header: string
     headerPlural: string
     terminationItems: ItemDAO[]
+    colorPrice: number
 }
-export default function TerminationAreaAccordion({ header, headerPlural, terminationItems }: Props) {
+export default function TerminationAreaAccordion({ header, headerPlural, terminationItems, colorPrice }: Props) {
     const itemsWithValorAreaTerminacioncount= terminationItems.filter((item) => item.valorAreaTerminacion).length
     if (!terminationItems || terminationItems.length === 0 || itemsWithValorAreaTerminacioncount === 0) return null
 
