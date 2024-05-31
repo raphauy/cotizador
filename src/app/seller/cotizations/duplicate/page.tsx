@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { getClientsAction } from "../../clients/client-actions";
 import { ClientSelector, SelectorData } from "../client-selector";
 import { createDuplicatedAction, getCotizationDAOAction, getNextLabelAction } from "../cotization-actions";
+import { Input } from "@/components/ui/input";
 
 type Props= {
   searchParams: {
@@ -22,7 +23,7 @@ export default function DuplicatePage({ searchParams }: Props) {
   const router= useRouter()
 
   const [cotization, setCotization] = useState<CotizationDAO | null>(null)
-  const [nextLabel, setNextLabel] = useState<string | null>(null)
+  // const [obra, setObra] = useState<string>("")
   const [loading, setLoading] = useState(false)
 
   const [clientSelectors, setClientSelectors] = useState<SelectorData[]>([])
@@ -50,17 +51,6 @@ export default function DuplicatePage({ searchParams }: Props) {
     .catch(console.error)
   }, [])
 
-
-  useEffect(() => {
-    if (!cotizationId) 
-      return
-    setLoading(true)
-    getNextLabelAction(cotizationId)
-    .then((label) => setNextLabel(label))
-    .catch(console.error)
-    .finally(() => setLoading(false))
-  }, [cotizationId])
-  
 
   function handleCreateDuplicated() {
     if (!cotizationId) 
@@ -106,7 +96,10 @@ export default function DuplicatePage({ searchParams }: Props) {
             <p className="font-bold">{cotization.client.name}</p>
           </div>
           <div className="mb-10 mx-auto min-w-[290px]">
+            <p>Cliente para el nuevo presupuesto:</p>
             <ClientSelector data={clientSelectors} onSelect={setClientId} />
+            {/* <p className="mt-5">Obra:</p>
+            <Input value={obra} onChange={(e) => setObra(e.target.value)} /> */}
           </div>
           <Button className={cn(!clientId && "hidden")} onClick={handleCreateDuplicated}> 
             {
