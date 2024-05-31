@@ -3,24 +3,30 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 import { CotizationDAO } from "@/services/cotization-services";
 import { Loader } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { createVersionAction, getCotizationDAOAction, getNextLabelAction } from "../cotization-actions";
+import { getClientsAction } from "../../clients/client-actions";
+import { ClientSelector, SelectorData } from "../client-selector";
+import { createDuplicatedAction, getCotizationDAOAction, getNextLabelAction } from "../cotization-actions";
 
 type Props= {
   searchParams: {
     id?: string
   }
 }
-export default function VersionPage({ searchParams }: Props) {
+export default function DuplicatePage({ searchParams }: Props) {
 
   const router= useRouter()
 
   const [cotization, setCotization] = useState<CotizationDAO | null>(null)
   const [nextLabel, setNextLabel] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  const [clientSelectors, setClientSelectors] = useState<SelectorData[]>([])
+  const [clientId, setClientId] = useState<string | null>(null)
 
   const cotizationId= searchParams.id
 
@@ -35,6 +41,15 @@ export default function VersionPage({ searchParams }: Props) {
       
   }, [cotizationId])
 
+  useEffect(() => {
+    getClientsAction()
+    .then((clients) => {
+      const selectors= clients.map((client) => ({ id: client.id, name: client.name }))
+      setClientSelectors(selectors)
+    })
+    .catch(console.error)
+  }, [])
+
 
   useEffect(() => {
     if (!cotizationId) 
@@ -47,22 +62,25 @@ export default function VersionPage({ searchParams }: Props) {
   }, [cotizationId])
   
 
-  function handleCreateVersion() {
+  function handleCreateDuplicated() {
     if (!cotizationId) 
       return
+    if (!clientId) {
+      toast({ title: "Seleccionar un cliente", description: "Para crear un duplicado debes seleccionar un cliente" })
+      return
+    }
 
     setLoading(true)
-    createVersionAction(cotizationId)
-    .then((createdVersion) => {
-      toast({ title: "Version creada", description: "La version se creó correctamente. Redirigiéndose a la versión creada" })
-      router.push(`/seller/cotizations/${createdVersion.id}`)
+    createDuplicatedAction(cotizationId, clientId)
+    .then((created) => {
+      toast({ title: "Duplicado creado", description: "El duplicado se creó correctamente. Redirigiéndose al presupuesto creado" })
+      router.push(`/seller/cotizations/${created.id}`)
     })
     .catch((error) => {
       console.error(error)
-      toast({ title: "Error al crear la version", description: error.message })
+      toast({ title: "Error al crear el duplicado", description: error.message })
     })
-    .finally(() => setLoading(false))
-    
+    .finally(() => setLoading(false))    
   }
 
   if (!cotization) 
@@ -73,23 +91,28 @@ export default function VersionPage({ searchParams }: Props) {
     <div className="w-full pt-16 flex justify-center">
       <Card className="w-full max-w-lg">
         <CardHeader>
-          <CardTitle className="text-center">Crear versión basada en el presupuesto:</CardTitle>
+          <CardTitle className="text-center">Duplicar presupuesto tomando como base:</CardTitle> 
           <CardTitle className="font-bold text-lg text-center">{cotization.label}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          <div className="mb-10 mx-auto border rounded-md p-7">
+          <div className="mb-10 mx-auto border rounded-md p-7 min-w-[290px]">
             <p>{wokrs.length > 1 ? `${wokrs.length} Trabajos:` : `1 Trabajo:`}</p>
             <ul className="list-disc list-inside">
               {wokrs.map((work) => (
                 <li key={work.id}>{work.name}: {work.items.length} items</li>
               ))}
             </ul>
+            <p className="mt-7">Cliente actual:</p>
+            <p className="font-bold">{cotization.client.name}</p>
           </div>
-          <Button className="btn btn-primary" onClick={handleCreateVersion}>
+          <div className="mb-10 mx-auto min-w-[290px]">
+            <ClientSelector data={clientSelectors} onSelect={setClientId} />
+          </div>
+          <Button className={cn(!clientId && "hidden")} onClick={handleCreateDuplicated}> 
             {
               loading ? 
                 <Loader className="h-6 w-6 animate-spin" /> :
-                <span>Crear versión {nextLabel}</span>
+                <p>Crear duplicado</p> 
             }
             
           </Button>

@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { cn, formatCurrency, formatWhatsAppStyle } from "@/lib/utils"
 import { CotizationDAO } from "@/services/cotization-services"
 import { OptionalColorsTotalResult, calculateTotalWorkValue } from "@/services/optional-colors-services"
-import { ClipboardPen, Construction, Eye, Mail, Pencil, Phone, PlusCircle } from "lucide-react"
+import { ClipboardPen, Construction, CopyPlus, Eye, Mail, Pencil, Phone, PlusCircle } from "lucide-react"
 import Link from "next/link"
 import { ClientDialog } from "../../clients/client-dialogs"
 import { columns } from "../../notes/note-columns"
@@ -114,6 +114,11 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                         <Link href={`/seller/cotizations/${cotization.id}/preview`} >
                             <Button variant="outline" className="gap-2 text-verde-abbate mb-3 w-36">
                                 <Eye className="h-5 w-5" />Preview
+                            </Button>
+                        </Link>
+                        <Link href={`/seller/cotizations/duplicate?id=${cotization.id}`} >
+                            <Button variant="outline" className="gap-2 text-verde-abbate mb-3 px-2 w-36">
+                                <CopyPlus className="h-5 w-5" />Duplicar
                             </Button>
                         </Link>
                         <Link href={`/seller/cotizations/version?id=${cotization.id}`} >

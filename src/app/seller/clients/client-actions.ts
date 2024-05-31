@@ -1,13 +1,17 @@
 "use server"
   
 import { revalidatePath } from "next/cache"
-import { ClientDAO, ClientFormValues, createClient, updateClient, getFullClientDAO, deleteClient } from "@/services/client-services"
+import { ClientDAO, ClientFormValues, createClient, updateClient, getFullClientDAO, deleteClient, getClientsDAO } from "@/services/client-services"
 
 import { CotizationDAO, getCotizationsCountByClientId } from "@/services/cotization-services"
     
 
 export async function getClientDAOAction(id: string): Promise<ClientDAO | null> {
     return getFullClientDAO(id)
+}
+
+export async function getClientsAction(): Promise<ClientDAO[]> {
+    return await getClientsDAO()
 }
 
 export async function createOrUpdateClientAction(id: string | null, data: ClientFormValues): Promise<ClientDAO | null> {       

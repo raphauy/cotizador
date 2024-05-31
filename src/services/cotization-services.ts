@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db"
 import * as z from "zod"
-import { completeWithZeros } from "@/lib/utils"
+import { completeWithZeros, getCurrentUser } from "@/lib/utils"
 import { CotizationStatus, CotizationType } from "@prisma/client"
 import { ClientDAO } from "./client-services"
 import { CotizationNoteDAO, copyOriginalNotes } from "./cotizationnote-services"
@@ -535,4 +535,121 @@ export async function getNextLabel(cotizationId: string) {
 
   const versions= found.versions
   return found.label + "-" + (versions.length+1)
+}
+
+export async function createDuplicated(cotizationId: string, clientId: string) {
+  const cotization = await prisma.cotization.findUnique({
+    where: {
+      id: cotizationId,
+    },
+    include: {
+      works: {
+        include: {
+          items: true,
+          notes: true,
+          optionalColors: true,
+        },
+      },
+      cotizationsNotes: true,
+    },
+  })
+
+  if (!cotization) {
+    throw new Error("No se encontró la cotización")
+  }
+
+  const currentUser= await getCurrentUser()
+  if (!currentUser) {
+    throw new Error("Debes estar logueado para realizar esta acción")
+  }
+
+  // Crear la nueva cotización
+  const newCotization = await prisma.cotization.create({
+    data: {
+      label: "change it",
+      status: "BORRADOR",
+      type: cotization.type,
+      date: new Date(),
+      obra: "poner nombre",
+      clientId,
+      creatorId: currentUser.id,
+      sellerId: cotization.sellerId,
+    },
+  })
+
+  // Copiar los trabajos asociados junto con sus items
+  for (const work of cotization.works) {
+    const newWork = await prisma.work.create({
+      data: {
+        name: work.name,
+        reference: work.reference,
+        workTypeId: work.workTypeId,
+        materialId: work.materialId,
+        colorId: work.colorId,
+        cotizationId: newCotization.id,
+      },
+    })
+
+    for (const item of work.items) {
+      await prisma.item.create({
+        data: {
+          type: item.type,
+          orden: item.orden,
+          description: item.description,
+          quantity: item.quantity,
+          largo: item.largo,
+          ancho: item.ancho,
+          superficie: item.superficie,
+          centimetros: item.centimetros,
+          valor: item.valor,
+          ajuste: item.ajuste,
+          valorAreaTerminacion: item.valorAreaTerminacion,
+          workId: newWork.id,
+          terminacionId: item.terminacionId,
+          manoDeObraId: item.manoDeObraId,
+          colocacionId: item.colocacionId,
+        },
+      })
+    }
+
+    for (const note of work.notes) {
+      await prisma.note.create({
+        data: {
+          text: note.text,
+          private: note.private,
+          workId: newWork.id,
+          userId: note.userId,
+        },
+      })
+    }
+
+    for (const optionalColor of work.optionalColors) {
+      await prisma.work.update({
+        where: {
+          id: newWork.id,
+        },
+        data: {
+          optionalColors: {
+            connect: { id: optionalColor.id },
+          },
+        },
+      })
+    }
+  }
+
+  // Copiar las notas asociadas
+  for (const note of cotization.cotizationsNotes) {
+    await prisma.cotizationNote.create({
+      data: {
+        text: note.text,
+        order: note.order,
+        cotizationId: newCotization.id,
+      },
+    })
+  }
+
+  const label= "#" + completeWithZeros(newCotization.number)
+  await prisma.cotization.update({where: {id: newCotization.id},data: {label}})
+
+  return newCotization
 }
