@@ -34,7 +34,9 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
     const works= cotization.works
 
     // totalValue= suma de todos los valores de los items
-    const totalValue= works.reduce((acc, work) => acc + work.items.reduce((acc, item) => acc + (item.valor || 0), 0), 0)
+    const totalValue= works.reduce((acc, work) => acc + work.items
+    .filter(item => item.type !== "COLOCACION")
+    .reduce((acc, item) => acc + (((item.valor || 0)+(item.valorAreaTerminacion || 0))*(item.quantity)), 0), 0)
 
     return (
         <div className="space-y-5 w-full">
