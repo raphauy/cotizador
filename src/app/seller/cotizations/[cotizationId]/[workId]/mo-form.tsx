@@ -1,13 +1,11 @@
 "use client"
 
 import { getItemDAOAction } from "@/app/admin/items/item-actions"
-import { getManoDeObrasDAOAction } from "@/app/admin/manodeobras/manodeobra-actions"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ManoDeObraDAO } from "@/services/manodeobra-services"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Loader } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 

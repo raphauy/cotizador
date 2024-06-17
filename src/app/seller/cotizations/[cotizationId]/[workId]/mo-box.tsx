@@ -59,7 +59,10 @@ export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: P
                 setLoading(false)
             })
         } else {
-            setItemManoDeObras(itemManoDeObras.filter((item, i) => i !== index))
+            console.log("Removing item at index:", index)
+            const newItems = [...itemManoDeObras]
+            newItems.splice(index, 1)
+            setItemManoDeObras(newItems)
         }
     }
 
@@ -108,11 +111,11 @@ export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: P
                 {
                     itemManoDeObras.map((item, index) => (
                         // <div key={index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
-                        <div key={index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
+                        <div key={item.id || index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
                             { loadingMO ?
                             <Loader className="h-4 w-4 animate-spin" />
                             :
-                            <MOForm itemId={item.id} index={index} notifyMOSelected={notifyMOSelected} manoDeObras={manoDeObras} defaultManoDeObraId={item.manoDeObraId} />
+                            <MOForm key={item.manoDeObraId} itemId={item.id} index={index} notifyMOSelected={notifyMOSelected} manoDeObras={manoDeObras} defaultManoDeObraId={item.manoDeObraId} />
                             }
                             <div className="flex items-center gap-2">
                                 <Input type="number" value={item.quantity ? item.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} disabled={!item.manoDeObraId} placeholder="cant"/>
