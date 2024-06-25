@@ -62,6 +62,12 @@ export function LoginForm() {
             setShowOTP(true)
             form.setValue("email", values.email)
           }
+
+          if (!data?.success && !data?.error && !data?.code) {
+            console.log("user logged in")
+            window.location.reload()
+          }
+
         })
         .catch(() => setError("Algo salió mal"));
     });

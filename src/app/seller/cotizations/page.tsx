@@ -21,7 +21,7 @@ export default async function UsersPage() {
   }
 
   const clientNames= Array.from(new Set(data.map((cotization) => cotization.client.name)))
-  const sellerNames= Array.from(new Set(data.map((cotization) => cotization.client.name)))
+  const sellerNames= Array.from(new Set(data.map((cotization) => cotization.sellerName)))
 
   return (
     <div className="w-full">      
