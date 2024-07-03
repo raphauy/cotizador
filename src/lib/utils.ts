@@ -4,7 +4,7 @@ import { auth } from "./auth"
 import { format, isThisWeek, isToday, isYesterday, parseISO } from "date-fns"
 import { es } from "date-fns/locale"
 import { ItemDAO } from "@/services/item-services"
-import { ItemType } from "@prisma/client"
+import { CotizationType, ItemType } from "@prisma/client"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -151,5 +151,20 @@ export function getPluralItemLabel(itemType: string) {
           return "Ajustes"
       default:
           return "Items"
+  }
+}
+
+export function getCotizationTypeLabel(type: CotizationType | string) {
+  switch (type) {
+    case CotizationType.TOP_HOME:
+      return "Casas Grandes"
+    case CotizationType.COMUN:
+      return "Común"
+    case CotizationType.DISTRIBUIDOR:
+      return "Distribuidor"
+    case CotizationType.EDIFICIO:
+      return "Edificio"
+    default:
+      return "Otro"
   }
 }

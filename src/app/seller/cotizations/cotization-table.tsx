@@ -13,6 +13,7 @@ import { DataTableFacetedFilter } from "@/components/data-table/data-table-facet
 import { CotizationStatus, CotizationType } from "@prisma/client"
 import { DateRangePicker } from "@/components/data-table/date-range-picker"
 import { DatePickerToFilter } from "@/components/data-table/date-picker"
+import { DataTableFacetedFilterType } from "@/components/data-table/data-table-faceted-filter-type"
 
 export type DateRange = {
   startDate: Date | undefined
@@ -98,7 +99,7 @@ export function DataTableToolbar<TData>({ table, sellerNames, clientNames }: Dat
           )}
 
           {table.getColumn("type") && types && (
-            <DataTableFacetedFilter
+            <DataTableFacetedFilterType
               column={table.getColumn("type")}
               title="Tipo"
               options={types}

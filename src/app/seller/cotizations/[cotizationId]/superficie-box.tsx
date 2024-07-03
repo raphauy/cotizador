@@ -21,12 +21,12 @@ export default function LineBox({ superficie, total, price, sufix, hidePrice, bo
               price &&
               <>
                 <Separator orientation="vertical" className="h-4 mx-2" />
-                <p>{Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: 1 }).format(price)}</p>
+                <p>{Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(price)}</p>
               </>
             }
             <Separator orientation="vertical" className="h-4 mx-2" />
             <div className="w-20">
-              {Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(total)}
+              {Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(total)}
             </div>
           </>
         }

@@ -12,9 +12,11 @@ export default function SurfacePrintable({ items }: Props) {
     const type= items[0].type
     let typeStr= type === ItemType.TRAMO? "Tramo" : type === ItemType.ZOCALO? "Zocalo" : type === ItemType.ALZADA? "Alzada" : ""
     const totalQuantity= items.reduce((acc, item) => acc + item.quantity, 0)
-    let title= totalQuantity === 1 ? totalQuantity + " " + typeStr : totalQuantity + " " + typeStr + "s" 
+//    let title= totalQuantity === 1 ? totalQuantity + " " + typeStr : totalQuantity + " " + typeStr + "s" 
+    let title= typeStr + "s" 
     if (type === ItemType.TERMINACION) {
-        title= totalQuantity === 1 ? "1 Área de terminación" : totalQuantity + " Áreas de terminación"
+//        title= totalQuantity === 1 ? "1 Área de terminación" : totalQuantity + " Áreas de terminación"
+        title= "Áreas de terminación"
     }
     let areaTotal= 0
     let valueTotal= 0
@@ -24,7 +26,7 @@ export default function SurfacePrintable({ items }: Props) {
 
         areaTotal+= item.superficie * item.quantity
         valueTotal+= item.valor * item.quantity
-        detailString+= (item.quantity > 1 ? item.largo + "x" + item.ancho + "x" + item.quantity :
+        detailString+= (item.quantity > 1 ? item.largo + "x" + item.ancho + " (" + item.quantity + ")" :
         item.largo + "x" + item.ancho) + ", "
     })
     console.log(areaTotal, valueTotal)

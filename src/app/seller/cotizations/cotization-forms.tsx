@@ -22,7 +22,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
-import { cn } from "@/lib/utils"
+import { cn, getCotizationTypeLabel } from "@/lib/utils"
 
 const types= Object.values(CotizationType)
 
@@ -126,7 +126,7 @@ export function CotizationForm({ clientSelectors, sellerSelectors, cotization }:
                   </FormControl>
                   <SelectContent>
                     {types.map(type => (
-                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                      <SelectItem key={type} value={type}>{getCotizationTypeLabel(type)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

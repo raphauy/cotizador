@@ -11,7 +11,8 @@ export default function NormalPrintable({ header, headerPlural, items }: Props) 
     if (!items || items.length === 0) return null
 
     const totalQuantity= items.reduce((acc, item) => acc + item.quantity, 0)
-    let title= totalQuantity === 1 ? totalQuantity + " " + header : totalQuantity + " " + headerPlural
+//    let title= totalQuantity === 1 ? totalQuantity + " " + header : totalQuantity + " " + headerPlural
+    let title= headerPlural
     const type= items[0].type
 
     let areaTotal= 0

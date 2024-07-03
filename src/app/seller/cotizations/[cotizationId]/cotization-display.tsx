@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { cn, formatCurrency, formatWhatsAppStyle } from "@/lib/utils"
+import { cn, formatCurrency, formatWhatsAppStyle, getCotizationTypeLabel } from "@/lib/utils"
 import { CotizationDAO } from "@/services/cotization-services"
 import { OptionalColorsTotalResult, calculateTotalWorkValue } from "@/services/optional-colors-services"
 import { ClipboardPen, Construction, CopyPlus, Eye, Mail, Pencil, Phone, PlusCircle } from "lucide-react"
@@ -46,7 +46,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                         <div>
                             <CardTitle className="flex items-center gap-5 text-2xl">
                                 <p className="text-green-900 font-bold">{cotization.label}</p> 
-                                <Badge variant="secondary" className="bg-sky-100 border-sky-400 text-black">{cotization.type}</Badge>
+                                <Badge variant="secondary" className="bg-sky-100 border-sky-400 text-black">{getCotizationTypeLabel(cotization.type)}</Badge>
                                 <Badge variant="secondary" className="bg-orange-100 border-orange-400 text-black">{cotization.client.type}</Badge>
                             </CardTitle>
                             <CardDescription className="flex items-center gap-4 text-lg">

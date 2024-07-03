@@ -10,7 +10,8 @@ export default function ManoDeObraPrintable({ header, headerPlural, items }: Pro
     if (!items || items.length === 0) return null
 
     const totalQuantity= items.reduce((acc, item) => acc + item.quantity, 0)
-    const title= totalQuantity === 1 ? totalQuantity + " " + header : totalQuantity + " " + headerPlural
+//    const title= totalQuantity === 1 ? totalQuantity + " " + header : totalQuantity + " " + headerPlural
+    const title= headerPlural
     let detailString= ""
     items.forEach((item) => {
         if (!item.valor) return

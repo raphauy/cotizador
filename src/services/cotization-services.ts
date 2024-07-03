@@ -203,7 +203,7 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
           notes: true
         },
         orderBy: {
-          createdAt: 'desc'
+          createdAt: 'asc'
         }    
       },
       cotizationsNotes: {
