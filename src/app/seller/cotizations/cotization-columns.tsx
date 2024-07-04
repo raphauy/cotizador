@@ -3,12 +3,13 @@
 import { Button } from "@/components/ui/button"
 import { CotizationDAO } from "@/services/cotization-services"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, Pencil } from "lucide-react"
+import { ArrowUpDown, ClipboardPen, Pencil } from "lucide-react"
 import { DeleteCotizationDialog } from "./cotization-dialogs"
 import Link from "next/link"
 import { completeWithZeros, formatWhatsAppStyle, getCotizationTypeLabel } from "@/lib/utils"
 import { StatusSelector } from "./[cotizationId]/status-selector"
 import { DateRange } from "./cotization-table"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 
 export const columns: ColumnDef<CotizationDAO>[] = [
@@ -44,6 +45,21 @@ export const columns: ColumnDef<CotizationDAO>[] = [
           <Button variant="ghost" className="pl-0 dark:text-white"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
             Cliente
+            <ArrowUpDown className="w-4 h-4 ml-1" />
+          </Button>
+    )},
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id))
+    },
+  },
+
+  {
+    accessorKey: "clientType",
+    header: ({ column }) => {
+        return (
+          <Button variant="ghost" className="pl-0 dark:text-white"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+            Tipo de cliente
             <ArrowUpDown className="w-4 h-4 ml-1" />
           </Button>
     )},
@@ -158,9 +174,17 @@ export const columns: ColumnDef<CotizationDAO>[] = [
       return (
         <div className="flex items-center justify-end gap-2">
 
-          {/* <Link href={`/seller/cotizations/new?id=${data.id}`}>
-            <Pencil className="hover:cursor-pointer" />
-          </Link> */}
+          {
+            data.comments &&
+            <Tooltip>
+              <TooltipTrigger asChild>
+                  <ClipboardPen size={20} />
+              </TooltipTrigger>
+              <TooltipContent>
+                  <p className="text-sm max-w-xs">{data.comments}</p>
+              </TooltipContent>
+          </Tooltip>
+          }
           <DeleteCotizationDialog description={deleteDescription} id={data.id} />
         </div>
 

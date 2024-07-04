@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db"
 import * as z from "zod"
 import { completeWithZeros, getCurrentUser } from "@/lib/utils"
-import { CotizationStatus, CotizationType } from "@prisma/client"
+import { ClientType, CotizationStatus, CotizationType } from "@prisma/client"
 import { ClientDAO } from "./client-services"
 import { CotizationNoteDAO, copyOriginalNotes } from "./cotizationnote-services"
 import { WorkDAO } from "./work-services"
@@ -15,10 +15,12 @@ export type CotizationDAO = {
 	type: CotizationType
   date: Date
 	obra: string | null
+  comments: string
 	createdAt: Date
 	updatedAt: Date
 	clientId: string
   clientName: string
+  clientType: ClientType
   client: ClientDAO
 	creatorId: string
   creatorName: string
@@ -60,7 +62,8 @@ export async function getCotizationDAO(id: string) {
     ...found,
     client: found.client as ClientDAO,
     clientName: found.client?.name,
-    creatorName: found.creator?.name,
+    clientType: found.client?.type,
+    creatorName: found.creator?.name,    
     sellerName: found.seller.name,
     works: found.works as WorkDAO[],
     cotizationNotes: found.cotizationsNotes
@@ -93,7 +96,8 @@ export async function createCotization(data: CotizationFormValues) {
     ...created,
     client: created.client as ClientDAO,
     clientName: created.client?.name,
-    creatorName: created.creator?.name,
+    clientType: created.client?.type,
+    creatorName: created.creator?.name,    
     sellerName: created.seller.name,
     works: created.works as WorkDAO[],
     cotizationNotes: created.cotizationsNotes
@@ -129,6 +133,7 @@ export async function deleteCotization(id: string) {
     ...deleted,
     client: deleted.client as ClientDAO,
     clientName: deleted.client?.name,
+    clientType: deleted.client?.type,
     creatorName: deleted.creator?.name,
     sellerName: deleted.seller.name,
     works: deleted.works as WorkDAO[],
@@ -157,6 +162,7 @@ export async function getFullCotizationsDAO() {
       ...cotization,
       client: cotization.client as ClientDAO,
       clientName: cotization.client?.name,
+      clientType: cotization.client?.type,
       creatorName: cotization.creator?.name,
       sellerName: cotization.seller.name,
       works: cotization.works as WorkDAO[],
@@ -220,6 +226,7 @@ export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | 
     ...found,
     client: found.client as ClientDAO,
     clientName: found.client?.name,
+    clientType: found.client?.type,
     creatorName: found.creator?.name,
     sellerName: found.seller.name,
     // @ts-ignore
@@ -279,6 +286,7 @@ export async function getFullCotizationsDAOByUser(userId: string) {
       ...cotization,
       client: cotization.client as ClientDAO,
       clientName: cotization.client?.name,
+      clientType: cotization.client?.type,
       creatorName: cotization.creator?.name,
       sellerName: cotization.seller.name,
       works: cotization.works as WorkDAO[],
@@ -653,4 +661,16 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
   await prisma.cotization.update({where: {id: newCotization.id},data: {label}})
 
   return newCotization
+}
+
+export async function setComments(cotizationId: string, comments: string) {
+  const cotization= await prisma.cotization.update({
+    where: {
+      id: cotizationId
+    },
+    data: {
+      comments
+    }
+  })
+  return cotization
 }

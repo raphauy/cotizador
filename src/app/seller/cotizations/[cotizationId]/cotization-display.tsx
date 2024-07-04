@@ -18,6 +18,7 @@ import CotizationNotesBox from "./cotization-notes-box"
 import { ItemsList } from "./items-list"
 import { StatusSelector } from "./status-selector"
 import { VersionSelector } from "./version-selector"
+import CommentsBox from "./comment-box"
 
 type Props= {
     cotization: CotizationDAO
@@ -94,6 +95,9 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                         </div>
 
                     </div>
+                    <div>
+                        <CommentsBox cotizationId={cotization.id} comments={cotization.comments} />
+                    </div>                    
                     <div className="grid grid-cols-2 gap-2">
                         <p className="text-sm">Vendedor:</p>
                         <p className="text-sm font-bold">{sellerName}</p>

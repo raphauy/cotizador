@@ -95,6 +95,8 @@ model Cotization {
   date              DateTime  @default(now())            // genext: show.column
   obra              String?                              // genext: show.column
 
+  comments          String @default("")                  // genext: show.column
+
   createdAt         DateTime  @default(now())             // gennext: skip.zod
   updatedAt         DateTime  @updatedAt                  // gennext: skip.zod  
 

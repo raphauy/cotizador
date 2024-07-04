@@ -15,7 +15,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { ClientDialog } from "../clients/client-dialogs"
 import { ClientSelector, SelectorData } from "./client-selector"
-import { createOrUpdateCotizationAction, deleteCotizationAction } from "./cotization-actions"
+import { createOrUpdateCotizationAction, deleteCotizationAction, setCommentsAction } from "./cotization-actions"
 import { SellerSelector } from "./seller-selector"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar } from "@/components/ui/calendar"
@@ -23,6 +23,8 @@ import { Tooltip, TooltipTrigger } from "@/components/ui/tooltip"
 import { format } from "date-fns"
 import { es } from "date-fns/locale"
 import { cn, getCotizationTypeLabel } from "@/lib/utils"
+import { z } from "zod"
+import { Textarea } from "@/components/ui/textarea"
 
 const types= Object.values(CotizationType)
 
@@ -251,3 +253,71 @@ export function DeleteCotizationForm({ id, closeDialog }: DeleteProps) {
   )
 }
 
+
+
+// --- Comments ---
+const commentsSchema = z.object({
+	comments: z.string(),
+})
+
+type CommentsFormValues = z.infer<typeof commentsSchema>
+
+type CommentsProps= {
+  cotizationId: string
+  comments: string
+  closeDialog: () => void
+}
+
+export function CommentsForm({ cotizationId, comments, closeDialog }: CommentsProps) {
+  const form = useForm<CommentsFormValues>({
+    resolver: zodResolver(commentsSchema),
+    defaultValues: {
+      comments,
+    },
+    mode: "onChange",
+  })
+  const [loading, setLoading] = useState(false)
+
+  const onSubmit = async (data: CommentsFormValues) => {
+    setLoading(true)
+    try {
+      await setCommentsAction(cotizationId, data.comments)
+      toast({ title: "Comentarios actualizados" })
+      closeDialog()
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="p-4 bg-white rounded-md">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+
+          <FormField
+            control={form.control}
+            name="comments"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Text</FormLabel>
+                <FormControl>
+                  <Textarea rows={10} placeholder="CotizationNote's text" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+        <div className="flex justify-end">
+            <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
+            <Button type="submit" className="w-32 ml-2">
+              {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar</p>}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>     
+  )
+}

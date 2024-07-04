@@ -1,9 +1,10 @@
 "use client"
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trash2 } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { DeleteCotizationForm } from "./cotization-forms";
+import { CommentsForm, DeleteCotizationForm } from "./cotization-forms";
+import { Button } from "@/components/ui/button";
   
 type DeleteProps= {
   id: string
@@ -29,3 +30,35 @@ export function DeleteCotizationDialog({ id, description }: DeleteProps) {
   )
 }
   
+
+
+// --- Comments ---
+type CommentsProps= {
+  cotizationId: string
+  comments: string
+}
+
+export function CommentsDialog({ cotizationId, comments }: CommentsProps) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        {
+          comments ?
+          <div><Pencil className="hover:cursor-pointer"/></div>
+          :
+          <Button variant="outline" className="gap-2 text-verde-abbate">
+            <p>Agregar comentario</p>
+          </Button>
+        }
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{ comments ? "Actualizar comentarios" : "Agregar comentarios" }</DialogTitle>
+        </DialogHeader>
+        <CommentsForm closeDialog={() => setOpen(false)} cotizationId={cotizationId} comments={comments} />
+      </DialogContent>
+    </Dialog>
+  )
+}

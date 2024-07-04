@@ -1,7 +1,7 @@
 "use server"
   
 import { revalidatePath } from "next/cache"
-import { CotizationDAO, CotizationFormValues, createCotization, updateCotization, getFullCotizationDAO, deleteCotization, setStatus, getVersions, getNextLabel, createVersion, createDuplicated } from "@/services/cotization-services"
+import { CotizationDAO, CotizationFormValues, createCotization, updateCotization, getFullCotizationDAO, deleteCotization, setStatus, getVersions, getNextLabel, createVersion, createDuplicated, setComments } from "@/services/cotization-services"
 import { CotizationStatus } from "@prisma/client"
 
 
@@ -63,4 +63,10 @@ export async function createDuplicatedAction(cotizationId: string, clientId: str
     const version= await createDuplicated(cotizationId, clientId)
     revalidatePath("/seller/cotizations/[cotizationId]", "page")
     return version
+}
+
+export async function setCommentsAction(cotizationId: string, comments: string) {
+    const res= await setComments(cotizationId, comments)
+    revalidatePath("/seller/cotizations/[cotizationId]", "page")
+    return res
 }

@@ -10,7 +10,7 @@ import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRende
 import { DataTablePagination } from "@/components/data-table/data-table-pagination"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter"
-import { CotizationStatus, CotizationType } from "@prisma/client"
+import { ClientType, CotizationStatus, CotizationType } from "@prisma/client"
 import { DateRangePicker } from "@/components/data-table/date-range-picker"
 import { DatePickerToFilter } from "@/components/data-table/date-picker"
 import { DataTableFacetedFilterType } from "@/components/data-table/data-table-faceted-filter-type"
@@ -31,6 +31,7 @@ export function DataTableToolbar<TData>({ table, sellerNames, clientNames }: Dat
 
   const statuses = Object.values(CotizationStatus)
   const types = Object.values(CotizationType)
+  const clientTypes = Object.values(ClientType)
 
   const [dateRange, setDateRange] = React.useState<DateRange>({
     startDate: undefined,
@@ -79,6 +80,14 @@ export function DataTableToolbar<TData>({ table, sellerNames, clientNames }: Dat
               column={table.getColumn("clientName")}
               title="Cliente"
               options={clientNames}          
+            />
+          )}
+
+          {table.getColumn("clientType") && clientTypes && (
+            <DataTableFacetedFilter
+              column={table.getColumn("clientType")}
+              title="Tipo C"
+              options={clientTypes}
             />
           )}
 
