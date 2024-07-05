@@ -107,6 +107,28 @@ export function getShortItemDescription(item: ItemDAO): string {
   }
 }
 
+export function getShortItemDescriptionWithoutAjust(item: ItemDAO): string {
+  const superficie= getSuperficie(item)
+  switch (item.type) {
+    case ItemType.TRAMO:
+      return `${item.quantity > 1 ? item.quantity + " Tramos" : "Tramo"} ${item.largo}x${item.ancho} cm`
+    case ItemType.ZOCALO:
+      return `${item.quantity > 1 ? item.quantity + " Zócalos" : "Zócalo"} ${item.largo}x${item.ancho} cm`
+    case ItemType.ALZADA:
+      return `${item.quantity > 1 ? item.quantity + " Alzadas" : "Alzada"} ${item.largo}x${item.ancho} cm`
+    case ItemType.TERMINACION:
+      return `${item.quantity > 1 ? item.quantity : ""} ${item.terminacion && item.terminacion.name}`
+    case ItemType.MANO_DE_OBRA:
+      return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${superficie ? "(" + superficie + "m²)" : ""}`  
+    case ItemType.AJUSTE:
+      return `- ${item.description}`
+    case ItemType.COLOCACION:
+      return `${item.description}`
+    default:
+      return `Trabajo ${item.work.name} de ${item.work.material.name} con ${item.work.color.name}`
+  }
+}
+
 export function formatCurrency(value: number, decimals = 2): string {
   return Intl.NumberFormat("es-UY", { style: "currency", currency: "USD", minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(value)
 }

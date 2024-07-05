@@ -1,4 +1,4 @@
-import { getShortItemDescription } from "@/lib/utils"
+import { getShortItemDescription, getShortItemDescriptionWithoutAjust } from "@/lib/utils"
 import { ItemDAO } from "@/services/item-services"
 import { ItemType } from "@prisma/client"
 
@@ -27,14 +27,14 @@ export default function NormalPrintable({ header, headerPlural, items }: Props) 
     items.forEach((item) => {
         if (!item.valor) return
         const cm= Number(item.centimetros) / 100 || 0
-        detailString+= getShortItemDescription(item).trim() + ", " 
+        detailString+= getShortItemDescriptionWithoutAjust(item).trim() + ", " 
     })
 
     detailString= detailString.slice(0, -2)
 
     if (type === ItemType.COLOCACION) {
         title= "Colocación"
-        detailString= getShortItemDescription(items[0])
+        detailString= getShortItemDescriptionWithoutAjust(items[0])
     }
 
     return (
