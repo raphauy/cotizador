@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
@@ -25,6 +25,7 @@ import { es } from "date-fns/locale"
 import { cn, getCotizationTypeLabel } from "@/lib/utils"
 import { z } from "zod"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 
 const types= Object.values(CotizationType)
 
@@ -40,17 +41,12 @@ export function CotizationForm({ clientSelectors, sellerSelectors, cotization }:
   const form = useForm<CotizationFormValues>({
     resolver: zodResolver(cotizationSchema),
     defaultValues: {
-      // clientId: "",
-      // creatorId: user?.id,
-      // sellerId: user?.id,
-      // obra: "",
-      // type: "COMUN",
-      // date: new Date(),
-
       clientId: cotization?.clientId ?? "",
       creatorId: cotization?.creatorId ?? user?.id,
       sellerId: cotization?.sellerId ?? user?.id,
       obra: cotization?.obra ?? "",
+      showTotalInPreview: cotization?.showTotalInPreview ?? true,
+      showTaxesInPreview: cotization?.showTaxesInPreview ?? true,
       type: cotization?.type ?? "COMUN",
       date: cotization?.date ?? new Date(),
     },
@@ -190,19 +186,56 @@ export function CotizationForm({ clientSelectors, sellerSelectors, cotization }:
                   </PopoverContent>
                 </Popover>
                 <FormMessage />
-                {/* <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button type="button" variant="ghost" onClick={handleSetPublicationDateToNull} disabled={!field.value}>
-                      <X />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Quitar fecha</p>
-                  </TooltipContent>
-                </Tooltip> */}
               </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="showTotalInPreview"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">
+                    Mostrar Total en Preview
+                  </FormLabel>
+                  <FormDescription>
+                    Si se marca esta casilla, el total se mostrará en el Preview
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="showTaxesInPreview"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">
+                    Mostrar IVA en Preview
+                  </FormLabel>
+                  <FormDescription>
+                    Si se marca esta casilla, el IVA se mostrará en el Preview
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
 
         <div className="flex justify-end">
             <Button type="button" variant={"secondary"} className="w-32" onClick={() => router.back()}>

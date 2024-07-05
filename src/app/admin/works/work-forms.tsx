@@ -20,6 +20,7 @@ import { useForm, useWatch } from "react-hook-form"
 import { getColorsDAOByMaterialIdAction, getMaterialsDAOAction } from "../colors/color-actions"
 import { getWorkTypesDAOAction } from "../worktypes/worktype-actions"
 import { createOrUpdateWorkAction, deleteWorkAction, getWorkDAOAction } from "./work-actions"
+import { createWorkDuplicatedAction } from "@/app/seller/cotizations/cotization-actions"
 
 type Props= {
   id?: string
@@ -236,7 +237,7 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
           />
 
         <div className="flex justify-end">
-            <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancel</Button>
+            <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
             <Button type="submit" className="w-32 ml-2">
               {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar</p>}
             </Button>
@@ -271,13 +272,46 @@ export function DeleteWorkForm({ id, closeDialog }: DeleteProps) {
   }
   
   return (
-    <div>
-      <Button onClick={() => closeDialog && closeDialog()} type="button" variant={"secondary"} className="w-32">Cancel</Button>
+    <div className="flex justify-end">
+      <Button onClick={() => closeDialog && closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
       <Button onClick={handleDelete} variant="destructive" className="w-32 ml-2 gap-1">
         { loading && <Loader className="h-4 w-4 animate-spin" /> }
-        Delete  
+        Eliminar
       </Button>
     </div>
   )
 }
 
+type DuplicateProps= {
+  id: string
+  closeDialog: () => void
+}
+export function DuplicateWorkForm({ id, closeDialog }: DuplicateProps) {
+  const [loading, setLoading] = useState(false)
+
+  async function handleDelete() {
+    if (!id) return
+    setLoading(true)
+    createWorkDuplicatedAction(id)
+    .then(() => {
+      toast({title: "Trabajo duplicado" })
+    })
+    .catch((error) => {
+      toast({title: "Error", description: error.message, variant: "destructive"})
+    })
+    .finally(() => {
+      setLoading(false)
+      closeDialog && closeDialog()
+    })
+  }
+  
+  return (
+    <div className="flex justify-end">
+      <Button onClick={() => closeDialog && closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
+      <Button onClick={handleDelete} className="w-32 ml-2 gap-1">
+        { loading && <Loader className="h-4 w-4 animate-spin" /> }
+        Duplicar
+      </Button>
+    </div>
+  )
+}

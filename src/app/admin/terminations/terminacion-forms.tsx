@@ -1,16 +1,15 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { toast } from "@/components/ui/use-toast"
-import { useEffect, useState } from "react"
-import { deleteTerminacionAction, createOrUpdateTerminacionAction, getTerminacionDAOAction } from "./terminacion-actions"
-import { terminacionSchema, TerminacionFormValues } from '@/services/terminacion-services'
 import { Button } from "@/components/ui/button"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { toast } from "@/components/ui/use-toast"
+import { TerminacionFormValues, terminacionSchema } from '@/services/terminacion-services'
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
+import { createOrUpdateTerminacionAction, deleteTerminacionAction, getTerminacionDAOAction } from "./terminacion-actions"
 
 type Props= {
   id?: string

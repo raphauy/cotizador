@@ -96,6 +96,8 @@ model Cotization {
   obra              String?                              // genext: show.column
 
   comments          String @default("")                  // genext: show.column
+  showTotalInPreview Boolean @default(true)              // genext: show.column
+  showTaxesInPreview Boolean @default(true)              // genext: show.column
 
   createdAt         DateTime  @default(now())             // gennext: skip.zod
   updatedAt         DateTime  @updatedAt                  // gennext: skip.zod  

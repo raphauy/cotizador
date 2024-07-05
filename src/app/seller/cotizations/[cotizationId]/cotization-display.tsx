@@ -19,6 +19,7 @@ import { ItemsList } from "./items-list"
 import { StatusSelector } from "./status-selector"
 import { VersionSelector } from "./version-selector"
 import CommentsBox from "./comment-box"
+import WorkMenu from "./work-menu"
 
 type Props= {
     cotization: CotizationDAO
@@ -180,9 +181,10 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                             </CardTitle>
                                             <p className="text-sm text-muted-foreground">{work.material.name} {work.color.name} ({formatCurrency(colorPrice, 0)})</p>
                                         </Link>
-                                        <OptionalColorsBoxDialog workId={work.id} />
+                                        <WorkMenu workId={work.id} cotizationId={cotization.id} workName={work.workType.name} />
+                                        {/* <OptionalColorsBoxDialog workId={work.id} />
                                         <WorkDialog id={work.id} cotizationId={work.cotizationId} />
-                                        <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} />
+                                        <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} /> */}
                                     </div>
                                     <Separator />
                                 </CardHeader>

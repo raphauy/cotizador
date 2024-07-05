@@ -16,6 +16,8 @@ export type CotizationDAO = {
   date: Date
 	obra: string | null
   comments: string
+  showTotalInPreview: boolean
+  showTaxesInPreview: boolean
 	createdAt: Date
 	updatedAt: Date
 	clientId: string
@@ -35,6 +37,8 @@ export const cotizationSchema = z.object({
 	type: z.nativeEnum(CotizationType),
   date: z.date(),
 	obra: z.string().optional(),
+  showTotalInPreview: z.boolean(),
+  showTaxesInPreview: z.boolean(),
 	clientId: z.string().min(1, "clientId is required."),
 	creatorId: z.string().min(1, "creatorId is required."),
   sellerId: z.string().min(1, "sellerId is required."),
@@ -546,6 +550,19 @@ export async function getNextLabel(cotizationId: string) {
   return found.label + "-" + (versions.length+1)
 }
 
+
+export async function setComments(cotizationId: string, comments: string) {
+  const cotization= await prisma.cotization.update({
+    where: {
+      id: cotizationId
+    },
+    data: {
+      comments
+    }
+  })
+  return cotization
+}
+
 export async function createDuplicated(cotizationId: string, clientId: string) {
   const cotization = await prisma.cotization.findUnique({
     where: {
@@ -663,14 +680,76 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
   return newCotization
 }
 
-export async function setComments(cotizationId: string, comments: string) {
-  const cotization= await prisma.cotization.update({
+
+export async function createWorkDuplicated(workId: string) {
+  const work= await prisma.work.findUnique({
     where: {
-      id: cotizationId
+      id: workId
     },
-    data: {
-      comments
+    include: {
+      items: true,
+      notes: true,
+      optionalColors: true,
     }
   })
-  return cotization
+  if (!work) throw new Error("Work not found")
+
+  const newWork= await prisma.work.create({
+    data: {
+      name: work.name,
+      reference: work.reference,
+      workTypeId: work.workTypeId,
+      materialId: work.materialId,
+      colorId: work.colorId,
+      cotizationId: work.cotizationId,
+    }
+  })
+
+  for (const item of work.items) {
+    const newItem= await prisma.item.create({
+      data: {
+        type: item.type,
+        orden: item.orden,
+        description: item.description,
+        quantity: item.quantity,
+        largo: item.largo,
+        ancho: item.ancho,
+        superficie: item.superficie,
+        centimetros: item.centimetros,
+        valor: item.valor,
+        ajuste: item.ajuste,
+        valorAreaTerminacion: item.valorAreaTerminacion,
+        workId: newWork.id,
+        terminacionId: item.terminacionId,
+        manoDeObraId: item.manoDeObraId,
+        colocacionId: item.colocacionId,
+      },
+    })
+  }
+
+  for (const note of work.notes) {
+    await prisma.note.create({
+      data: {
+        text: note.text,
+        private: note.private,
+        workId: newWork.id,
+        userId: note.userId,
+      },
+    })
+  }
+  for (const optionalColor of work.optionalColors) {
+    await prisma.work.update({
+      where: {
+        id: newWork.id,
+      },
+      data: {
+        optionalColors: {
+          connect: { id: optionalColor.id },
+        },
+      },
+    })
+  }
+
+  return newWork
 }
+

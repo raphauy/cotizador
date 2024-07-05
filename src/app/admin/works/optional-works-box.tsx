@@ -20,8 +20,9 @@ export function OptionalColorsBoxDialog({ workId }: CollectionProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <ArrowLeftRight className="hover:cursor-pointer text-muted-foreground mr-2" />
+      <DialogTrigger className="flex items-center gap-2 hover:bg-slate-100 hover:text-green-600 h-9 rounded-sm pr-2">
+        <ArrowLeftRight className="mr-2" />
+        <p>Materiales opcionales</p>
       </DialogTrigger>
       <DialogContent className="max-w-5xl">
         <DialogHeader>

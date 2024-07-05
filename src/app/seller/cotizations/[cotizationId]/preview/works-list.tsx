@@ -1,13 +1,22 @@
+import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
+import { formatCurrency } from "@/lib/utils"
 import { WorkDAO } from "@/services/work-services"
 import { ItemsList } from "./items-list"
-import { FilePenLine } from "lucide-react"
 
 type Props = {
     works: WorkDAO[]
+    showTotalInPreview: boolean
+    showTaxesInPreview: boolean
 }
-export default function WorksList({works}: Props) {
+export default function WorksList({works, showTotalInPreview, showTaxesInPreview}: Props) {
+    // totalValue= suma de todos los valores de los items
+    const totalValue= works.reduce((acc, work) => acc + work.items
+    .filter(item => item.type !== "COLOCACION")
+    .reduce((acc, item) => acc + (((item.valor || 0)+(item.valorAreaTerminacion || 0))*(item.quantity)), 0), 0)
+    
+    const iva= totalValue * 0.22
+
     return (
         <div className="work-section space-y-1">
         {
@@ -32,6 +41,15 @@ export default function WorksList({works}: Props) {
                 )
             })
         }
+
+        {
+            showTotalInPreview &&
+            <div className="flex flex-col items-end text-black card pb-1 pr-5">
+                {totalValue > 0 && <div className="border-gray-400 text-lg font-bold">Total: {formatCurrency(totalValue, 0)}</div>} 
+                {showTaxesInPreview && <div className="border-gray-400 ">IVA: {formatCurrency(iva, 0)}</div>} 
+            </div>
+        }            
+
         </div>
     )
 }

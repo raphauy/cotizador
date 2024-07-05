@@ -14,8 +14,6 @@ export default function PrintableCotization({ cotization }: Props) {
 
     const works= cotization.works
 
-    const totalValue= works.reduce((acc, work) => acc + work.items.reduce((acc, item) => acc + (item.valor || 0), 0), 0)
-
     return (
         <div className="space-y-2 w-full p-10">
 
@@ -27,7 +25,7 @@ export default function PrintableCotization({ cotization }: Props) {
                 <DatosPresupuesto cotization={cotization} />
             </div>
 
-            <WorksList works={works} />
+            <WorksList works={works} showTotalInPreview={cotization.showTotalInPreview} showTaxesInPreview={cotization.showTaxesInPreview} />
 
             <div className="notas text-gray-800 pt-2">
             {

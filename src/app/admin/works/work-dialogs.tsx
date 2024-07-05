@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { PlusCircle, Settings, Trash2 } from "lucide-react";
+import { Copy, PlusCircle, Settings, Trash2 } from "lucide-react";
 import { useState } from "react";
-import { DeleteWorkForm, WorkForm } from "./work-forms";
+import { DeleteWorkForm, DuplicateWorkForm, WorkForm } from "./work-forms";
 
 type Props= {
   id?: string
@@ -12,14 +12,14 @@ type Props= {
 }
 
 const addTrigger= <Button><PlusCircle size={22} className="mr-2"/>Crear Trabajo</Button>
-const updateTrigger= <Settings size={25} className="mr-2 hover:cursor-pointer text-muted-foreground"/>
+const updateTrigger= <div className="flex items-center gap-2 hover:cursor-pointer"><Settings size={25} className="mr-2"/>Configurar trabajo</div> 
 
 export function WorkDialog({ id, cotizationId }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger className="flex items-center gap-2 hover:bg-slate-100 hover:text-green-600 h-9 rounded-sm">
         {id ? updateTrigger : addTrigger }
       </DialogTrigger>
       <DialogContent>
@@ -43,8 +43,11 @@ export function DeleteWorkDialog({ id, description }: DeleteProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Trash2 size={25} className="hover:cursor-pointer text-red-400"/>
+      <DialogTrigger className="flex items-center gap-2 hover:bg-slate-100 hover:text-green-600 h-9 rounded-sm">
+        <div className="flex items-center gap-2 hover:cursor-pointer">
+          <Trash2 size={25} className="text-red-400 mr-2"/>
+          <p>Eliminar trabajo</p>
+        </div>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -57,3 +60,29 @@ export function DeleteWorkDialog({ id, description }: DeleteProps) {
   )
 }
 
+type DuplicateProps= {
+  id: string
+  description: string
+}
+
+export function DuplicateWorkDialog({ id, description }: DuplicateProps) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger className="flex items-center gap-2 hover:bg-slate-100 hover:text-green-600 h-9 rounded-sm">
+        <div className="flex items-center gap-2 hover:cursor-pointer">
+          <Copy className="mr-2"/>
+          <p>Duplicar trabajo</p>
+        </div>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Duplicar trabajo</DialogTitle>
+          <DialogDescription className="py-8">{description}</DialogDescription>
+        </DialogHeader>
+        <DuplicateWorkForm closeDialog={() => setOpen(false)} id={id} />
+      </DialogContent>
+    </Dialog>
+  )
+}
