@@ -15,7 +15,7 @@ export default function WorksList({works, showTotalInPreview, showTaxesInPreview
     .filter(item => item.type !== "COLOCACION")
     .reduce((acc, item) => acc + (((item.valor || 0)+(item.valorAreaTerminacion || 0))*(item.quantity)), 0), 0)
     
-    const iva= totalValue * 0.22
+    const ivaInc= totalValue * 1.22
 
     return (
         <div className="work-section space-y-1">
@@ -44,9 +44,9 @@ export default function WorksList({works, showTotalInPreview, showTaxesInPreview
 
         {
             showTotalInPreview &&
-            <div className="flex flex-col items-end text-black card pb-1 pr-5">
-                {totalValue > 0 && <div className="border-gray-400 text-lg font-bold">Total: {formatCurrency(totalValue, 0)}</div>} 
-                {showTaxesInPreview && <div className="border-gray-400 ">IVA: {formatCurrency(iva, 0)}</div>} 
+            <div className="flex flex-col items-end text-black card pb-1 pr-5 text-lg font-bold">
+                {totalValue > 0 && <div className="border-gray-400">Total: {formatCurrency(totalValue, 0)}</div>} 
+                {showTaxesInPreview && <div>Total IVA inc.: {formatCurrency(ivaInc, 0)}</div>} 
             </div>
         }            
 
