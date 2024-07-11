@@ -1,6 +1,6 @@
 "use client"
 
-import { deleteItemAction } from "@/app/admin/items/item-actions"
+import { deleteItemAction, setManoDeObraToItemAction } from "@/app/admin/items/item-actions"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
@@ -66,33 +66,85 @@ export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: P
         }
     }
 
+    function setManoDeObraToItem(itemId: string, manoDeObraId: string) {
+        setLoading(true)
+        setManoDeObraToItemAction(itemId, manoDeObraId)
+        .then(() => {
+            toast({title: "Mano de obra actualizada" })
+        })
+        .catch((error) => {
+            toast({title: "Error", description: error.message, variant: "destructive"})
+        })
+        .finally(() => {
+            setLoading(false)
+        })
+    }
+
     function handleQuantityChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
+        const actualQuantity= itemManoDeObras[index].quantity
+        if (actualQuantity?.toString() === e.target.value) {
+            console.log("quantity already set")
+            return
+        }
+
         const value= e.target.value ? parseInt(e.target.value) : 0
         setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, quantity: value } : item))
     }
 
     function handleCentimetersChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
+        const actualCentimeters= itemManoDeObras[index].centimeters
+        if (actualCentimeters?.toString() === e.target.value) {
+            console.log("centimeters already set")
+            return
+        }
         const value= e.target.value ? parseInt(e.target.value) : 0
         setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, centimeters: value } : item))
     }
 
     function handleLenghtChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
+        const actualLength= itemManoDeObras[index].length
+        if (actualLength?.toString() === e.target.value) {
+            console.log("length already set")
+            return
+        }
         const value= e.target.value ? parseInt(e.target.value) : 0
         setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, length: value } : item))
     }
 
     function handleWidthChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
+        const actualWidth= itemManoDeObras[index].width
+        if (actualWidth?.toString() === e.target.value) {
+            console.log("width already set")
+            return
+        }
         const value= e.target.value ? parseInt(e.target.value) : 0
         setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, width: value } : item))
     }
 
     function handleAjusteChange(e: React.ChangeEvent<HTMLInputElement>, index: number) {
+        const actualAjuste= itemManoDeObras[index].ajuste
+        if (actualAjuste?.toString() === e.target.value) {
+            console.log("ajuste already set")
+            return
+        }
         const value= e.target.value ? parseInt(e.target.value) : 0
         setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, ajuste: value } : item))
     }
 
     function notifyMOSelected(itemId: string | undefined, index: number, manoDeObra: ManoDeObraDAO | undefined) {
-        setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, manoDeObraId: manoDeObra?.id, isLinear: manoDeObra?.isLinear, isSurface: manoDeObra?.isSurface } : item))
+        const actualManoDeObraId= itemManoDeObras[index].manoDeObraId
+        if (actualManoDeObraId === manoDeObra?.id) {
+            console.log("mano de obra already set")
+            return
+        }
+        if (itemId && manoDeObra) {
+            console.log(`updating item ${itemId} with mano de obra ${manoDeObra.id}`)            
+            setManoDeObraToItem(itemId, manoDeObra.id)            
+            setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, manoDeObraId: manoDeObra?.id, isLinear: manoDeObra?.isLinear, isSurface: manoDeObra?.isSurface } : item))
+        } else {
+            console.log(`updating new item ${itemId} with mano de obra ${manoDeObra?.id}`)            
+            setItemManoDeObras(itemManoDeObras.map((item, i) => i === index ? { ...item, manoDeObraId: manoDeObra?.id, isLinear: manoDeObra?.isLinear, isSurface: manoDeObra?.isSurface } : item))
+        }
     }
 
     return (

@@ -1,4 +1,4 @@
-import { getShortItemDescription } from "@/lib/utils"
+import { getShortItemDescription, getShortItemDescriptionWithoutAjust } from "@/lib/utils"
 import { ItemDAO } from "@/services/item-services"
 
 type Props = {
@@ -15,7 +15,7 @@ export default function ManoDeObraPrintable({ header, headerPlural, items }: Pro
     let detailString= ""
     items.forEach((item) => {
         if (!item.valor) return
-        const desc= getShortItemDescription(item).trim()
+        const desc= getShortItemDescriptionWithoutAjust(item).trim()
         detailString+= desc + ", "
     })
 

@@ -653,3 +653,25 @@ export async function recalculateAreaValues(workId: string): Promise<number> {
 
   return totalValue
 }
+
+export async function setManoDeObraToItem(itemId: string, manoDeObraId: string) {
+  const item= await prisma.item.findUnique({
+    where: {
+      id: itemId
+    },
+    include: {
+      manoDeObra: true,
+    }
+  })
+  if (!item) throw new Error("Item not found")
+
+  const updated= await prisma.item.update({
+    where: {
+      id: itemId
+    },
+    data: {
+      manoDeObraId,
+    }
+  })
+  return updated
+}

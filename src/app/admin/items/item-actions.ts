@@ -1,7 +1,7 @@
 "use server"
   
 import { AjusteItem, AreaItem, ManoDeObraItem, TerminationItem } from "@/app/seller/cotizations/[cotizationId]/[workId]/page"
-import { AjusteFormValues, ItemFormValues, ManoDeObraItemFormValues, TerminationFormValues, createAjusteItem, upsertBatchAreaItem, createItem, createManoDeObraItem, createTerminationItem, deleteItem, getFullItemDAO, updateAjusteItem, updateItem, updateManoDeObraItem, updateTerminationItem, upsertBatchTerminationItem, upsertBatchManoDeObraItem, updateColocacion, upsertBatchAjusteItem } from "@/services/item-services"
+import { AjusteFormValues, ItemFormValues, ManoDeObraItemFormValues, TerminationFormValues, createAjusteItem, upsertBatchAreaItem, createItem, createManoDeObraItem, createTerminationItem, deleteItem, getFullItemDAO, updateAjusteItem, updateItem, updateManoDeObraItem, updateTerminationItem, upsertBatchTerminationItem, upsertBatchManoDeObraItem, updateColocacion, upsertBatchAjusteItem, setManoDeObraToItem } from "@/services/item-services"
 import { FullWorkDAO, getFullWorkDAO } from "@/services/work-services"
 import { revalidatePath } from "next/cache"
 
@@ -130,4 +130,12 @@ export async function updateColocacionAction(workId: string, colocacionId: strin
     revalidatePath("/seller/cotizations/[cotizationId]", "page")
 
     return colocacion
+}
+
+export async function setManoDeObraToItemAction(itemId: string, manoDeObraId: string) {
+    const res= await setManoDeObraToItem(itemId, manoDeObraId)
+
+    revalidatePath("/seller/cotizations/[cotizationId]", "page")
+
+    return res
 }
