@@ -655,6 +655,7 @@ export async function recalculateAreaValues(workId: string): Promise<number> {
 }
 
 export async function setManoDeObraToItem(itemId: string, manoDeObraId: string) {
+
   const item= await prisma.item.findUnique({
     where: {
       id: itemId
@@ -665,12 +666,28 @@ export async function setManoDeObraToItem(itemId: string, manoDeObraId: string) 
   })
   if (!item) throw new Error("Item not found")
 
+  if (!item.manoDeObraId) throw new Error("Mano de obra not found")
+
+  const newManoDeObra= await getManoDeObraDAO(manoDeObraId)
+
+  let superficie= item.superficie
+  let largo= item.largo
+  let ancho= item.ancho
+  if (!newManoDeObra.isSurface) {
+    superficie= 0
+    largo= 0
+    ancho= 0
+  }
+
   const updated= await prisma.item.update({
     where: {
       id: itemId
     },
     data: {
       manoDeObraId,
+      superficie,
+      largo,
+      ancho,      
     }
   })
   return updated

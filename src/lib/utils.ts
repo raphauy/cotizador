@@ -97,7 +97,7 @@ export function getShortItemDescription(item: ItemDAO): string {
     case ItemType.TERMINACION:
       return `${item.quantity > 1 ? item.quantity : ""} ${item.terminacion && item.terminacion.name}  ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}` 
     case ItemType.MANO_DE_OBRA:
-      return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${superficie ? "(" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`  
+      return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${superficie && item.manoDeObra.isSurface ? "(" + superficie + "m²)" : ""} ${item.ajuste ? ` + ${formatCurrency(item.ajuste)}` : ""}`  
     case ItemType.AJUSTE:
       return `- ${item.description}`
     case ItemType.COLOCACION:
@@ -119,7 +119,7 @@ export function getShortItemDescriptionWithoutAjust(item: ItemDAO): string {
     case ItemType.TERMINACION:
       return `${item.quantity > 1 ? item.quantity : ""} ${item.terminacion && item.terminacion.name}`
     case ItemType.MANO_DE_OBRA:
-      return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${superficie ? "(" + superficie + "m²)" : ""}`  
+      return `${item.quantity > 1 ? item.quantity : ""} ${item.manoDeObra && item.manoDeObra.name} ${superficie && item.manoDeObra.isSurface ? "(" + superficie + "m²)" : ""}`  
     case ItemType.AJUSTE:
       return `- ${item.description}`
     case ItemType.COLOCACION:

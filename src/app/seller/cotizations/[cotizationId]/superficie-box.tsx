@@ -12,7 +12,7 @@ type Props = {
 export default function LineBox({ superficie, total, price, sufix, hidePrice, bold }: Props) {
   return (
     <div className={cn("text-right flex items-center justify-end", bold && "font-bold")}>
-        {superficie > 0 && <p className="">{superficie.toFixed(2)} {sufix} </p>}
+        {superficie > 0 && <p className="">{superficie.toFixed(2)} {sufix}</p>}
         
         {
           !hidePrice && 
