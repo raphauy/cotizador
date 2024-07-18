@@ -13,12 +13,12 @@ export default async function UsersPage() {
   if (!user)
     return <div>Usuario no autenticado</div>
 
-  let data
-  if (user.role === UserRole.ADMIN) {
-    data=await getFullCotizationsDAO()
-  } else {
-    data=await getFullCotizationsDAOByUser(user.id)
-  }
+  const data= await getFullCotizationsDAO()
+  // if (user.role === UserRole.ADMIN) {
+  //   data=await getFullCotizationsDAO()
+  // } else {
+  //   data=await getFullCotizationsDAOByUser(user.id)
+  // }
 
   const clientNames= Array.from(new Set(data.map((cotization) => cotization.client.name)))
   const sellerNames= Array.from(new Set(data.map((cotization) => cotization.sellerName)))
