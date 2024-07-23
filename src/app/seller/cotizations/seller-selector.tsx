@@ -24,7 +24,7 @@ export function SellerSelector({ data, onSelect, selectedId }: Props) {
 
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState("")
-  const [name, setName] = useState("Selecciona un cliente")
+  const [name, setName] = useState("Selecciona un vendedor")
   const [selectors, setSelectors]= useState<SelectorData[]>([])
   const params= useParams()    
 
@@ -66,12 +66,12 @@ export function SellerSelector({ data, onSelect, selectedId }: Props) {
 
         <PopoverContent className="min-w-[230px] p-0">
         <Command className="rounded-lg border shadow-md">
-          <CommandInput placeholder="Buscar cotizador..." />
+          <CommandInput placeholder="Buscar vendedor..." />
           <CommandList>
               <CommandEmpty>No hay resultados.</CommandEmpty>
               <CommandGroup>
                   {filteredValues.map((item, index) => {
-                  if (index >= 10) return null
+                  // if (index >= 10) return null
                   return (
                       <CommandItem
                       key={item.id}
@@ -91,12 +91,12 @@ export function SellerSelector({ data, onSelect, selectedId }: Props) {
                       </CommandItem>
                   )})}
 
-                  {filteredValues.length - 10 > 0 &&
+                  {/* {filteredValues.length - 10 > 0 &&
                   <div className="flex items-center mt-5 font-bold">
                       <ChevronsRight className="w-5 h-5 ml-1 mr-2"/>
-                      <p className="text-sm">Hay {filteredValues.length - 10} clientes más</p>
+                      <p className="text-sm">Hay {filteredValues.length - 10} vendedores más</p>
                   </div>
-                  }
+                  } */}
 
               </CommandGroup>
           </CommandList>
