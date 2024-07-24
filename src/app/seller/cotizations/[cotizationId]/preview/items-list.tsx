@@ -84,6 +84,8 @@ export function ItemsList({ work }: Props) {
     )
     }
 
+    const notes= work.notes.filter(note => note.private === false)
+
     return (
         <div className="flex flex-col items-center w-full">
 
@@ -99,10 +101,10 @@ export function ItemsList({ work }: Props) {
             </div>
             <div className="flex flex-col w-full">
             {
-                work.notes.length > 0 &&
+                notes.length > 0 &&
                 <div className="flex flex-col space-y-1">
                 {
-                    work.notes.map((note) => {
+                    notes.map((note) => {
                         return (
                             <div className="flex items-center gap-2" key={note.id}>
                                 <p className="text-sm pb-3 whitespace-pre-line">{note.text}</p>
