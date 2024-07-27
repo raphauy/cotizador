@@ -14,9 +14,9 @@ interface RequestEvaluationDocumentButtonProps {
 }
 
 const PrintButton2 = ({ cotization }: RequestEvaluationDocumentButtonProps) => {
-  const contentRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null)
 
-  const router = useRouter();
+  const router= useRouter()
 
   const generatePDF = async () => {
     const element = contentRef.current;
@@ -28,11 +28,23 @@ const PrintButton2 = ({ cotization }: RequestEvaluationDocumentButtonProps) => {
       const paddingY = 4; // Padding vertical en mm
       let yPosition = paddingY;
 
-      // Function to capture and add image to PDF with compression
-      const addImageToPDF = async (element: HTMLElement) => {
-        const canvas = await html2canvas(element, { scale: 2 });
-//        const imgData = canvas.toDataURL('image/jpeg', 0.7); // Compressed JPEG format
-        const imgData = canvas.toDataURL('image/jpeg')
+      // Capturar y agregar Cabezal
+      const cabezalElement = element.querySelector('.cabezal');
+      if (cabezalElement) {
+        const canvas = await html2canvas(cabezalElement as HTMLElement, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - paddingX * 2;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', paddingX, yPosition, imgWidth, imgHeight);
+        yPosition += imgHeight + paddingY;
+      }
+
+      // Capturar y agregar DatosPresupuesto
+      const datosPresupuestoElement = element.querySelector('.datos-presupuesto');
+      if (datosPresupuestoElement) {
+        const canvas = await html2canvas(datosPresupuestoElement as HTMLElement, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
         const imgWidth = pageWidth - paddingX * 2;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
@@ -41,43 +53,53 @@ const PrintButton2 = ({ cotization }: RequestEvaluationDocumentButtonProps) => {
           yPosition = paddingY;
         }
 
-        pdf.addImage(imgData, 'JPEG', paddingX, yPosition, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'PNG', paddingX, yPosition, imgWidth, imgHeight);
         yPosition += imgHeight + paddingY;
-      };
-
-      // Capturar y agregar Cabezal
-      const cabezalElement = element.querySelector('.cabezal');
-      if (cabezalElement) {
-        await addImageToPDF(cabezalElement as HTMLElement);
-      }
-
-      // Capturar y agregar DatosPresupuesto
-      const datosPresupuestoElement = element.querySelector('.datos-presupuesto');
-      if (datosPresupuestoElement) {
-        await addImageToPDF(datosPresupuestoElement as HTMLElement);
       }
 
       // Capturar y agregar cada trabajo
       const sections = Array.from(element.querySelectorAll('.work-section > .card'));
       for (const section of sections) {
-        await addImageToPDF(section as HTMLElement);
+        const canvas = await html2canvas(section as HTMLElement, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - paddingX * 2;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        if (yPosition + imgHeight > pageHeight - paddingY) {
+          pdf.addPage();
+          yPosition = paddingY;
+        }
+
+        pdf.addImage(imgData, 'PNG', paddingX, yPosition, imgWidth, imgHeight);
+        yPosition += imgHeight + paddingY;
       }
 
       // Capturar y agregar Notas
       const notasElement = element.querySelector('.notas');
       if (notasElement) {
-        await addImageToPDF(notasElement as HTMLElement);
+        const canvas = await html2canvas(notasElement as HTMLElement, { scale: 2 });
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = pageWidth - paddingX * 2;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        if (yPosition + imgHeight > pageHeight - paddingY) {
+          pdf.addPage();
+          yPosition = paddingY;
+        }
+
+        pdf.addImage(imgData, 'PNG', paddingX, yPosition, imgWidth, imgHeight);
+        yPosition += imgHeight + paddingY;
       }
+
 
       pdf.save(`Presupuesto-${cotization.label}.pdf`);
     }
   };
-
   return (
     <div className="flex flex-col items-center">
       <div className="w-[1000px]">
         <Button variant="link" onClick={() => router.back()} className="px-0 place-self-start">
-          <ChevronLeft className="w-5 h-5" /> Volver
+            <ChevronLeft className="w-5 h-5" /> Volver
         </Button>
       </div>
 
