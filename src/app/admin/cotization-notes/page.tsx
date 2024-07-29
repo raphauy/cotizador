@@ -16,7 +16,7 @@ export default async function CotizationNotePage() {
         <CotizationNoteDialog />
       </div>
 
-      <NotesBox initialNotes={data} />
+      <NotesBox initialNotes={data} isEditable={true} />
     </div>
   )
 }
