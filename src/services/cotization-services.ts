@@ -393,7 +393,7 @@ export async function createVersion(cotizationId: string) {
       number: originalCotization.number,
       version: newVersionNumber,
       label: newLabel,
-      status: cotization.status,
+      status: "BORRADOR",
       type: cotization.type,
       date: new Date(),
       obra: cotization.obra,
