@@ -34,8 +34,8 @@ export default async function NewCotizationPage({ searchParams }: Props) {
     name: user.name
   }))
 
-  const status= cotization?.status
-  if (status !== CotizationStatus.BORRADOR) 
+  const isBorrador= cotization?.status === CotizationStatus.BORRADOR
+  if (cotization && !isBorrador)
     return (
         <div className="mx-auto mt-10">
             <Link href={`/seller/cotizations/${cotization?.id}`}>
