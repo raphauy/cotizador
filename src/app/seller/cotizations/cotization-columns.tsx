@@ -10,6 +10,7 @@ import { completeWithZeros, formatWhatsAppStyle, getCotizationTypeLabel } from "
 import { StatusSelector } from "./[cotizationId]/status-selector"
 import { DateRange } from "./cotization-table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { CotizationStatus } from "@prisma/client"
 
 
 export const columns: ColumnDef<CotizationDAO>[] = [
@@ -170,6 +171,8 @@ export const columns: ColumnDef<CotizationDAO>[] = [
       const data= row.original
 
       const deleteDescription= `Seguro que desea eliminar la cotización ${data.label}?`
+
+      const isBorrador= data.status === CotizationStatus.BORRADOR
  
       return (
         <div className="flex items-center justify-end gap-2">
@@ -185,7 +188,7 @@ export const columns: ColumnDef<CotizationDAO>[] = [
               </TooltipContent>
           </Tooltip>
           }
-          <DeleteCotizationDialog description={deleteDescription} id={data.id} />
+          { isBorrador && <DeleteCotizationDialog description={deleteDescription} id={data.id} /> }
         </div>
 
       )
