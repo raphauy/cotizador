@@ -11,8 +11,9 @@ import { CotizationNoteDialog } from "./cotizationnote-dialogs"
 
 type Props= {
     initialNotes: CotizationNoteDAO[]
+    isEditable: boolean
 }
-export default function NotesBox({ initialNotes }: Props) {
+export default function NotesBox({ initialNotes, isEditable }: Props) {
 
     const [notes, setNotes] = useState(initialNotes)
     const [loading, setLoading] = useState(false)
@@ -23,6 +24,10 @@ export default function NotesBox({ initialNotes }: Props) {
     }, [initialNotes])    
 
     function handleNewOrder(newOrder: CotizationNoteDAO[]) {
+        if (!isEditable) {
+            toast({ title: "Presupuesto no editable", description: "Este presupuesto ya no se puede modificar", variant: "destructive" })
+            return
+        }
         updateOrderAction(newOrder)
         .then(() => {
             setNotes(newOrder)
@@ -56,18 +61,17 @@ export default function NotesBox({ initialNotes }: Props) {
                     <Reorder.Item key={note.id} value={note} className="flex items-center justify-between w-full text-muted-foreground border-b hover:bg-slate-50 min-h-12 px-4">
                         <p className="cursor-pointer w-full py-2 pr-3 whitespace-pre-line">{note.text}</p>
                         <div className="flex items-center">
-                            <CotizationNoteDialog id={note.id} />
-                            {/* <DeleteCotizationNoteDialog id={note.id} description={`seguro que quieres eliminar la nota ${note.text}?`} /> */}
+                            { isEditable && <CotizationNoteDialog id={note.id} /> }
                             {
                                 loading && deletingId === note.id ? <Loader className="h-5 w-5 animate-spin" />
                                 : 
-                                <Button variant="ghost" className="px-1" onClick={() => handleDelete(note.id)}>
+                                <Button variant="ghost" className="px-1" onClick={() => handleDelete(note.id)} disabled={!isEditable}>
                                     <X className="w-5 h-5 text-red-500" />
                                 </Button>
                             }
                         </div>
                     </Reorder.Item>
-                        )
+                )
             })
         }
         </Reorder.Group>

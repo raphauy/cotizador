@@ -1,7 +1,7 @@
 import * as z from "zod"
 import { prisma } from "@/lib/db"
 import { FullWorkDAO, WorkDAO, getFullWorkDAO, getWorkDAO } from "./work-services"
-import { ClientType, ItemType } from "@prisma/client"
+import { ClientType, CotizationStatus, ItemType } from "@prisma/client"
 import { ColorDAO } from "./color-services"
 import { TerminacionDAO, getTerminacionDAO } from "./terminacion-services"
 import { ManoDeObraDAO, ManoDeObraFormValues, getManoDeObraDAO } from "./manodeobra-services"
@@ -227,6 +227,11 @@ export async function getFullItemDAO(id: string) {
 export async function upsertBatchAreaItem(workId: string, areaItems: AreaItem[]): Promise<boolean> {
   const work= await getFullWorkDAO(workId)
   if (!work) throw new Error("Work not found")
+  
+  const status= work.cotization.status
+  if (status !== CotizationStatus.BORRADOR) {
+    throw new Error("No se puede modificar este presupuesto")
+  }
 
   for (let i = 0; i < areaItems.length; i++) {
     const dataItem: ItemFormValues = {
@@ -245,6 +250,11 @@ export async function upsertBatchAreaItem(workId: string, areaItems: AreaItem[])
 export async function upsertBatchTerminationItem(workId: string, items: TerminationItem[]): Promise<boolean> {
   const work= await getFullWorkDAO(workId)
   if (!work) throw new Error("Work not found")
+  
+    const status= work.cotization.status
+  if (status !== CotizationStatus.BORRADOR) {
+    throw new Error("No se puede modificar este presupuesto")
+  }
 
   for (let i = 0; i < items.length; i++) {
     const dataItem: TerminationFormValues = {
@@ -309,7 +319,7 @@ export async function createManoDeObraItem(data: ManoDeObraItemFormValues) {
   const type= ItemType.MANO_DE_OBRA
   const quantity= data.quantity ? Number(data.quantity) : 1
   const work= await getFullWorkDAO(data.workId)
-  if (!work) throw new Error("Work not found")
+  if (!work) throw new Error("Work not found")  
   const client= work.cotization.client
   const clientType= client.type
   const valor= calculateManoDeObraValue(data, manoDeObra, clientType)

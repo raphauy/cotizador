@@ -250,6 +250,13 @@ export async function getCotizationsCountByClientId(clientId: string) {
 }
 
 export async function setStatus(id: string, status: CotizationStatus) {
+  const actualStatus= await getCotizationStatusByCotizationId(id)
+  if (actualStatus === CotizationStatus.COTIZADO || actualStatus === CotizationStatus.VENDIDO || actualStatus === CotizationStatus.PERDIDO) {
+    if (status === CotizationStatus.BORRADOR)
+      throw new Error("El presupuesto ya no puede volver a ser BORRADOR")
+  }
+    
+  
   const updated = await prisma.cotization.update({
     where: {
       id
@@ -753,3 +760,33 @@ export async function createWorkDuplicated(workId: string) {
   return newWork
 }
 
+
+export async function getCotizationStatusByWorkId(workId: string) {
+  const found = await prisma.work.findUnique({
+    where: {
+      id: workId
+    },
+    include: {
+      cotization: true,
+    }
+  })
+  if (!found) throw new Error("Work not found")
+
+  const cotization= found.cotization
+  if (!cotization) throw new Error("Work not found")
+
+  return cotization.status
+}
+
+export async function getCotizationStatusByCotizationId(cotizationId: string) {
+  const found = await prisma.cotization.findUnique({
+    where: {
+      id: cotizationId
+    },
+    select: {
+      status: true
+    }
+  })
+
+  return found?.status
+}

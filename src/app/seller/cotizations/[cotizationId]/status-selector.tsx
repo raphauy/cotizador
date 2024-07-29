@@ -29,7 +29,7 @@ export function StatusSelector({ id, status }: Props) {
       } else toast({ title: "Error al actualizar el estado", variant: "destructive"})
     })
     .catch((err) => {
-      toast({ title: "Error al actualizar el estado", variant: "destructive"})
+      toast({ title: "Error al actualizar el estado", description: err.message, variant: "destructive"})
     })    
   }
   return (

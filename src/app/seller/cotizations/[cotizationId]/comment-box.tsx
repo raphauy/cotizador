@@ -11,8 +11,9 @@ import { CommentsDialog } from "../cotization-dialogs"
 type Props= {
   cotizationId: string
   comments: string
+  isEditable: boolean
 }
-export default function CommentsBox({ cotizationId, comments }: Props) {
+export default function CommentsBox({ cotizationId, comments, isEditable }: Props) {
 
     const [value, setValue] = useState(comments)
     const [loading, setLoading] = useState(false)
@@ -37,7 +38,7 @@ export default function CommentsBox({ cotizationId, comments }: Props) {
                 comments &&
                 <div className="max-w-xs line-clamp-2">{comments}</div>
             }
-            <CommentsDialog cotizationId={cotizationId} comments={comments} />        
+            { isEditable && <CommentsDialog cotizationId={cotizationId} comments={comments} /> }
         </div>
     );
 }

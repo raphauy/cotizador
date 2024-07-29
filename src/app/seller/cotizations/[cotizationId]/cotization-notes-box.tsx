@@ -9,8 +9,9 @@ import { revalidatePath } from "next/cache"
 type Props= {
     cotizationId: string
     initialNotes: CotizationNoteDAO[]
+    isEditable: boolean
 }
-export default function CotizationNotesBox({ cotizationId, initialNotes }: Props) {
+export default function CotizationNotesBox({ cotizationId, initialNotes, isEditable }: Props) {
     async function onReloadNotes() {
         "use server"
         console.log("reloading notes, cotizationId: ", cotizationId)
@@ -25,9 +26,9 @@ export default function CotizationNotesBox({ cotizationId, initialNotes }: Props
                     <p className="font-bold text-lg">Notas del presupuesto</p>
                 </AccordionTrigger>
                 <AccordionContent>
-                    <NotesBox initialNotes={initialNotes} />
+                    <NotesBox initialNotes={initialNotes} isEditable={isEditable} />
                     <form action={onReloadNotes} className="flex justify-end">                        
-                        <Button className="mt-4" variant="outline">
+                        <Button className="mt-4" variant="outline" disabled={!isEditable}>
                             <RefreshCcw className="mr-2 h-4 w-4"/><p>Recargar notas originales</p>                            
                         </Button>
                     </form>

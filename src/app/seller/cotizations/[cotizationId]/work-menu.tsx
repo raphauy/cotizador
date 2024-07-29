@@ -10,13 +10,23 @@ type Props= {
     workId: string
     cotizationId: string
     workName: string
+    isEditable: boolean
 }
-export default function WorkMenu({ workId, cotizationId, workName }: Props) {
+export default function WorkMenu({ workId, cotizationId, workName, isEditable }: Props) {
     return (
         <Menubar className="border-0 bg-white">
             <MenubarMenu>
                 <MenubarTrigger className="px-1 border-0 cursor-pointer"><DotsVerticalIcon className="h-5 w-5" /></MenubarTrigger>
                 <MenubarContent className="p-4 text-muted-foreground">
+                    {
+                        !isEditable && 
+                        <MenubarItem className="w-full px-0.5">
+                            Este trabajo ya no se puede modificar
+                        </MenubarItem>
+                    }
+
+                    { isEditable && 
+                    <>
                     <MenubarItem className="w-full px-0.5">
                         <Link href={`/seller/cotizations/${cotizationId}/${workId}`}>
                             <div className="flex items-center gap-3.5 hover:cursor-pointer text-base hover:text-green-600">
@@ -45,6 +55,8 @@ export default function WorkMenu({ workId, cotizationId, workName }: Props) {
                     <MenubarItem asChild>
                         <DeleteWorkDialog id={workId} description={`Seguro que quieres eliminar el trabajo ${workName}?`} />
                     </MenubarItem>
+                    </>
+                    }
                 </MenubarContent>
             </MenubarMenu>
         </Menubar>

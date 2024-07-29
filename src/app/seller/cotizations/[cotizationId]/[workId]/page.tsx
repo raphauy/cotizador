@@ -12,8 +12,8 @@ import { cn, formatCurrency } from "@/lib/utils"
 import { ColocacionDAO } from "@/services/colocacion-services"
 import { ItemDAO } from "@/services/item-services"
 import { WorkDAO } from "@/services/work-services"
-import { ItemType } from "@prisma/client"
-import { ChevronLeft, Loader } from "lucide-react"
+import { CotizationStatus, ItemType } from "@prisma/client"
+import { AlertCircle, ChevronLeft, Loader, TriangleAlert } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import AjustesBox from "./ajuste-box"
@@ -185,6 +185,14 @@ export default function AddItemsPage({ params }: Props) {
 
 
     async function handleSave() {
+        if (!work) return
+  
+        const status= work.cotization.status
+        if (status !== CotizationStatus.BORRADOR) {
+            toast({title: "Este presupuesto ya no se puede editar", description: "Solo puede editar presupuestos en estado BORRADOR", variant: "destructive"})
+            return
+        }
+          
         setLoading(true)
 
         let areaSaved= false
@@ -298,6 +306,20 @@ export default function AddItemsPage({ params }: Props) {
             
         }
     }
+
+    const status= work?.cotization.status
+    if (status !== CotizationStatus.BORRADOR) 
+        return (
+            <div className="">
+                <Button variant="link" onClick={() => router.back()} className="px-0">
+                    <ChevronLeft className="w-5 h-5" /> Volver
+                </Button>
+                <div className="p-4 bg-white border rounded-xl flex items-center gap-2 w-fit">
+                    <TriangleAlert className="w-5 h-5 text-yellow-400" />
+                    <p className="text-lg">Este presupuesto ya no se puede editar</p>
+                </div>
+            </div>
+        )
 
     return (
         <div className="w-full mb-20">

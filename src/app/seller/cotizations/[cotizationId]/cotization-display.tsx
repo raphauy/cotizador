@@ -12,6 +12,7 @@ import { ClipboardPen, Construction, CopyPlus, Eye, Mail, Pencil, Phone, PlusCir
 import Link from "next/link"
 import { ClientDialog } from "../../clients/client-dialogs"
 import { columns } from "../../notes/note-columns"
+import { columns as notEditableColumns } from "../../notes/note-columns-not-editable"
 import { NoteDialog } from "../../notes/note-dialogs"
 import { DataTable } from "../../notes/note-table"
 import CotizationNotesBox from "./cotization-notes-box"
@@ -20,6 +21,7 @@ import { StatusSelector } from "./status-selector"
 import { VersionSelector } from "./version-selector"
 import CommentsBox from "./comment-box"
 import WorkMenu from "./work-menu"
+import { CotizationStatus } from "@prisma/client"
 
 type Props= {
     cotization: CotizationDAO
@@ -40,11 +42,13 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
     //.filter(item => item.type !== "COLOCACION")
     .reduce((acc, item) => acc + (((item.valor || 0)+(item.valorAreaTerminacion || 0))*(item.quantity)), 0), 0)
 
+    const isEditable= cotization.status === CotizationStatus.BORRADOR
+
     return (
         <div className="space-y-5 w-full">
             <Card>
                 <CardHeader>
-                    <div className="flex items-center justify-between"> 
+                    <div className="flex justify-between"> 
                         <div>
                             <CardTitle className="flex items-center gap-5 text-2xl">
                                 <p className="text-green-900 font-bold">{cotization.label}</p> 
@@ -53,7 +57,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                             </CardTitle>
                             <CardDescription className="flex items-center gap-4 text-lg">
                                 {cotization.client.name} 
-                                <ClientDialog id={cotization.clientId} updateTrigger={updateClientTrigger} />
+                                { isEditable && <ClientDialog id={cotization.clientId} updateTrigger={updateClientTrigger} /> }
                                 {
                                     cotization.client.note &&
                                     <Tooltip>
@@ -97,7 +101,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
 
                     </div>
                     <div>
-                        <CommentsBox cotizationId={cotization.id} comments={cotization.comments} />
+                        <CommentsBox cotizationId={cotization.id} comments={cotization.comments} isEditable={isEditable} />
                     </div>                    
                     <div className="grid grid-cols-2 gap-2">
                         <p className="text-sm">Vendedor:</p>
@@ -146,7 +150,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
             </Card>
 
             <Card className="px-4">
-                <CotizationNotesBox initialNotes={cotization.cotizationNotes} cotizationId={cotization.id} />
+                <CotizationNotesBox initialNotes={cotization.cotizationNotes} cotizationId={cotization.id} isEditable={isEditable} />
             </Card>
 
             <div className="flex items-center justify-between pt-10">
@@ -181,7 +185,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                             </CardTitle>
                                             <p className="text-sm text-muted-foreground">{work.material.name} {work.color.name} ({formatCurrency(colorPrice, 0)})</p>
                                         </Link>
-                                        <WorkMenu workId={work.id} cotizationId={cotization.id} workName={work.workType.name} />
+                                        <WorkMenu workId={work.id} cotizationId={cotization.id} workName={work.workType.name} isEditable={isEditable} />
                                         {/* <OptionalColorsBoxDialog workId={work.id} />
                                         <WorkDialog id={work.id} cotizationId={work.cotizationId} />
                                         <DeleteWorkDialog id={work.id} description={`Seguro que quieres eliminar el trabajo ${work.workType.name}?`} /> */}
@@ -198,12 +202,16 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                             <div className="flex flex-col h-full">
                                 <CardContent className="flex gap-2 justify-between text-muted-foreground w-full h-10">
                                     <p className="font-bold">Notas</p>
-                                    <NoteDialog workId={work.id} />
+                                    {isEditable && <NoteDialog workId={work.id} />}
                                 </CardContent>
                                 <CardContent className="text-muted-foreground w-full">
                                 {
-                                    work.notes.length > 0 &&
+                                    work.notes.length > 0 && isEditable &&
                                     <DataTable columns={columns} data={work.notes} subject="Note"/>
+                                }
+                                {
+                                    work.notes.length > 0 && !isEditable &&
+                                    <DataTable columns={notEditableColumns} data={work.notes} subject="Note"/>
                                 }
                                 </CardContent>
                             </div>
