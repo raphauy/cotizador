@@ -101,7 +101,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
 
                     </div>
                     <div>
-                        <CommentsBox cotizationId={cotization.id} comments={cotization.comments} isEditable={isEditable} />
+                        <CommentsBox cotizationId={cotization.id} comments={cotization.comments} isEditable={true} />
                     </div>                    
                     <div className="grid grid-cols-2 gap-2">
                         <p className="text-sm">Vendedor:</p>
