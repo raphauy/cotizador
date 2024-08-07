@@ -356,6 +356,9 @@ export async function createVersion(cotizationId: string) {
           notes: true,
           optionalColors: true,
         },
+        orderBy: {
+          createdAt: 'asc'
+        },
       },
       cotizationsNotes: true,
     },
@@ -581,6 +584,9 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
           items: true,
           notes: true,
           optionalColors: true,
+        },
+        orderBy: {
+          createdAt: 'asc'
         },
       },
       cotizationsNotes: true,
