@@ -308,7 +308,13 @@ export default function AddItemsPage({ params }: Props) {
     }
 
     const status= work?.cotization.status
-    if (status !== CotizationStatus.BORRADOR) 
+    if (!status) {
+        return (
+            <div className="">
+                <Loader className="h-6 w-6 animate-spin" />
+            </div>
+        )
+    } else if (status !== CotizationStatus.BORRADOR) {
         return (
             <div className="">
                 <Button variant="link" onClick={() => router.back()} className="px-0">
@@ -320,6 +326,7 @@ export default function AddItemsPage({ params }: Props) {
                 </div>
             </div>
         )
+    }
 
     return (
         <div className="w-full mb-20">
