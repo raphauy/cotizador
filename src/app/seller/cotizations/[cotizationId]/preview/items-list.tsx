@@ -117,13 +117,13 @@ export function ItemsList({ work }: Props) {
             </div>
             <div className="flex flex-row justify-between w-full font-bold h-6">
                 <p>{work.material.name} {work.color.name}</p>
-                <div className="text-right">{formatCurrency(totalValue, 0)}</div>
+                <div className="text-right">{formatCurrency(totalValue, 0)} + IVA</div>
             </div>
             {
                 optionalColorsTotalResults.map((result, index) => (
                     <div key={index} className="flex flex-row items-center justify-between w-full font-bold h-6">
                         <p>{result.materialName} {result.colorName}</p>
-                        <p>{formatCurrency(result.totalValue, 0)}</p>
+                        <p>{formatCurrency(result.totalValue, 0)} + IVA</p>
                     </div>
                 ))
             }

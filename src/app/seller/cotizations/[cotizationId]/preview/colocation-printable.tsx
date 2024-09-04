@@ -34,7 +34,7 @@ export default function ColocationPrintable({ items }: Props) {
                     <p>{totalDescription} </p>
                 </div>       
                     
-                <p>{formatCurrency(Number(items[0].valor), 0)}</p>
+                <p>{formatCurrency(Number(items[0].valor), 0)} + IVA</p>
             </div>
         </div>
     )

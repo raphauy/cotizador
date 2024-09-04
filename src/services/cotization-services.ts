@@ -610,6 +610,8 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
       type: cotization.type,
       date: new Date(),
       obra: "poner nombre",
+      showTotalInPreview: cotization.showTotalInPreview,
+      showTaxesInPreview: cotization.showTaxesInPreview,
       clientId,
       creatorId: currentUser.id,
       sellerId: cotization.sellerId,

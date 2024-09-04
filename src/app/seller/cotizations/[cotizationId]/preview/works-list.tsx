@@ -45,8 +45,8 @@ export default function WorksList({works, showTotalInPreview, showTaxesInPreview
         {
             showTotalInPreview &&
             <div className="flex flex-col items-end text-black card pb-1 pr-5 text-lg font-bold">
-                {totalValue > 0 && <div className="border-gray-400">Total: {formatCurrency(totalValue, 0)}</div>} 
-                {showTaxesInPreview && <div>Total IVA inc.: {formatCurrency(ivaInc, 0)}</div>} 
+                {totalValue > 0 && <div className="border-gray-400">Total: {formatCurrency(totalValue, 0)} + IVA</div>} 
+                {showTaxesInPreview && <div>Total IVA inc: {formatCurrency(ivaInc, 0)}</div>} 
             </div>
         }            
 
