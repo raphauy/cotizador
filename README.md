@@ -1,4 +1,3 @@
 
 ## Cotizador App
 
-#### Preview
