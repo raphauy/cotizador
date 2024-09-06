@@ -390,7 +390,6 @@ export async function createVersion(cotizationId: string) {
   const newVersionNumber = versionsCount + 1
   const newLabel = `#${completeWithZeros(originalCotization.number)}-${newVersionNumber}`
 
-  // Crear la nueva cotización
   const newCotization = await prisma.cotization.create({
     data: {
       number: originalCotization.number,
