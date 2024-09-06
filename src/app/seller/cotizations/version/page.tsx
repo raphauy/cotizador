@@ -71,6 +71,7 @@ export default function VersionPage({ searchParams }: Props) {
   const wokrs= cotization.works
   return (
     <div className="w-full pt-16 flex justify-center">
+      .
       <Card className="w-full max-w-lg">
         <CardHeader>
           <CardTitle className="text-center">Crear versión basada en el presupuesto:</CardTitle>
