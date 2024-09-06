@@ -400,6 +400,8 @@ export async function createVersion(cotizationId: string) {
       type: cotization.type,
       date: new Date(),
       obra: cotization.obra,
+      showTotalInPreview: cotization.showTotalInPreview,
+      showTaxesInPreview: cotization.showTaxesInPreview,
       clientId: cotization.clientId,
       creatorId: cotization.creatorId,
       sellerId: cotization.sellerId,
