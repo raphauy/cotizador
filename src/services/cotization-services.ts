@@ -408,7 +408,6 @@ export async function createVersion(cotizationId: string) {
     },
   })
 
-  // Copiar los trabajos asociados junto con sus items
   for (const work of cotization.works) {
     const newWork = await prisma.work.create({
       data: {
