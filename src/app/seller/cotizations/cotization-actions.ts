@@ -6,6 +6,7 @@ import { CotizationStatus } from "@prisma/client"
 
 
 export async function getCotizationDAOAction(id: string): Promise<CotizationDAO | null> {
+    console.log("getCotizationDAOAction", id)    
     return getFullCotizationDAO(id)
 }
 
