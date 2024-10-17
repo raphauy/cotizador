@@ -207,6 +207,7 @@ export async function getCotizationsDAOForPanel(): Promise<CotizationForPanel[]>
   found.forEach(cotization => {
     res.push({
       id: cotization.id,
+      number: cotization.number.toString(),
       status: cotization.status,
       date: cotization.date,
       label: cotization.label,

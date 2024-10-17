@@ -25,7 +25,8 @@ export const columns: ColumnDef<CotizationForPanel>[] = [
       )
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+      const valueStr= row.getValue(id) as string
+      return valueStr.includes(value as string)
     },
   },
 

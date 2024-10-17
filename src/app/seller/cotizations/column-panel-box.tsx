@@ -10,6 +10,7 @@ import { ClientType } from "@prisma/client"
 
 export type CotizationForPanel= {
     id: string
+    number: string
     status: string
     date: Date
     label: string

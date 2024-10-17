@@ -35,7 +35,8 @@ export const columns: ColumnDef<CotizationDAO>[] = [
       )
     },
     filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id))
+      const valueStr= String(row.getValue(id))
+      return valueStr.includes(value as string)
     },
   },
 
