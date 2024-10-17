@@ -1,13 +1,11 @@
 import { prisma } from "@/lib/db"
-import { ClientType, ItemType } from "@prisma/client"
 import * as z from "zod"
-import { ColorDAO, getColorsDAO } from "./color-services"
+import { ColorDAO } from "./color-services"
 import { CotizationDAO } from "./cotization-services"
-import { ItemDAO, ManoDeObraItemFormValues, calculateManoDeObraValue, recalculateAreaValues } from "./item-services"
+import { ItemDAO, recalculateAreaValues } from "./item-services"
 import { MaterialDAO } from "./material-services"
 import { NoteDAO } from "./note-services"
 import { WorkTypeDAO, getWorkTypeDAO } from "./worktype-services"
-import { ManoDeObraDAO } from "./manodeobra-services"
 
 export type WorkDAO = {
 	id: string

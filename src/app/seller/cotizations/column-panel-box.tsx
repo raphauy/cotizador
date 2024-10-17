@@ -6,9 +6,21 @@ import { CotizationDAO } from "@/services/cotization-services"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import { getPostStatusColor } from "./[cotizationId]/status-selector"
+import { ClientType } from "@prisma/client"
+
+export type CotizationForPanel= {
+    id: string
+    status: string
+    date: Date
+    label: string
+    clientName: string
+    clientType: ClientType
+    sellerName: string
+    workCount: number
+}
 
 type Props = {
-  cotization: CotizationDAO
+  cotization: CotizationForPanel
 }
 export default function ColumnPanelBox({ cotization }: Props) {
     const params= useParams()
@@ -28,12 +40,12 @@ export default function ColumnPanelBox({ cotization }: Props) {
                     <p className="text-xs">{formatWhatsAppStyle(cotization.date)}</p>
                 </div>
                 <div className="flex items-center justify-end gap-1">
-                    <p className="font-bold text-right">{cotization.client.name}</p> 
+                    <p className="font-bold text-right">{cotization.clientName}</p> 
                     <div 
                         className={cn("w-5 h-5 p-2 text-sm font-bold border rounded-full text-white flex items-center justify-center")}
                         style={{ backgroundColor: darkColor }}
                     >
-                        {cotization.works.length}
+                        {cotization.workCount}
                     </div>
                 </div>
             </div>

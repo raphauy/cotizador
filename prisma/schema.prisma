@@ -190,6 +190,11 @@ model Item {
 
   colocacion        Colocacion? @relation(fields: [colocacionId], references: [id], onDelete: NoAction)
   colocacionId      String?
+
+  @@index([workId])
+  @@index([terminacionId])
+  @@index([manoDeObraId])
+  @@index([colocacionId])
 }
 
 model Color {
@@ -240,6 +245,11 @@ model Work {
 
   items             Item[]                                   // genext: skip.list
   notes             Note[]                                   // genext: skip.list
+
+  @@index([workTypeId])
+  @@index([materialId])
+  @@index([colorId])
+  @@index([cotizationId])
 }
 
 model Terminacion {

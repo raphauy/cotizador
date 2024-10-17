@@ -5,6 +5,7 @@ import { ClientType, CotizationStatus, CotizationType } from "@prisma/client"
 import { ClientDAO } from "./client-services"
 import { CotizationNoteDAO, copyOriginalNotes } from "./cotizationnote-services"
 import { WorkDAO } from "./work-services"
+import { CotizationForPanel } from "@/app/seller/cotizations/column-panel-box"
 
 export type CotizationDAO = {
 	id: string
@@ -175,7 +176,49 @@ export async function getFullCotizationsDAO() {
   })
   return res
 }
-  
+
+export async function getCotizationsDAOForPanel(): Promise<CotizationForPanel[]> {
+  const found = await prisma.cotization.findMany({
+    orderBy: {
+      createdAt: 'desc'
+    },
+    include: {
+      client: {
+        select: {
+          id: true,
+          name: true,
+          type: true,
+        }
+      },
+      seller: {
+        select: {
+          id: true,
+          name: true,          
+        }
+      },
+      works: {
+        select: {
+          id: true,
+        }
+      }
+		},
+  })
+  const res: CotizationForPanel[]= []
+  found.forEach(cotization => {
+    res.push({
+      id: cotization.id,
+      status: cotization.status,
+      date: cotization.date,
+      label: cotization.label,
+      clientName: cotization.client?.name,
+      clientType: cotization.client?.type,
+      sellerName: cotization.seller.name,
+      workCount: cotization.works.length,
+    })
+  })
+  return res
+}
+
 export async function getFullCotizationDAO(id: string): Promise<CotizationDAO | null> {
   const found = await prisma.cotization.findUnique({
     where: {

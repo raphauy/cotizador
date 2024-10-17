@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button"
 import { CotizationDAO } from "@/services/cotization-services"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown } from "lucide-react"
-import ColumnPanelBox from "./column-panel-box"
+import ColumnPanelBox, { CotizationForPanel } from "./column-panel-box"
 
 
-export const columns: ColumnDef<CotizationDAO>[] = [
+export const columns: ColumnDef<CotizationForPanel>[] = [
   
   {
     accessorKey: "number",
