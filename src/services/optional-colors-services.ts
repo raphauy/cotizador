@@ -147,7 +147,7 @@ async function calculateTerminationValues(work: WorkDAO): Promise<number> {
   for (let i = 0; i < items.length; i++) {
     const termination= items[i].terminacion
     let valorLineal= 0
-    let valorAjuste= items[i].ajuste ? Number(items[i].ajuste) : 0
+    let valorAjuste= items[i].ajuste ? Number(items[i].ajuste) * items[i].quantity : 0
   
     // calular valor lineal en función de la terminación y los centímetros
     const metros= items[i].centimetros ? Number(items[i].centimetros) / 100 : 0
