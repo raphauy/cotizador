@@ -1,19 +1,19 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { CotizationDAO } from "@/services/cotization-services"
-import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, ClipboardPen, Pencil } from "lucide-react"
-import { DeleteCotizationDialog } from "./cotization-dialogs"
-import Link from "next/link"
-import { completeWithZeros, formatWhatsAppStyle, getCotizationTypeLabel } from "@/lib/utils"
-import { StatusSelector } from "./[cotizationId]/status-selector"
-import { DateRange } from "./cotization-table"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { formatWhatsAppStyle, getCotizationTypeLabel } from "@/lib/utils"
+import { CotizationDAOForTable } from "@/services/cotization-services"
 import { CotizationStatus } from "@prisma/client"
+import { ColumnDef } from "@tanstack/react-table"
+import { ArrowUpDown, ClipboardPen } from "lucide-react"
+import Link from "next/link"
+import { StatusSelector } from "./[cotizationId]/status-selector"
+import { DeleteCotizationDialog } from "./cotization-dialogs"
+import { DateRange } from "./cotization-table"
 
 
-export const columns: ColumnDef<CotizationDAO>[] = [
+export const columns: ColumnDef<CotizationDAOForTable>[] = [
   
   {
     accessorKey: "number",

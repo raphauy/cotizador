@@ -34,6 +34,30 @@ export type CotizationDAO = {
   originalCotizationId: string | null
 }
 
+export type CotizationDAOForTable = {
+	id: string
+	number: number
+  version: number
+  label: string
+	status: CotizationStatus
+	type: CotizationType
+  date: Date
+	obra: string | null
+  comments: string
+  showTotalInPreview: boolean
+  showTaxesInPreview: boolean
+	createdAt: Date
+	updatedAt: Date
+	clientId: string
+  clientName: string
+  clientType: ClientType
+  client: ClientDAO
+	creatorId: string
+  creatorName: string
+  sellerId: string
+  sellerName: string
+  originalCotizationId: string | null
+}
 export const cotizationSchema = z.object({
 	type: z.nativeEnum(CotizationType),
   date: z.date(),
@@ -148,7 +172,7 @@ export async function deleteCotization(id: string) {
 }
 
 
-export async function getFullCotizationsDAO(from: Date | null, to: Date | null) {
+export async function getFullCotizationsDAO(from: Date | null, to: Date | null): Promise<CotizationDAOForTable[]> {
   const found = await prisma.cotization.findMany({
     where: {
       createdAt: {
@@ -163,11 +187,9 @@ export async function getFullCotizationsDAO(from: Date | null, to: Date | null) 
       client: true,
       creator: true,
       seller: true,
-      works: true,
-      cotizationsNotes: true,
 		}
   })
-  const res: CotizationDAO[]= []
+  const res: CotizationDAOForTable[]= []
   found.forEach(cotization => {
     res.push({
       ...cotization,
@@ -176,8 +198,6 @@ export async function getFullCotizationsDAO(from: Date | null, to: Date | null) 
       clientType: cotization.client?.type,
       creatorName: cotization.creator?.name,
       sellerName: cotization.seller.name,
-      works: cotization.works as WorkDAO[],
-      cotizationNotes: cotization.cotizationsNotes
     })
   })
   return res
