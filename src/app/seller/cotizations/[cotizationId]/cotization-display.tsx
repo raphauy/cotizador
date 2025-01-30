@@ -211,7 +211,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                 }
                                 {
                                     work.notes.length > 0 && !isEditable &&
-                                    <DataTable columns={notEditableColumns} data={work.notes} subject="Note"/>
+                                    <DataTable columns={notEditableColumns} data={work.notes} subject="Notas"/>
                                 }
                                 </CardContent>
                             </div>

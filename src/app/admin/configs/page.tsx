@@ -32,7 +32,7 @@ export default async function ConfigsPage() {
       </div>      
 
       <div className="container p-3 py-4 mx-auto border rounded-md text-muted-foreground dark:text-white bg-white dark:bg-gray-800">
-        <DataTable columns={columns} data={data} subject="Config" />
+        <DataTable columns={columns} data={data} subject="Configs" />
       </div>
 
     </div>

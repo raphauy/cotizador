@@ -148,8 +148,14 @@ export async function deleteCotization(id: string) {
 }
 
 
-export async function getFullCotizationsDAO() {
+export async function getFullCotizationsDAO(from: Date | null, to: Date | null) {
   const found = await prisma.cotization.findMany({
+    where: {
+      createdAt: {
+        gte: from ? from : undefined,
+        lte: to ? to : undefined,
+      },
+    },
     orderBy: {
       createdAt: 'desc'
     },

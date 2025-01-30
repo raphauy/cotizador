@@ -24,7 +24,7 @@ export default async function UsersPage() {
             </div>
 
             <div className="container bg-white p-3 py-4 mx-auto border rounded-md text-muted-foreground dark:text-white">
-              <MaterialTable columns={materialColumns} data={dataMaterials} subject="Material"/>      
+              <MaterialTable columns={materialColumns} data={dataMaterials} subject="Materiales"/>      
             </div>
           </div>
 
@@ -35,7 +35,7 @@ export default async function UsersPage() {
             </div>
 
             <div className="container bg-white p-3 py-4 mx-auto border rounded-md text-muted-foreground dark:text-white">
-              <ColorTable columns={colorColumns} data={dataColors} subject="Color" materialNames={materialNames}/>
+              <ColorTable columns={colorColumns} data={dataColors} subject="Colores" materialNames={materialNames}/>
             </div>
           </div>
 

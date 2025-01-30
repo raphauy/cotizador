@@ -33,7 +33,7 @@ export default async function AdminLayout({ children, params }: Props) {
           <div className="text-muted-foreground w-full">
           {
               data.length > 0 && 
-              <DataTable columns={columns} data={data} subject="Note"/>
+              <DataTable columns={columns} data={data} subject="Notas"/>
           }
           </div>
         </div>

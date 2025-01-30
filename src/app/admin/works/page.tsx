@@ -11,7 +11,7 @@ export default async function UsersPage() {
     <div className="w-full">      
 
       <div className="container bg-white p-3 py-4 mx-auto border rounded-md text-muted-foreground dark:text-white">
-        <DataTable columns={columns} data={data} subject="Work"/>      
+        <DataTable columns={columns} data={data} subject="Trabajos"/>      
       </div>
     </div>
   )

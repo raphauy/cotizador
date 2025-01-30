@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: Props) {
 
   return (
     <div className="flex w-full gap-2 mt-3 h-full">
-      <DataTable columns={columns} data={data} subject="Cotization" sellerNames={sellerNames} clientNames={clientNames}/>
+      <DataTable columns={columns} data={data} subject="Presupuestos" sellerNames={sellerNames} clientNames={clientNames}/>
       <TooltipProvider delayDuration={0}>
         {children}
       </TooltipProvider>

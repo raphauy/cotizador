@@ -15,7 +15,7 @@ export default async function ColocacionPage() {
       </div>
 
       <div className="container bg-white p-3 py-4 mx-auto border rounded-md text-muted-foreground dark:text-white">
-        <DataTable columns={columns} data={data} subject="Colocacion"/>      
+        <DataTable columns={columns} data={data} subject="Colocaciones"/>      
       </div>
     </div>
   )

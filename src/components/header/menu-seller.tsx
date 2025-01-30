@@ -32,7 +32,7 @@ export default function MenuSeller() {
             roles: alowedRoles
         },
         {
-            href: `/seller/cotizations`,
+            href: `/seller/cotizations?last=30D`,
             icon: FileBarChart, 
             text: "Presupuestos",
             roles: alowedRoles

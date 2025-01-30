@@ -15,7 +15,7 @@ export default async function ManoDeObraPage() {
       </div>
 
       <div className="container bg-white p-3 py-4 mx-auto border rounded-md text-muted-foreground dark:text-white">
-        <DataTable columns={columns} data={data} subject="ManoDeObra"/>      
+        <DataTable columns={columns} data={data} subject="ManoDeObras"/>      
       </div>
     </div>
   )
