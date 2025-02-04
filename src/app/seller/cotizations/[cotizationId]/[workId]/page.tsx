@@ -111,6 +111,7 @@ export default function AddItemsPage({ params }: Props) {
     const totalAjustesWithData= ajustesWithData.length
 
     const [loading, setLoading] = useState(false)    
+    const [isColocacionLoading, setIsColocacionLoading] = useState(false)
 
     const router = useRouter()
 
@@ -136,24 +137,27 @@ export default function AddItemsPage({ params }: Props) {
         getWorkDAOAction(workId)
         .then((workDao) => {
             if (workDao) {
-                // @ts-ignore
                 setWork(workDao)
-                const colocaciones= workDao.items.filter((item) => item.type === ItemType.COLOCACION)
-                if (colocaciones.length > 0) {
-                    const item= colocaciones[0]
-                    setColocacion({
-                        id: item.id,
-                        valor: item.valor ? item.valor : 0,
-                        description: item.description,
-                        colocacionId: item.colocacionId
-                    })
+                if (!isColocacionLoading) {
+                    const colocaciones = workDao.items.filter((item) => item.type === ItemType.COLOCACION)
+                    if (colocaciones.length > 0) {
+                        const item = colocaciones[0]
+                        setColocacion({
+                            id: item.id,
+                            valor: item.valor ? item.valor : 0,
+                            description: item.description,
+                            colocacionId: item.colocacionId
+                        })
+                    } else {
+                        setColocacion(undefined)
+                    }
                 }
             }
         })
         .catch((error) => {
             toast({title: "Error", description: error.message, variant: "destructive"})
         })
-    }, [workId, saveCount])
+    }, [workId, saveCount, isColocacionLoading])
 
     useEffect(() => {
         if (!work || !inputDataConfig) return
@@ -195,54 +199,35 @@ export default function AddItemsPage({ params }: Props) {
           
         setLoading(true)
 
-        let areaSaved= false
-        let terminacionesSaved= false
-        let manoDeObrasSaved= false
-        let ajustesSaved= false
-
         const allItems= [...tramos, ...zocalos, ...alzadas]
-
         const areaItemsWithData= allItems.filter((itemArea) => itemArea.length && itemArea.width && itemArea.length > 0 && itemArea.width > 0)
-        upsertBatchAreaItemAction(workId, areaItemsWithData)
-        .then((items) => {if (items) areaSaved= true})
-        .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
-
         const terminacionesWithData= terminaciones.filter((item) => item.terminationId && (item.centimeters || item.length))  
-        upsertBatchTerminationItemAction(workId, terminacionesWithData)
-        .then((items) => {if (items) terminacionesSaved= true})
-        .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
-
-        const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId && (item.quantity || 0) > 0)
-        upsertBatchManoDeObraItemAction(workId, manoDeObrasWithData)
-        .then((items) => {if (items) manoDeObrasSaved= true})
-        .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
-
+        const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId && ((item.quantity || 0) > 0))
         const ajustesWithData= ajustes.filter((item) => item.valor)  
-        upsertBatchAjusteItemAction(workId, ajustesWithData)
-        .then((items) => {if (items) ajustesSaved= true})
-        .catch((error) => {toast({title: "Error", description: error.message, variant: "destructive"})})
 
-        if (colocacion && colocacion.colocacionId) {
-            updateColocacion(colocacion.colocacionId)
+        try {
+            const [areaSaved, terminacionesSaved, manoDeObrasSaved, ajustesSaved] = await Promise.all([
+                upsertBatchAreaItemAction(workId, areaItemsWithData),
+                upsertBatchTerminationItemAction(workId, terminacionesWithData),
+                upsertBatchManoDeObraItemAction(workId, manoDeObrasWithData),
+                upsertBatchAjusteItemAction(workId, ajustesWithData)
+            ])
+
+            if (!areaSaved || !terminacionesSaved || !manoDeObrasSaved || !ajustesSaved) {
+                throw new Error("No se pudo guardar todos los items")
+            }
+
+            if (colocacion && colocacion.colocacionId) {
+                updateColocacion(colocacion.colocacionId)
+            }
+
+            toast({title: "Guardado", description: "Todos los items guardados."})
+        } catch (error: any) {
+            toast({title: "Error", description: error.message, variant: "destructive"})
+        } finally {
+            setLoading(false)
+            setSaveCount(saveCount + 1)
         }
-
-        const maxTimeToWait= 20000
-        let timeWaiting= 0
-        while (timeWaiting < maxTimeToWait) {
-            if (areaSaved && terminacionesSaved && manoDeObrasSaved && ajustesSaved) 
-                break
-            // if (timeToWait > maxTimeToWait) 
-            //     break
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-            timeWaiting+= 1000
-        }
-        setLoading(false)
-        if (timeWaiting >= maxTimeToWait) 
-            toast({title: "Error", description: "No se pudo guardar todos los items", variant: "destructive"})
-        else
-            toast({title: "Guardado", description: "Todos los items guardados"})
-
-        setSaveCount(saveCount + 1)
     }
 
     async function saveAndBack() {
@@ -253,6 +238,7 @@ export default function AddItemsPage({ params }: Props) {
     function updateColocacion(colocacionId: string) {
         if (!colocacionId) return
 
+        setIsColocacionLoading(true)
         updateColocacionAction(workId, colocacionId)
         .then((colocacionResponse) => {
             if (colocacionResponse) {
@@ -267,6 +253,9 @@ export default function AddItemsPage({ params }: Props) {
         .catch((error) => {
             toast({title: "Error", description: error.message, variant: "destructive"})
         })
+        .finally(() => {
+            setIsColocacionLoading(false)
+        })
     }
 
     function notifyColocationSelected(itemId: string | undefined, colocacionSelected: ColocacionDAO | undefined) {
@@ -274,36 +263,68 @@ export default function AddItemsPage({ params }: Props) {
         if (colocacion) {
             setColocacion({
                 ...colocacion,
-                colocacionId: colocacionSelected?.id ? colocacionSelected?.id : undefined
+                colocacionId: colocacionSelected?.id ? colocacionSelected.id : undefined
             })
             if (colocacionSelected) {
-                updateColocacion(colocacionSelected?.id)
+                updateColocacion(colocacionSelected.id)
             }
-            
         }
     }
 
-
-    async function toggleColocacion() {
-        const enabled= colocacion !== undefined
-        if (enabled) {
-            deleteColocacionAction(colocacion.id)
-            .then((colocacion) => {
-                if (colocacion) {
-                    setColocacion(undefined)
-                    toast({title: "Colocación eliminada" })
+    async function toggleColocacion(checked?: boolean) {
+        if (colocacion) {
+            // Caso: se está desactivando la colocación
+            const previousColocacion = colocacion;
+            // Actualización optimista: removemos la colocación de inmediato
+            setColocacion(undefined);
+            setIsColocacionLoading(true);
+            try {
+                const resp = await deleteColocacionAction(previousColocacion.id);
+                if (!resp) {
+                    // Si falla, revertir el cambio
+                    setColocacion(previousColocacion);
+                    toast({ title: "Error al eliminar colocación", variant: "destructive" });
+                } else {
+                    toast({ title: "Colocación eliminada" });
                 }
-            })
-            .catch((error) => {
-                toast({title: "Error", description: error.message, variant: "destructive"})
-            })
-        } else {
-            const firstId= colocaciones[0].id
-            if (firstId) {
-                await handleSave()
-                updateColocacion(firstId)
+            } catch (error: any) {
+                setColocacion(previousColocacion);
+                toast({ title: "Error", description: error.message, variant: "destructive" });
+            } finally {
+                setIsColocacionLoading(false);
             }
-            
+        } else {
+            // Caso: se está activando la colocación
+            const firstId = colocaciones[0]?.id;
+            if (firstId) {
+                // Actualización optimista: asignamos un valor temporal para que el switch se active de inmediato
+                setColocacion({ id: "pending", valor: 0, description: "", colocacionId: firstId });
+                setIsColocacionLoading(true);
+                // Disparamos handleSave sin esperar su finalización para mejorar la respuesta visual
+                handleSave().catch((err) => {
+                    toast({ title: "Error al guardar items", description: err.message, variant: "destructive" });
+                });
+                try {
+                    const colocacionResponse = await updateColocacionAction(workId, firstId);
+                    if (colocacionResponse) {
+                        setColocacion({
+                            id: colocacionResponse.id,
+                            valor: colocacionResponse.valor ? colocacionResponse.valor : 0,
+                            description: colocacionResponse.description,
+                            colocacionId: colocacionResponse.colocacionId ? colocacionResponse.colocacionId : undefined
+                        });
+                        toast({ title: "Colocación actualizada" });
+                    } else {
+                        setColocacion(undefined);
+                        toast({ title: "Error", description: "No se pudo actualizar la colocación", variant: "destructive" });
+                    }
+                } catch (error: any) {
+                    setColocacion(undefined);
+                    toast({ title: "Error", description: error.message, variant: "destructive" });
+                } finally {
+                    setIsColocacionLoading(false);
+                }
+            }
         }
     }
 
@@ -377,14 +398,23 @@ export default function AddItemsPage({ params }: Props) {
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Colocación</p>
                 <div className="space-y-4 bg-white rounded-lg dark:bg-gray-800 p-4 border">
                     <div className="flex items-center gap-4">
-                        <Switch onCheckedChange={toggleColocacion} checked={colocacion !== undefined} />
+                        <Switch disabled={isColocacionLoading} onCheckedChange={(checked, ...rest) => toggleColocacion(checked)} checked={colocacion !== undefined} />
                         {
                             colocacion && colocaciones[0] && 
-                                <ColocationForm itemId={colocacion.id} defaultColocacionId={colocacion.colocacionId ? colocacion.colocacionId : colocaciones[0].id} notifyColocationSelected={notifyColocationSelected} colocaciones={colocaciones} />
+                                <ColocationForm 
+                                  itemId={colocacion.id} 
+                                  defaultColocacionId={colocacion.colocacionId ? colocacion.colocacionId : colocaciones[0].id} 
+                                  notifyColocationSelected={notifyColocationSelected} 
+                                  colocaciones={colocaciones} 
+                                  disabled={isColocacionLoading}
+                                />
                         }
-                        {
-                            loading && <Loader className="h-4 w-4 animate-spin" />
-                        }
+                        {isColocacionLoading && (
+                            <div className="flex items-center gap-2">
+                                <Loader className="h-4 w-4 animate-spin" />
+                                <p>Calculando colocación...</p>
+                            </div>
+                        )}
                     </div>
                     <p className="whitespace-pre-line">{colocacion?.description}</p>
                     <p>{colocacion?.valor ? formatCurrency(colocacion?.valor) : ""}</p>
@@ -396,16 +426,16 @@ export default function AddItemsPage({ params }: Props) {
                     <div onClick={() => router.back()} className={cn("w-40 cursor-pointer", buttonVariants({ variant: "outline" }))}>
                         Volver
                     </div>
-                    <Button onClick={handleSave} className="w-40">
+                    <Button onClick={handleSave} className="w-40" disabled={loading || isColocacionLoading}>
                         {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar y seguir</p>}
                     </Button>
-                    <Button onClick={saveAndBack} className="w-40">
+                    <Button onClick={saveAndBack} className="w-40" disabled={loading || isColocacionLoading}>
                         {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar y volver</p>}
                     </Button>                    
                 </div>
+            </div>
         </div>
-       </div>
-   )
+    )
 }
 
 function getAreaItems(items: ItemDAO[], type: ItemType, cantidadIniciales: number = 1) {

@@ -195,6 +195,8 @@ model Item {
   @@index([terminacionId])
   @@index([manoDeObraId])
   @@index([colocacionId])
+  @@index([workId, type])
+  @@index([workId, type, valor])
 }
 
 model Color {

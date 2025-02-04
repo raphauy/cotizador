@@ -20,8 +20,9 @@ type Props= {
     defaultColocacionId?: string | undefined
     notifyColocationSelected: (itemId: string | undefined, colocacion: ColocacionDAO | undefined) => void
     colocaciones: ColocacionDAO[]
+    disabled: boolean
 }
-export default function ColocationForm({ itemId, defaultColocacionId, notifyColocationSelected, colocaciones }: Props) {
+export default function ColocationForm({ itemId, defaultColocacionId, notifyColocationSelected, colocaciones, disabled }: Props) {
 
     const form = useForm<FormValues>({
         resolver: zodResolver(schema),
@@ -69,8 +70,7 @@ export default function ColocationForm({ itemId, defaultColocacionId, notifyColo
                     name="colocacionId"
                     render={({ field }) => (
                     <FormItem>
-                        <Select onValueChange={(value) => field.onChange(value)} value={field.value}
-                        >
+                        <Select onValueChange={(value) => field.onChange(value)} value={field.value} disabled={disabled}>
                         <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Seleccione aquí" />
