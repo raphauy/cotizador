@@ -8,14 +8,14 @@ export default function Cabezal() {
         <div className="h-2 bg-verde-abbate mb-4"/>
 
         <div className="mx-auto flex justify-between items-center">
-            <div className="flex items-center w-72 min-h-[60px] pt-4">
+            <div className="flex items-center w-72 pt-4">
                 <Image 
                   src="/logo4.jpeg" 
-                  width={280} 
-                  height={60} 
+                  width={288}
+                  height={64}
                   alt="logo"
                   priority
-                  style={{ height: 'auto' }}
+                  className="object-contain"
                 />
             </div>
             <div className="flex space-x-4 text-[10px]">
