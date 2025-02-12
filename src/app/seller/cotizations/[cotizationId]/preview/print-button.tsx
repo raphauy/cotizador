@@ -30,9 +30,13 @@ const PrintButton2 = ({ cotization }: RequestEvaluationDocumentButtonProps) => {
 
       // Function to capture and add image to PDF with compression
       const addImageToPDF = async (element: HTMLElement) => {
-        const canvas = await html2canvas(element, { scale: 2 });
-//        const imgData = canvas.toDataURL('image/jpeg', 0.7); // Compressed JPEG format
-        const imgData = canvas.toDataURL('image/jpeg')
+        const canvas = await html2canvas(element, { 
+          scale: window.devicePixelRatio * 2,
+          logging: false,
+          useCORS: true,
+          allowTaint: true
+        });
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
         const imgWidth = pageWidth - paddingX * 2;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
