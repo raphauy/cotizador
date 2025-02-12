@@ -1,7 +1,5 @@
 import { getFullCotizationDAO } from "@/services/cotization-services"
 import PrintButton2 from "./print-button"
-import { Button } from "@/components/ui/button"
-import { ChevronLeft } from "lucide-react"
 
 type Props= {
   params: {

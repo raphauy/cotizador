@@ -27,7 +27,7 @@ export const columns: ColumnDef<CotizationDAOForTable>[] = [
     )},
     cell: ({ row }) => {
       return (
-        <Link href={`/seller/cotizations/${row.original.id}`}>
+        <Link href={`/seller/cotizations/${row.original.id}`} target="_blank">
             <Button variant="link" className="pl-0 dark:text-white">
               {row.original.label}
             </Button>
