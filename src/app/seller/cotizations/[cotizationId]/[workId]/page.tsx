@@ -13,7 +13,7 @@ import { ColocacionDAO } from "@/services/colocacion-services"
 import { ItemDAO } from "@/services/item-services"
 import { WorkDAO } from "@/services/work-services"
 import { CotizationStatus, ItemType } from "@prisma/client"
-import { AlertCircle, ChevronLeft, Loader, TriangleAlert } from "lucide-react"
+import { AlertCircle, ChevronLeft, Loader, RefreshCcw, TriangleAlert } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import AjustesBox from "./ajuste-box"
@@ -275,16 +275,16 @@ export default function AddItemsPage({ params }: Props) {
         if (colocacion) {
             // Caso: se está desactivando la colocación
             const previousColocacion = colocacion;
-            // Actualización optimista: removemos la colocación de inmediato
-            setColocacion(undefined);
             setIsColocacionLoading(true);
             try {
+                await handleSave()
                 const resp = await deleteColocacionAction(previousColocacion.id);
                 if (!resp) {
                     // Si falla, revertir el cambio
                     setColocacion(previousColocacion);
                     toast({ title: "Error al eliminar colocación", variant: "destructive" });
                 } else {
+                    setColocacion(undefined);
                     toast({ title: "Colocación eliminada" });
                 }
             } catch (error: any) {
@@ -295,35 +295,35 @@ export default function AddItemsPage({ params }: Props) {
             }
         } else {
             // Caso: se está activando la colocación
-            const firstId = colocaciones[0]?.id;
-            if (firstId) {
-                // Actualización optimista: asignamos un valor temporal para que el switch se active de inmediato
-                setColocacion({ id: "pending", valor: 0, description: "", colocacionId: firstId });
-                setIsColocacionLoading(true);
-                // Disparamos handleSave sin esperar su finalización para mejorar la respuesta visual
-                handleSave().catch((err) => {
-                    toast({ title: "Error al guardar items", description: err.message, variant: "destructive" });
-                });
-                try {
-                    const colocacionResponse = await updateColocacionAction(workId, firstId);
-                    if (colocacionResponse) {
-                        setColocacion({
-                            id: colocacionResponse.id,
-                            valor: colocacionResponse.valor ? colocacionResponse.valor : 0,
-                            description: colocacionResponse.description,
-                            colocacionId: colocacionResponse.colocacionId ? colocacionResponse.colocacionId : undefined
-                        });
-                        toast({ title: "Colocación actualizada" });
-                    } else {
-                        setColocacion(undefined);
-                        toast({ title: "Error", description: "No se pudo actualizar la colocación", variant: "destructive" });
-                    }
-                } catch (error: any) {
+            recalculateColocation()
+        }
+    }
+
+    async function recalculateColocation() {
+        const firstId = colocaciones[0]?.id;
+        if (firstId) {
+            setIsColocacionLoading(true);
+
+            await handleSave()
+            try {
+                const colocacionResponse = await updateColocacionAction(workId, firstId);
+                if (colocacionResponse) {
+                    setColocacion({
+                        id: colocacionResponse.id,
+                        valor: colocacionResponse.valor ? colocacionResponse.valor : 0,
+                        description: colocacionResponse.description,
+                        colocacionId: colocacionResponse.colocacionId ? colocacionResponse.colocacionId : undefined
+                    });
+                    toast({ title: "Colocación actualizada" });
+                } else {
                     setColocacion(undefined);
-                    toast({ title: "Error", description: error.message, variant: "destructive" });
-                } finally {
-                    setIsColocacionLoading(false);
+                    toast({ title: "Error", description: "No se pudo recalcular la colocación", variant: "destructive" });
                 }
+            } catch (error: any) {
+                setColocacion(undefined);
+                toast({ title: "Error", description: error.message, variant: "destructive" });
+            } finally {
+                setIsColocacionLoading(false);
             }
         }
     }
@@ -398,7 +398,7 @@ export default function AddItemsPage({ params }: Props) {
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Colocación</p>
                 <div className="space-y-4 bg-white rounded-lg dark:bg-gray-800 p-4 border">
                     <div className="flex items-center gap-4">
-                        <Switch disabled={isColocacionLoading} onCheckedChange={(checked, ...rest) => toggleColocacion(checked)} checked={colocacion !== undefined} />
+                        <Switch disabled={isColocacionLoading || loading} onCheckedChange={(checked, ...rest) => toggleColocacion(checked)} checked={colocacion !== undefined} />
                         {
                             colocacion && colocaciones[0] && 
                                 <ColocationForm 
@@ -409,10 +409,15 @@ export default function AddItemsPage({ params }: Props) {
                                   disabled={isColocacionLoading}
                                 />
                         }
-                        {isColocacionLoading && (
+                        { colocacion && 
+                            <Button onClick={recalculateColocation} disabled={isColocacionLoading || loading}>
+                                <RefreshCcw className="w-4 h-4 mr-2" /> Recalcular
+                            </Button>
+                        }
+                        {(isColocacionLoading || (loading && colocacion)) && (
                             <div className="flex items-center gap-2">
                                 <Loader className="h-4 w-4 animate-spin" />
-                                <p>Calculando colocación...</p>
+                                <p>Guardando y calculando colocación...</p>
                             </div>
                         )}
                     </div>
@@ -423,9 +428,9 @@ export default function AddItemsPage({ params }: Props) {
 
             <div className="mt-10">
                 <div className="flex justify-end gap-4">
-                    <div onClick={() => router.back()} className={cn("w-40 cursor-pointer", buttonVariants({ variant: "outline" }))}>
+                    <Button onClick={() => router.back()} className="w-40" variant="outline" disabled={loading || isColocacionLoading}>
                         Volver
-                    </div>
+                    </Button>
                     <Button onClick={handleSave} className="w-40" disabled={loading || isColocacionLoading}>
                         {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>Guardar y seguir</p>}
                     </Button>
