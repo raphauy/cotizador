@@ -6,6 +6,7 @@ import { ClientDAO } from "./client-services"
 import { CotizationNoteDAO, copyOriginalNotes } from "./cotizationnote-services"
 import { WorkDAO } from "./work-services"
 import { CotizationForPanel } from "@/app/seller/cotizations/column-panel-box"
+import { recalculateAreaValues } from "./item-services"
 
 export type CotizationDAO = {
 	id: string
@@ -660,6 +661,7 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
         },
       },
       cotizationsNotes: true,
+      client: true,
     },
   })
 
@@ -761,6 +763,26 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
 
   const label= "#" + completeWithZeros(newCotization.number)
   await prisma.cotization.update({where: {id: newCotization.id},data: {label}})
+
+  // Verificar si los tipos de cliente son diferentes y recalcular si es necesario
+  const newClient = await prisma.client.findUnique({ where: { id: clientId } })
+  if (!newClient) {
+    throw new Error("No se encontró el nuevo cliente")
+  }
+
+  if (cotization.client.type !== newClient.type) {
+    // Los tipos de cliente son diferentes, hay que recalcular los valores
+    const newCotizationWithWorks = await prisma.cotization.findUnique({
+      where: { id: newCotization.id },
+      include: { works: true }
+    })
+
+    if (newCotizationWithWorks && newCotizationWithWorks.works.length > 0) {
+      for (const work of newCotizationWithWorks.works) {
+        await recalculateAreaValues(work.id)
+      }
+    }
+  }
 
   return newCotization
 }
