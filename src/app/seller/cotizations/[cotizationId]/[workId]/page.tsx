@@ -300,13 +300,13 @@ export default function AddItemsPage({ params }: Props) {
     }
 
     async function recalculateColocation() {
-        const firstId = colocaciones[0]?.id;
-        if (firstId) {
+        const colocacionId = colocacion?.colocacionId || colocaciones[0]?.id;
+        if (colocacionId) {
             setIsColocacionLoading(true);
 
             await handleSave()
             try {
-                const colocacionResponse = await updateColocacionAction(workId, firstId);
+                const colocacionResponse = await updateColocacionAction(workId, colocacionId);
                 if (colocacionResponse) {
                     setColocacion({
                         id: colocacionResponse.id,
