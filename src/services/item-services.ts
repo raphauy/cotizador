@@ -657,6 +657,21 @@ export async function recalculateAreaValues(workId: string): Promise<number> {
     totalValue+= subtotal
   }
 
+  const manoDeObraItems= items.filter((item) => item.type === ItemType.MANO_DE_OBRA)
+  console.log("manoDeObraItems count: ", manoDeObraItems.length)
+
+  for (let i = 0; i < manoDeObraItems.length; i++) {
+    await updateManoDeObraItem(manoDeObraItems[i].id, {
+      workId,
+      manoDeObraId: manoDeObraItems[i].manoDeObraId!,
+      quantity: manoDeObraItems[i].quantity?.toString(),
+      length: manoDeObraItems[i].largo?.toString(),
+      width: manoDeObraItems[i].ancho?.toString(),
+      centimetros: (manoDeObraItems[i].centimetros || 0).toString(),
+      ajuste: manoDeObraItems[i].ajuste?.toString(),      
+    })
+  }
+
   return totalValue
 }
 

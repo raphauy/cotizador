@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db"
 import * as z from "zod"
 import { completeWithZeros, getCurrentUser } from "@/lib/utils"
 import { ClientType, CotizationStatus, CotizationType } from "@prisma/client"
-import { ClientDAO } from "./client-services"
+import { ClientDAO, getClientDAO } from "./client-services"
 import { CotizationNoteDAO, copyOriginalNotes } from "./cotizationnote-services"
 import { WorkDAO } from "./work-services"
 import { CotizationForPanel } from "@/app/seller/cotizations/column-panel-box"
@@ -137,12 +137,30 @@ export async function createCotization(data: CotizationFormValues) {
 }
 
 export async function updateCotization(id: string, data: CotizationFormValues) {
+  const cotization= await getCotizationDAO(id)
+  if (!cotization) throw new Error("Cotization not found")
+
   const updated = await prisma.cotization.update({
     where: {
       id
     },
     data
   })
+  const newClient= await getClientDAO(data.clientId)
+  if (cotization.client.type !== newClient.type) {
+    // Los tipos de cliente son diferentes, hay que recalcular los valores
+    const newCotizationWithWorks = await prisma.cotization.findUnique({
+      where: { id: updated.id },
+      include: { works: true }
+    })
+
+    if (newCotizationWithWorks && newCotizationWithWorks.works.length > 0) {
+      for (const work of newCotizationWithWorks.works) {
+        await recalculateAreaValues(work.id)
+      }
+    }
+  }
+
   return updated
 }
 
