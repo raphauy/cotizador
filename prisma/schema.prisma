@@ -203,6 +203,7 @@ model Color {
   id                        String    @id @default(cuid())
   name                      String                                   // genext: show.column
   image                     String?                                   // genext: show.column
+  archived                  Boolean   @default(false)                // genext: show.column
 
   clienteFinalPrice         Float @default(0)
   arquitectoStudioPrice     Float @default(0)
@@ -258,6 +259,7 @@ model Terminacion {
   id                        String    @id @default(cuid())
   name                      String                                   // genext: show.column
   image                     String?                                   // genext: show.column
+  archived                  Boolean   @default(false)                // genext: show.column
   price         Float @default(0)
 
   items                     Item[]                                   // genext: skip.list 
@@ -266,6 +268,7 @@ model Terminacion {
 model ManoDeObra {
   id                String    @id @default(cuid())
   name              String                                   // genext: show.column
+  archived          Boolean   @default(false)                // genext: show.column
   
   clienteFinalPrice         Float @default(0)
   arquitectoStudioPrice     Float @default(0)
@@ -303,6 +306,7 @@ model AppConfig {
 model Colocacion {
   id                String    @id @default(cuid())
   name              String                                   // genext: show.column
+  archived          Boolean   @default(false)                // genext: show.column
   price             Float     @default(0)                    // genext: show.column
 
   createdAt         DateTime  @default(now())                // gennext: skip.zod

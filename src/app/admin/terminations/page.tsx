@@ -5,7 +5,7 @@ import { columns } from "./terminacion-columns"
 
 export default async function TerminacionPage() {
   
-  const data= await getTerminacionsDAO()
+  const data = await getTerminacionsDAO(true)
 
   return (
     <div className="w-full">      

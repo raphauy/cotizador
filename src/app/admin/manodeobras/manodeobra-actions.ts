@@ -1,7 +1,7 @@
 "use server"
   
 import { revalidatePath } from "next/cache"
-import { ManoDeObraDAO, ManoDeObraFormValues, createManoDeObra, updateManoDeObra, getFullManoDeObraDAO, deleteManoDeObra, getManoDeObrasDAO } from "@/services/manodeobra-services"
+import { ManoDeObraDAO, ManoDeObraFormValues, createManoDeObra, updateManoDeObra, getFullManoDeObraDAO, deleteManoDeObra, getManoDeObrasDAO, archiveManoDeObra, archiveAndDuplicateManoDeObra, getManoDeObrasForWorkDAO } from "@/services/manodeobra-services"
 
 
 export async function getManoDeObraDAOAction(id: string): Promise<ManoDeObraDAO | null> {
@@ -29,7 +29,34 @@ export async function deleteManoDeObraAction(id: string): Promise<ManoDeObraDAO 
     return deleted as ManoDeObraDAO
 }
 
-export async function getManoDeObrasDAOAction(): Promise<ManoDeObraDAO[]> {
-    return await getManoDeObrasDAO()
+export async function getManoDeObrasDAOAction(includeArchived: boolean = false): Promise<ManoDeObraDAO[]> {
+    return await getManoDeObrasDAO(includeArchived)
+}
+
+export async function archiveManoDeObraAction(id: string, archive: boolean): Promise<ManoDeObraDAO | null> {    
+    const updated = await archiveManoDeObra(id, archive)
+
+    revalidatePath("/admin/manodeobras")
+
+    return updated as ManoDeObraDAO
+}
+
+export async function archiveAndDuplicateManoDeObraAction(
+    id: string, 
+    newPrices: { 
+        clienteFinalPrice: number, 
+        arquitectoStudioPrice: number, 
+        distribuidorPrice: number 
+    }
+): Promise<ManoDeObraDAO | null> {    
+    const created = await archiveAndDuplicateManoDeObra(id, newPrices)
+
+    revalidatePath("/admin/manodeobras")
+
+    return created as ManoDeObraDAO
+}
+
+export async function getManoDeObrasForWorkDAOAction(workId: string): Promise<ManoDeObraDAO[]> {
+    return await getManoDeObrasForWorkDAO(workId)
 }
 

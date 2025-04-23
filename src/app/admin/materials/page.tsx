@@ -10,7 +10,7 @@ import { DataTable as MaterialTable } from "./material-table"
 export default async function UsersPage() {
   
   const dataMaterials= await getMaterialsDAO()
-  const dataColors= await getFullColorsDAOToFilter()
+  const dataColors= await getFullColorsDAOToFilter(true)
 
   const materialNames= dataMaterials.map((material) => material.name)
 

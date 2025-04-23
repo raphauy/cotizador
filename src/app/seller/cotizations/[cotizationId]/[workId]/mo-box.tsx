@@ -9,32 +9,61 @@ import { Loader, PlusCircle, X } from "lucide-react"
 import { useEffect, useState } from "react"
 import { ManoDeObraItem, TerminationItem } from "./page"
 import MOForm from "./mo-form"
-import { getManoDeObrasDAOAction } from "@/app/admin/manodeobras/manodeobra-actions"
+import { getManoDeObrasDAOAction, getManoDeObrasForWorkDAOAction } from "@/app/admin/manodeobras/manodeobra-actions"
 import { ManoDeObraDAO } from "@/services/manodeobra-services"
 
 type Props= {
     itemManoDeObras: ManoDeObraItem[]
     setItemManoDeObras: (items: ManoDeObraItem[]) => void
+    workId?: string
 }
-export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras }: Props) {
+export default function ManoDeObraBox({ itemManoDeObras, setItemManoDeObras, workId }: Props) {
     
     const [loading, setLoading] = useState(false)
     const [loadingMO, setLoadingMO] = useState(false)
 
     const [manoDeObras, setManoDeObras] = useState<ManoDeObraDAO[]>([])
-
+    
     useEffect(() => {
         setLoadingMO(true)
 
-        getManoDeObrasDAOAction()
-        .then((manoDeObras) => {
-            setManoDeObras(manoDeObras)
-        })
-        .finally(() => {
-            setLoadingMO(false)
-        })
+        if (workId) {
+            // Si hay un workId, usar la función que incluye manos de obra archivadas en uso
+            getManoDeObrasForWorkDAOAction(workId)
+            .then((manoDeObras) => {
+                setManoDeObras(manoDeObras)
+            })
+            .catch((error) => {
+                console.error("Error al cargar manos de obra:", error)
+                toast({
+                    title: "Error al cargar manos de obra",
+                    description: "No se pudieron cargar las manos de obra. Intente nuevamente.",
+                    variant: "destructive"
+                })
+            })
+            .finally(() => {
+                setLoadingMO(false)
+            })
+        } else {
+            // Si no hay workId, usar la función normal pero incluir archivados
+            getManoDeObrasDAOAction(true) // true para incluir archivados
+            .then((manoDeObras) => {
+                setManoDeObras(manoDeObras)
+            })
+            .catch((error) => {
+                console.error("Error al cargar manos de obra:", error)
+                toast({
+                    title: "Error al cargar manos de obra",
+                    description: "No se pudieron cargar las manos de obra. Intente nuevamente.",
+                    variant: "destructive"
+                })
+            })
+            .finally(() => {
+                setLoadingMO(false)
+            })
+        }
         
-    }, [])
+    }, [workId])
 
     function addItem() {
         const newAreas= [...itemManoDeObras, { id: undefined, manoDeObraId: undefined, quantity: 0, length: 0, width: 0, centimeters: 0, ajuste: 0, isLinear: false, isSurface: false }]

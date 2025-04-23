@@ -1,15 +1,15 @@
 "use client"
 
-import { deleteItemAction } from "@/app/admin/items/item-actions"
+import { deleteItemAction, getItemDAOAction } from "@/app/admin/items/item-actions"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { toast } from "@/components/ui/use-toast"
 import { cn } from "@/lib/utils"
 import { Loader, PlusCircle, X } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { TerminationItem } from "./page"
 import TerminationForm from "./termination-form"
-import { getTerminacionsDAOAction } from "@/app/admin/terminations/terminacion-actions"
+import { getTerminacionsForWorkDAOAction } from "@/app/admin/terminations/terminacion-actions"
 import { TerminacionDAO } from "@/services/terminacion-services"
 
 type Props= {
@@ -21,22 +21,82 @@ type Props= {
 export default function TerminationsBox({ workId, cantidad, itemTerminations, setItemTerminations }: Props) {
     const [loading, setLoading] = useState(false)
     const [loadingTerminations, setLoadingTerminations] = useState(false)
+    const processedItems = useRef<Set<string>>(new Set())
 
     const [terminations, setTerminations] = useState<TerminacionDAO[]>([])
 
+    // Efecto para cargar los datos de los items existentes
     useEffect(() => {
-        setLoadingTerminations(true)
+        const loadItemsData = async () => {
+            const updatedItems = [...itemTerminations];
+            let hasChanges = false;
 
-        getTerminacionsDAOAction()
-        .then((terminaciones) => {
-            setTerminations(terminaciones)
-        })
-        .finally(() => {
-            setLoadingTerminations(false)
-        })
-        
-    }, [])
+            // Crear un array de promesas para procesar todos los items con ID en paralelo
+            const processingPromises = itemTerminations
+                .map(async (item, index) => {
+                    // Solo procesar items con ID que no tengan terminationId
+                    if (item.id && !item.terminationId && !processedItems.current.has(item.id)) {
+                        processedItems.current.add(item.id);
+                        
+                        try {
+                            const itemData = await getItemDAOAction(item.id);
+                            if (itemData && itemData.terminacionId) {
+                                // Actualizar el item con la información completa
+                                updatedItems[index] = {
+                                    ...updatedItems[index],
+                                    terminationId: itemData.terminacionId
+                                };
+                                return true; // Indica que hubo un cambio
+                            }
+                        } catch (error) {
+                            console.error("Error al cargar datos del item:", error);
+                        }
+                    }
+                    return false; // No hubo cambio
+                })
+                .filter(Boolean); // Filtrar solo las promesas válidas
 
+            // Esperar a que todas las promesas se resuelvan
+            if (processingPromises.length > 0) {
+                const results = await Promise.all(processingPromises);
+                // Si al menos una promesa retornó true, actualizar el estado
+                if (results.some(result => result)) {
+                    setItemTerminations([...updatedItems]);
+                }
+            }
+        };
+
+        // Ejecutar al inicio solo si hay items con ID
+        if (itemTerminations.some(item => item.id)) {
+            loadItemsData();
+        }
+    }, [itemTerminations, setItemTerminations]);
+
+    // Efecto para cargar las terminaciones
+    useEffect(() => {
+        setLoadingTerminations(true);
+
+        getTerminacionsForWorkDAOAction(workId)
+            .then((terminaciones) => {
+                setTerminations(terminaciones);
+            })
+            .catch((error) => {
+                console.error("Error al cargar terminaciones:", error);
+                toast({
+                    title: "Error al cargar terminaciones",
+                    description: "No se pudieron cargar las terminaciones. Intente nuevamente.",
+                    variant: "destructive"
+                });
+            })
+            .finally(() => {
+                setLoadingTerminations(false);
+            });
+    }, [workId]);
+
+    // Reset de los items procesados cuando cambia el workId
+    useEffect(() => {
+        processedItems.current.clear();
+    }, [workId]);
 
     function addItem() {
         const newAreas= [...itemTerminations, { id: undefined, terminationId: undefined, quantity: 0, length: 0, width: 0, centimeters: 0, ajuste: 0 }]
@@ -115,7 +175,13 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
                             { loadingTerminations ?
                                 <Loader className="h-4 w-4 animate-spin" />
                                 :
-                                <TerminationForm itemId={item.id} index={index} notifySelected={notifySelected} terminations={terminations} />
+                                <TerminationForm 
+                                    itemId={item.id} 
+                                    index={index} 
+                                    notifySelected={notifySelected} 
+                                    terminations={terminations}
+                                    defaultValue={item.terminationId}
+                                />
                             }
 
                             <div className="flex items-center gap-2">

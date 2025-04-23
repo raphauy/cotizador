@@ -9,6 +9,8 @@ import { X } from "lucide-react"
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { DataTablePagination } from "@/components/data-table/data-table-pagination"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ArchiveStatusFilter } from "../archive-status-filter"
+import { useMemo } from "react"
   
 interface DataTableToolbarProps<TData> {
   table: TanstackTable<TData>;
@@ -20,29 +22,25 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
   return (
     <div className="flex gap-1 dark:text-white items-center">
         
-          <Input className="max-w-xs" placeholder="name filter..."
-              value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}                
-          />
+      {table.getColumn("archived") && (
+        <ArchiveStatusFilter table={table} />
+      )}
+
+      <Input className="max-w-xs" placeholder="Filtrar por nombre..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}                
+      />
           
-      
-        {/* {table.getColumn("role") && roles && (
-          <DataTableFacetedFilter
-            column={table.getColumn("role")}
-            title="Rol"
-            options={roles}
-          />
-        )} */}
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X className="w-4 h-4 ml-2" />
-          </Button>
-        )}
+      {isFiltered && (
+        <Button
+          variant="ghost"
+          onClick={() => table.resetColumnFilters()}
+          className="h-8 px-2 lg:px-3"
+        >
+          Reset
+          <X className="w-4 h-4 ml-2" />
+        </Button>
+      )}
     </div>
   )
 }
@@ -88,11 +86,34 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    filterFns: {
+      // Filtro personalizado para el campo archived
+      archiveFilter: (row, id, filterValue) => {
+        const archivedStatus = row.getValue(id) as boolean;
+        if (filterValue.includes("Activo") && filterValue.includes("Archivado")) {
+          return true; // Mostrar todos
+        } else if (filterValue.includes("Activo") && !filterValue.includes("Archivado")) {
+          return !archivedStatus; // Mostrar solo activos
+        } else if (!filterValue.includes("Activo") && filterValue.includes("Archivado")) {
+          return archivedStatus; // Mostrar solo archivados
+        }
+        return true; // Si no hay filtro, mostrar todos
+      },
+    },
   })
+
+  // Configurar el filtro personalizado para el campo archived
+  React.useEffect(() => {
+    if (table.getColumn("archived")) {
+      table.getColumn("archived")?.setFilterValue([]);
+    }
+  }, [table]);
+
   React.useEffect(() => {
     columnsOff && columnsOff.forEach(colName => {
       table.getColumn(colName)?.toggleVisibility(false)      
     });
+    table.setPageSize(20)
   // eslint-disable-next-line react-hooks/exhaustive-deps  
   }, [])
 

@@ -12,7 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-  
+import { ArchiveStatusFilter } from "../archive-status-filter"
+
 interface DataTableToolbarProps<TData> {
   table: TanstackTable<TData>
   materialNames: string[]
@@ -22,7 +23,7 @@ export function DataTableToolbar<TData>({ table, materialNames }: DataTableToolb
   const isFiltered = table.getState().columnFilters.length > 0
   const path= usePathname()
   const isExpanded= path === "/admin/colors"
-
+  
   return (
     <div className="flex gap-1 dark:text-white items-center">
 
@@ -32,6 +33,10 @@ export function DataTableToolbar<TData>({ table, materialNames }: DataTableToolb
           title="Material"
           options={materialNames}
         />
+      )}
+
+      {table.getColumn("archived") && (
+        <ArchiveStatusFilter table={table} />
       )}
 
       <Input placeholder="filtrar por color..."
@@ -106,7 +111,29 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    filterFns: {
+      // Filtro personalizado para el campo archived
+      archiveFilter: (row, id, filterValue) => {
+        const archivedStatus = row.getValue(id) as boolean;
+        if (filterValue.includes("Activo") && filterValue.includes("Archivado")) {
+          return true; // Mostrar todos
+        } else if (filterValue.includes("Activo") && !filterValue.includes("Archivado")) {
+          return !archivedStatus; // Mostrar solo activos
+        } else if (!filterValue.includes("Activo") && filterValue.includes("Archivado")) {
+          return archivedStatus; // Mostrar solo archivados
+        }
+        return true; // Si no hay filtro, mostrar todos
+      },
+    },
   })
+
+  // Configurar el filtro personalizado para el campo archived
+  React.useEffect(() => {
+    if (table.getColumn("archived")) {
+      table.getColumn("archived")?.setFilterValue([]);
+    }
+  }, [table]);
+
   React.useEffect(() => {
     columnsOff && columnsOff.forEach(colName => {
       table.getColumn(colName)?.toggleVisibility(false)      

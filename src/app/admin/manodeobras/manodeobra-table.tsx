@@ -9,6 +9,7 @@ import { X } from "lucide-react"
 import { ColumnDef, ColumnFiltersState, SortingState, VisibilityState, flexRender, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table"
 import { DataTablePagination } from "@/components/data-table/data-table-pagination"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ArchiveStatusFilter } from "../archive-status-filter"
   
 interface DataTableToolbarProps<TData> {
   table: TanstackTable<TData>;
@@ -20,7 +21,11 @@ export function DataTableToolbar<TData>({ table }: DataTableToolbarProps<TData>)
   return (
     <div className="flex gap-1 dark:text-white items-center">
         
-          <Input className="max-w-xs" placeholder="name filter..."
+          {table.getColumn("archived") && (
+            <ArchiveStatusFilter table={table} />
+          )}
+
+          <Input className="max-w-xs" placeholder="filtrar por nombre..."
               value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
               onChange={(event) => table.getColumn("name")?.setFilterValue(event.target.value)}                
           />
@@ -84,7 +89,29 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    filterFns: {
+      // Filtro personalizado para el campo archived
+      archiveFilter: (row, id, filterValue) => {
+        const archivedStatus = row.getValue(id) as boolean;
+        if (filterValue.includes("Activo") && filterValue.includes("Archivado")) {
+          return true; // Mostrar todos
+        } else if (filterValue.includes("Activo") && !filterValue.includes("Archivado")) {
+          return !archivedStatus; // Mostrar solo activos
+        } else if (!filterValue.includes("Activo") && filterValue.includes("Archivado")) {
+          return archivedStatus; // Mostrar solo archivados
+        }
+        return true; // Si no hay filtro, mostrar todos
+      },
+    },
   })
+
+  // Configurar el filtro personalizado para el campo archived
+  React.useEffect(() => {
+    if (table.getColumn("archived")) {
+      table.getColumn("archived")?.setFilterValue([]);
+    }
+  }, [table]);
+  
   React.useEffect(() => {
     columnsOff && columnsOff.forEach(colName => {
       table.getColumn(colName)?.toggleVisibility(false)      

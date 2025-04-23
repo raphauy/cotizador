@@ -386,7 +386,7 @@ export default function AddItemsPage({ params }: Props) {
 
             <div className="mt-10">
                 <p className="text-2xl font-bold mb-3 text-center lg:text-left">Mano de Obra <span className="font-bold text-xl">{totalManoDeObrasWithData > 0 ? "(" + totalManoDeObrasWithData + ")" : ""}</span></p>
-                <ManoDeObraBox itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} />
+                <ManoDeObraBox itemManoDeObras={manoDeObras} setItemManoDeObras={setManoDeObras} workId={workId} />
             </div>
 
             <div className="mt-10">

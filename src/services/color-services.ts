@@ -6,6 +6,7 @@ export type ColorDAO = {
 	id: string
 	name: string
 	image: string | undefined | null
+  archived: boolean
   clienteFinalPrice: number
 	arquitectoStudioPrice: number
 	distribuidorPrice: number
@@ -21,6 +22,7 @@ export type ColorToFilter = ColorDAO & {
 export const colorSchema = z.object({
 	name: z.string().min(1, "nombre es obligatorio"),
 	image: z.string().optional().nullable(),
+  archived: z.boolean().default(false),
   clienteFinalPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
 	arquitectoStudioPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
 	distribuidorPrice: z.string().refine((val) => !isNaN(Number(val)), { message: "(debe ser un número)" }).optional(),
@@ -30,11 +32,14 @@ export const colorSchema = z.object({
 export type ColorFormValues = z.infer<typeof colorSchema>
 
 
-export async function getColorsDAO() {
+export async function getColorsDAO(includeArchived: boolean = false) {
   const found = await prisma.color.findMany({
     orderBy: {
       id: 'asc'
     },
+    where: includeArchived ? {} : {
+      archived: false
+    }
   })
   return found as ColorDAO[]
 }
@@ -90,10 +95,75 @@ export async function deleteColor(id: string) {
   return deleted
 }
 
-export async function getFullColorsDAOToFilter() {
+export async function archiveColor(id: string, archive: boolean = true) {
+  const updated = await prisma.color.update({
+    where: {
+      id
+    },
+    data: {
+      archived: archive
+    }
+  })
+  return updated
+}
+
+/**
+ * Archiva un color existente y crea uno nuevo con los mismos datos pero diferentes precios
+ * @param id ID del color a archivar y duplicar
+ * @param newPrices Nuevos precios para el color duplicado
+ * @returns El nuevo color creado
+ */
+export async function archiveAndDuplicateColor(
+  id: string, 
+  newPrices: { 
+    clienteFinalPrice: number, 
+    arquitectoStudioPrice: number, 
+    distribuidorPrice: number 
+  }
+) {
+  // Obtener el color original con sus datos completos
+  const originalColor = await prisma.color.findUnique({
+    where: { id }
+  });
+
+  if (!originalColor) {
+    throw new Error(`No se encontró el color con ID: ${id}`);
+  }
+
+  // Iniciar una transacción para asegurar que ambas operaciones (archivar y crear) se completan o ninguna
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Archivar el color original
+    const archivedColor = await tx.color.update({
+      where: { id },
+      data: { archived: true }
+    });
+
+    // 2. Crear un nuevo color con los mismos datos pero diferentes precios
+    const newColor = await tx.color.create({
+      data: {
+        name: originalColor.name,
+        image: originalColor.image,
+        materialId: originalColor.materialId,
+        archived: false,
+        clienteFinalPrice: newPrices.clienteFinalPrice,
+        arquitectoStudioPrice: newPrices.arquitectoStudioPrice,
+        distribuidorPrice: newPrices.distribuidorPrice
+      }
+    });
+
+    return { archivedColor, newColor };
+  });
+
+  return result.newColor;
+}
+
+export async function getFullColorsDAOToFilter(includeArchived: boolean = false) {
   const found = await prisma.color.findMany({
     orderBy: {
       id: 'asc'
+    },
+    where: includeArchived ? {} : {
+      archived: false
     },
     include: {
 			material: true,
@@ -102,7 +172,7 @@ export async function getFullColorsDAOToFilter() {
   if (!found) return []
 
   const res: ColorToFilter[]= []
-  found.forEach((color) => {
+  found.forEach((color: any) => {
     const resColor= {
       ...color,
       materialName: color.material.name
@@ -113,10 +183,13 @@ export async function getFullColorsDAOToFilter() {
   return res as ColorToFilter[]
 }
 
-export async function getFullColorsDAO(): Promise<ColorDAO[]> {
+export async function getFullColorsDAO(includeArchived: boolean = false): Promise<ColorDAO[]> {
   const found = await prisma.color.findMany({
     orderBy: {
       id: 'asc'
+    },
+    where: includeArchived ? {} : {
+      archived: false
     },
     include: {
 			material: true,
@@ -127,13 +200,14 @@ export async function getFullColorsDAO(): Promise<ColorDAO[]> {
   return found as ColorDAO[]
 }
 
-export async function getFullColorsDAOByMaterialId(materialId: string): Promise<ColorDAO[]> {
+export async function getFullColorsDAOByMaterialId(materialId: string, includeArchived: boolean = false): Promise<ColorDAO[]> {
   const found = await prisma.color.findMany({
     orderBy: {
       id: 'asc'
     },
     where: {
-      materialId
+      materialId,
+      ...(includeArchived ? {} : { archived: false })
     },
     include: {
 			material: true,
@@ -142,7 +216,7 @@ export async function getFullColorsDAOByMaterialId(materialId: string): Promise<
   if (!found) return []
 
   const res: ColorDAO[]= []
-  found.forEach((color) => {
+  found.forEach((color: any) => {
     const resColor= {
       ...color,
       materialName: color.material.name

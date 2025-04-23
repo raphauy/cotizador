@@ -5,7 +5,7 @@ import { columns } from "./manodeobra-columns"
 
 export default async function ManoDeObraPage() {
   
-  const data= await getManoDeObrasDAO()
+  const data = await getManoDeObrasDAO(true) // Incluye elementos archivados
 
   return (
     <div className="w-full">      

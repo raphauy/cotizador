@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
+import { Archive, ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "@/components/ui/use-toast";
-import { ManoDeObraForm, DeleteManoDeObraForm } from "./manodeobra-forms"
+import { ManoDeObraForm, DeleteManoDeObraForm, ArchiveManoDeObraForm, ArchiveAndDuplicateManoDeObraForm } from "./manodeobra-forms"
 import { getManoDeObraDAOAction } from "./manodeobra-actions"
 
 type Props= {
@@ -25,7 +25,7 @@ export function ManoDeObraDialog({ id }: Props) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{id ? 'Actualizar ManoDeObra' : 'Crear ManoDeObra'}</DialogTitle>
+          <DialogTitle>{id ? 'Actualizar Mano de Obra' : 'Crear Mano de Obra'}</DialogTitle>
         </DialogHeader>
         <ManoDeObraForm closeDialog={() => setOpen(false)} id={id} />
       </DialogContent>
@@ -48,10 +48,66 @@ export function DeleteManoDeObraDialog({ id, description }: DeleteProps) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete ManoDeObra</DialogTitle>
+          <DialogTitle>Eliminar Mano de Obra</DialogTitle>
           <DialogDescription className="py-8">{description}</DialogDescription>
         </DialogHeader>
         <DeleteManoDeObraForm closeDialog={() => setOpen(false)} id={id} />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+type ArchiveProps = {
+  id: string
+  archived: boolean
+}
+
+export function ArchiveManoDeObraDialog({ id, archived }: ArchiveProps) {
+  const [open, setOpen] = useState(false)
+  const actionText = archived ? 'Desarchivar' : 'Archivar'
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Archive className="hover:cursor-pointer" />
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{actionText} Mano de Obra</DialogTitle>
+          <DialogDescription className="py-4">
+            {archived 
+              ? 'Esta acción hará que la mano de obra vuelva a estar disponible en los formularios.' 
+              : 'Esta acción ocultará la mano de obra de los formularios pero mantendrá las referencias existentes.'}
+          </DialogDescription>
+        </DialogHeader>
+        <ArchiveManoDeObraForm closeDialog={() => setOpen(false)} id={id} archive={!archived} />
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+type ArchiveAndDuplicateProps = {
+  id: string
+  name: string
+}
+
+export function ArchiveAndDuplicateManoDeObraDialog({ id, name }: ArchiveAndDuplicateProps) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <ArrowLeftRight className="hover:cursor-pointer" />
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Archivar y Duplicar Mano de Obra</DialogTitle>
+          <DialogDescription className="py-4">
+            Esta acción archivará la mano de obra actual &quot;{name}&quot; y creará una copia con nuevos precios.
+            Las cotizaciones existentes seguirán utilizando la mano de obra archivada.
+          </DialogDescription>
+        </DialogHeader>
+        <ArchiveAndDuplicateManoDeObraForm closeDialog={() => setOpen(false)} id={id} />
       </DialogContent>
     </Dialog>
   )
