@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Loader } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { createOrUpdateTerminacionAction, deleteTerminacionAction, getTerminacionDAOAction, archiveTerminacionAction, archiveAndDuplicateTerminacionAction } from "./terminacion-actions"
+import { createOrUpdateTerminacionAction, deleteTerminacionAction, getTerminacionDAOAction, archiveAndDuplicateTerminacionAction } from "./terminacion-actions"
 import * as z from "zod"
 
 type Props= {
@@ -130,44 +130,6 @@ export function DeleteTerminacionForm({ id, closeDialog }: Props) {
       <Button onClick={handleDelete} variant="destructive" className="w-32 ml-2 gap-1">
         { loading && <Loader className="h-4 w-4 animate-spin" /> }
         Eliminar
-      </Button>
-    </div>
-  )
-}
-
-type ArchiveProps = {
-  id: string
-  archived: boolean
-  closeDialog: () => void
-}
-
-export function ArchiveTerminacionForm({ id, archived, closeDialog }: ArchiveProps) {
-  const [loading, setLoading] = useState(false)
-
-  async function handleArchive() {
-    setLoading(true)
-    archiveTerminacionAction(id, !archived)
-    .then(() => {
-      toast({
-        title: archived ? "Terminación desarchivada" : "Terminación archivada",
-        description: archived ? "La terminación ahora está activa." : "La terminación ahora está archivada."
-      })
-    })
-    .catch((error) => {
-      toast({title: "Error", description: error.message, variant: "destructive"})
-    })
-    .finally(() => {
-      setLoading(false)
-      closeDialog()
-    })
-  }
-  
-  return (
-    <div>
-      <Button onClick={() => closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
-      <Button onClick={handleArchive} variant={archived ? "default" : "outline"} className="w-32 ml-2 gap-1">
-        { loading && <Loader className="h-4 w-4 animate-spin" /> }
-        { archived ? "Desarchivar" : "Archivar" }
       </Button>
     </div>
   )

@@ -8,6 +8,7 @@ export type TerminacionDAO = {
 	image: string | undefined | null
   price: number
   archived: boolean
+  duplicatedId: string | undefined | null
 }
 
 export const terminacionSchema = z.object({
@@ -74,18 +75,6 @@ export async function deleteTerminacion(id: string) {
   return deleted
 }
 
-export async function archiveTerminacion(id: string, archive: boolean = true) {
-  const updated = await prisma.terminacion.update({
-    where: {
-      id
-    },
-    data: {
-      archived: archive
-    }
-  })
-  return updated
-}
-
 /**
  * Archiva una terminación existente y crea una nueva con los mismos datos pero diferente precio
  * @param id ID de la terminación a archivar y duplicar
@@ -104,19 +93,22 @@ export async function archiveAndDuplicateTerminacion(id: string, newPrice: numbe
 
   // Iniciar una transacción para asegurar que ambas operaciones (archivar y crear) se completan o ninguna
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Archivar la terminación original
-    const archivedTerminacion = await tx.terminacion.update({
-      where: { id },
-      data: { archived: true }
-    });
-
-    // 2. Crear una nueva terminación con los mismos datos pero diferente precio
+    // 1. Crear una nueva terminación con los mismos datos pero diferente precio
     const newTerminacion = await tx.terminacion.create({
       data: {
         name: originalTerminacion.name,
         image: originalTerminacion.image,
         price: newPrice,
         archived: false
+      }
+    });
+
+    // 2. Archivar la terminación original y guardar la referencia a la nueva
+    const archivedTerminacion = await tx.terminacion.update({
+      where: { id },
+      data: { 
+        archived: true,
+        duplicatedId: newTerminacion.id // Guardamos la referencia a la nueva terminación
       }
     });
 

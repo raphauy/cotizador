@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "@/components/ui/use-toast"
 import { useEffect, useState } from "react"
-import { archiveColorAction, archiveAndDuplicateColorAction, deleteColorAction, createOrUpdateColorAction, getColorDAOAction, getMaterialsDAOAction } from "./color-actions"
+import { archiveAndDuplicateColorAction, deleteColorAction, createOrUpdateColorAction, getColorDAOAction, getMaterialsDAOAction } from "./color-actions"
 import { colorSchema, ColorFormValues } from '@/services/color-services'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -201,35 +201,6 @@ export function DeleteColorForm({ id, closeDialog }: Props) {
       <Button onClick={handleDelete} variant="destructive" className="w-32 ml-2 gap-1">
         { loading && <Loader className="h-4 w-4 animate-spin" /> }
         Delete  
-      </Button>
-    </div>
-  )
-}
-
-export function ArchiveColorForm({ id, closeDialog, archive = true }: Props & { archive?: boolean }) {
-  const [loading, setLoading] = useState(false)
-
-  async function handleArchive() {
-    if (!id) return
-    setLoading(true)
-    archiveColorAction(id, archive)
-    .then(() => {
-      toast({title: archive ? "Color archivado" : "Color desarchivado" })
-    })
-    .catch((error) => {
-      toast({title: "Error", description: error.message, variant: "destructive"})
-    })
-    .finally(() => {
-      setLoading(false)
-      closeDialog && closeDialog()
-    })
-  }
-  
-  return (
-    <div>
-      <Button onClick={() => closeDialog && closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
-      <Button onClick={handleArchive} variant={archive ? "default" : "outline"} className="w-32 ml-2 gap-1">
-        {loading ? <Loader className="h-4 w-4 animate-spin" /> : <p>{archive ? "Archivar" : "Desarchivar"}</p>}
       </Button>
     </div>
   )

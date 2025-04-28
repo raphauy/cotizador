@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { Archive, ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
+import { ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "@/components/ui/use-toast";
-import { TerminacionForm, DeleteTerminacionForm, ArchiveTerminacionForm, ArchiveAndDuplicateTerminacionForm } from "./terminacion-forms"
+import { TerminacionForm, DeleteTerminacionForm, ArchiveAndDuplicateTerminacionForm } from "./terminacion-forms"
 import { getTerminacionDAOAction } from "./terminacion-actions"
 
 type Props= {
@@ -52,34 +52,6 @@ export function DeleteTerminacionDialog({ id, description }: DeleteProps) {
           <DialogDescription className="py-8">{description}</DialogDescription>
         </DialogHeader>
         <DeleteTerminacionForm closeDialog={() => setOpen(false)} id={id} />
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-type ArchiveProps = {
-  id: string
-  archived: boolean
-}
-
-export function ArchiveTerminacionDialog({ id, archived }: ArchiveProps) {
-  const [open, setOpen] = useState(false)
-  const title = archived ? "Desarchivar Terminación" : "Archivar Terminación"
-  const description = archived 
-    ? "Al desarchivar esta terminación, estará disponible de nuevo para nuevas cotizaciones." 
-    : "Al archivar esta terminación, no estará disponible para nuevas cotizaciones, pero se mantendrá en cotizaciones existentes."
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Archive className="hover:cursor-pointer"/>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className="py-8">{description}</DialogDescription>
-        </DialogHeader>
-        <ArchiveTerminacionForm closeDialog={() => setOpen(false)} id={id} archived={archived} />
       </DialogContent>
     </Dialog>
   )

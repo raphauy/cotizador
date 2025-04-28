@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { Archive, ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
+import { ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { ArchiveAndDuplicateColorForm, ArchiveColorForm, ColorForm, DeleteColorForm } from "./color-forms"
+import { ArchiveAndDuplicateColorForm, ColorForm, DeleteColorForm } from "./color-forms"
 import { getColorDAOAction } from "./color-actions"
 
 type Props= {
@@ -52,35 +52,6 @@ export function DeleteColorDialog({ id, description }: DeleteProps) {
           <DialogDescription className="py-8">{description}</DialogDescription>
         </DialogHeader>
         <DeleteColorForm closeDialog={() => setOpen(false)} id={id} />
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-type ArchiveProps = {
-  id: string
-  archived: boolean
-}
-
-export function ArchiveColorDialog({ id, archived }: ArchiveProps) {
-  const [open, setOpen] = useState(false)
-  const actionText = archived ? 'Desarchivar' : 'Archivar'
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Archive className="hover:cursor-pointer" />
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{actionText} Color</DialogTitle>
-          <DialogDescription className="py-4">
-            {archived 
-              ? 'Esta acción hará que el color vuelva a estar disponible en los formularios.' 
-              : 'Esta acción ocultará el color de los formularios pero mantendrá las referencias existentes.'}
-          </DialogDescription>
-        </DialogHeader>
-        <ArchiveColorForm closeDialog={() => setOpen(false)} id={id} archive={!archived} />
       </DialogContent>
     </Dialog>
   )

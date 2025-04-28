@@ -498,18 +498,25 @@ export async function createVersion(cotizationId: string) {
   })
 
   for (const work of cotization.works) {
+    // Obtener la versión activa del color
+    const activeColorId = await getActiveColorId(work.colorId);
+    
     const newWork = await prisma.work.create({
       data: {
         name: work.name,
         reference: work.reference,
         workTypeId: work.workTypeId,
         materialId: work.materialId,
-        colorId: work.colorId,
+        colorId: activeColorId, // Usar la versión activa del color
         cotizationId: newCotization.id,
       },
     })
 
     for (const item of work.items) {
+      // Obtener versiones activas de terminación y mano de obra
+      const activeTerminacionId = item.terminacionId ? await getActiveTerminacionId(item.terminacionId) : null;
+      const activeManoDeObraId = item.manoDeObraId ? await getActiveManoDeObraId(item.manoDeObraId) : null;
+      
       await prisma.item.create({
         data: {
           type: item.type,
@@ -524,8 +531,8 @@ export async function createVersion(cotizationId: string) {
           ajuste: item.ajuste,
           valorAreaTerminacion: item.valorAreaTerminacion,
           workId: newWork.id,
-          terminacionId: item.terminacionId,
-          manoDeObraId: item.manoDeObraId,
+          terminacionId: activeTerminacionId, // Usar la versión activa
+          manoDeObraId: activeManoDeObraId, // Usar la versión activa
           colocacionId: item.colocacionId,
         },
       })
@@ -543,13 +550,16 @@ export async function createVersion(cotizationId: string) {
     }
 
     for (const optionalColor of work.optionalColors) {
+      // Obtener la versión activa del color opcional
+      const activeOptionalColorId = await getActiveColorId(optionalColor.id);
+      
       await prisma.work.update({
         where: {
           id: newWork.id,
         },
         data: {
           optionalColors: {
-            connect: { id: optionalColor.id },
+            connect: { id: activeOptionalColorId },
           },
         },
       })
@@ -565,6 +575,20 @@ export async function createVersion(cotizationId: string) {
         cotizationId: newCotization.id,
       },
     })
+  }
+
+  // Recalcular valores para todos los trabajos de la nueva cotización
+  const newCotizationWithWorks = await prisma.cotization.findUnique({
+    where: { id: newCotization.id },
+    include: {
+      works: true,
+    },
+  });
+
+  if (newCotizationWithWorks?.works && newCotizationWithWorks.works.length > 0) {
+    for (const work of newCotizationWithWorks.works) {
+      await recalculateAreaValues(work.id);
+    }
   }
 
   return newCotization
@@ -716,12 +740,16 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
         reference: work.reference,
         workTypeId: work.workTypeId,
         materialId: work.materialId,
-        colorId: work.colorId,
+        colorId: await getActiveColorId(work.colorId),
         cotizationId: newCotization.id,
       },
     })
 
     for (const item of work.items) {
+      // Obtener las versiones activas de terminaciones y mano de obra
+      const activeTerminacionId = item.terminacionId ? await getActiveTerminacionId(item.terminacionId) : null;
+      const activeManoDeObraId = item.manoDeObraId ? await getActiveManoDeObraId(item.manoDeObraId) : null;
+      
       await prisma.item.create({
         data: {
           type: item.type,
@@ -736,8 +764,8 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
           ajuste: item.ajuste,
           valorAreaTerminacion: item.valorAreaTerminacion,
           workId: newWork.id,
-          terminacionId: item.terminacionId,
-          manoDeObraId: item.manoDeObraId,
+          terminacionId: activeTerminacionId,
+          manoDeObraId: activeManoDeObraId,
           colocacionId: item.colocacionId,
         },
       })
@@ -755,13 +783,16 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
     }
 
     for (const optionalColor of work.optionalColors) {
+      // Obtener la versión activa del color opcional
+      const activeOptionalColorId = await getActiveColorId(optionalColor.id);
+      
       await prisma.work.update({
         where: {
           id: newWork.id,
         },
         data: {
           optionalColors: {
-            connect: { id: optionalColor.id },
+            connect: { id: activeOptionalColorId },
           },
         },
       })
@@ -783,22 +814,33 @@ export async function createDuplicated(cotizationId: string, clientId: string) {
   await prisma.cotization.update({where: {id: newCotization.id},data: {label}})
 
   // Verificar si los tipos de cliente son diferentes y recalcular si es necesario
-  const newClient = await prisma.client.findUnique({ where: { id: clientId } })
-  if (!newClient) {
-    throw new Error("No se encontró el nuevo cliente")
-  }
+  // const newClient = await prisma.client.findUnique({ where: { id: clientId } })
+  // if (!newClient) {
+  //   throw new Error("No se encontró el nuevo cliente")
+  // }
 
-  if (cotization.client.type !== newClient.type) {
-    // Los tipos de cliente son diferentes, hay que recalcular los valores
-    const newCotizationWithWorks = await prisma.cotization.findUnique({
-      where: { id: newCotization.id },
-      include: { works: true }
-    })
+  // if (cotization.client.type !== newClient.type) {
+  //   // Los tipos de cliente son diferentes, hay que recalcular los valores
+  //   const newCotizationWithWorks = await prisma.cotization.findUnique({
+  //     where: { id: newCotization.id },
+  //     include: { works: true }
+  //   })
 
-    if (newCotizationWithWorks && newCotizationWithWorks.works.length > 0) {
-      for (const work of newCotizationWithWorks.works) {
-        await recalculateAreaValues(work.id)
-      }
+  //   if (newCotizationWithWorks && newCotizationWithWorks.works.length > 0) {
+  //     for (const work of newCotizationWithWorks.works) {
+  //       await recalculateAreaValues(work.id)
+  //     }
+  //   }
+  // }
+
+  const newCotizationWithWorks = await prisma.cotization.findUnique({
+    where: { id: newCotization.id },
+    include: { works: true }
+  })
+
+  if (newCotizationWithWorks && newCotizationWithWorks.works.length > 0) {
+    for (const work of newCotizationWithWorks.works) {
+      await recalculateAreaValues(work.id)
     }
   }
 
@@ -825,12 +867,16 @@ export async function createWorkDuplicated(workId: string) {
       reference: work.reference,
       workTypeId: work.workTypeId,
       materialId: work.materialId,
-      colorId: work.colorId,
+      colorId: await getActiveColorId(work.colorId),
       cotizationId: work.cotizationId,
     }
   })
 
   for (const item of work.items) {
+    // Obtener las versiones activas de terminaciones y mano de obra
+    const activeTerminacionId = item.terminacionId ? await getActiveTerminacionId(item.terminacionId) : null;
+    const activeManoDeObraId = item.manoDeObraId ? await getActiveManoDeObraId(item.manoDeObraId) : null;
+    
     const newItem= await prisma.item.create({
       data: {
         type: item.type,
@@ -845,8 +891,8 @@ export async function createWorkDuplicated(workId: string) {
         ajuste: item.ajuste,
         valorAreaTerminacion: item.valorAreaTerminacion,
         workId: newWork.id,
-        terminacionId: item.terminacionId,
-        manoDeObraId: item.manoDeObraId,
+        terminacionId: activeTerminacionId,
+        manoDeObraId: activeManoDeObraId,
         colocacionId: item.colocacionId,
       },
     })
@@ -863,17 +909,23 @@ export async function createWorkDuplicated(workId: string) {
     })
   }
   for (const optionalColor of work.optionalColors) {
+    // Obtener la versión activa del color opcional
+    const activeOptionalColorId = await getActiveColorId(optionalColor.id);
+    
     await prisma.work.update({
       where: {
         id: newWork.id,
       },
       data: {
         optionalColors: {
-          connect: { id: optionalColor.id },
+          connect: { id: activeOptionalColorId },
         },
       },
     })
   }
+
+  // Recalcular todos los valores ya que pudimos haber reemplazado elementos archivados
+  await recalculateAreaValues(newWork.id)
 
   return newWork
 }
@@ -907,4 +959,85 @@ export async function getCotizationStatusByCotizationId(cotizationId: string) {
   })
 
   return found?.status
+}
+
+/**
+ * Sigue la cadena de duplicados de un color hasta encontrar uno activo.
+ * @param colorId ID del color a verificar
+ * @returns ID del color activo más reciente
+ */
+async function getActiveColorId(colorId: string): Promise<string> {
+  if (!colorId) return colorId;
+  
+  // Obtener el color actual
+  const color = await prisma.color.findUnique({
+    where: { id: colorId }
+  });
+  
+  // Si no existe o no está archivado, devolver el mismo ID
+  if (!color || !color.archived) {
+    return colorId;
+  }
+  
+  // Si está archivado pero no tiene duplicatedId, devolver el mismo ID
+  if (!color.duplicatedId) {
+    return colorId;
+  }
+  
+  // Recursivamente buscar el color activo a través de la cadena de duplicados
+  return getActiveColorId(color.duplicatedId);
+}
+
+/**
+ * Sigue la cadena de duplicados de una terminación hasta encontrar una activa.
+ * @param terminacionId ID de la terminación a verificar
+ * @returns ID de la terminación activa más reciente
+ */
+async function getActiveTerminacionId(terminacionId: string): Promise<string> {
+  if (!terminacionId) return terminacionId;
+  
+  // Obtener la terminación actual
+  const terminacion = await prisma.terminacion.findUnique({
+    where: { id: terminacionId }
+  });
+  
+  // Si no existe o no está archivada, devolver el mismo ID
+  if (!terminacion || !terminacion.archived) {
+    return terminacionId;
+  }
+  
+  // Si está archivada pero no tiene duplicatedId, devolver el mismo ID
+  if (!terminacion.duplicatedId) {
+    return terminacionId;
+  }
+  
+  // Recursivamente buscar la terminación activa a través de la cadena de duplicados
+  return getActiveTerminacionId(terminacion.duplicatedId);
+}
+
+/**
+ * Sigue la cadena de duplicados de una mano de obra hasta encontrar una activa.
+ * @param manoDeObraId ID de la mano de obra a verificar
+ * @returns ID de la mano de obra activa más reciente
+ */
+async function getActiveManoDeObraId(manoDeObraId: string): Promise<string> {
+  if (!manoDeObraId) return manoDeObraId;
+  
+  // Obtener la mano de obra actual
+  const manoDeObra = await prisma.manoDeObra.findUnique({
+    where: { id: manoDeObraId }
+  });
+  
+  // Si no existe o no está archivada, devolver el mismo ID
+  if (!manoDeObra || !manoDeObra.archived) {
+    return manoDeObraId;
+  }
+  
+  // Si está archivada pero no tiene duplicatedId, devolver el mismo ID
+  if (!manoDeObra.duplicatedId) {
+    return manoDeObraId;
+  }
+  
+  // Recursivamente buscar la mano de obra activa a través de la cadena de duplicados
+  return getActiveManoDeObraId(manoDeObra.duplicatedId);
 }

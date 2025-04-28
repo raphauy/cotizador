@@ -5,7 +5,7 @@ import { TerminacionDAO } from "@/services/terminacion-services"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, CircleCheck } from "lucide-react"
 import { format } from "date-fns"
-import { ArchiveTerminacionDialog, ArchiveAndDuplicateTerminacionDialog, DeleteTerminacionDialog, TerminacionDialog } from "./terminacion-dialogs"
+import { ArchiveAndDuplicateTerminacionDialog, DeleteTerminacionDialog, TerminacionDialog } from "./terminacion-dialogs"
 import { formatCurrency } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 
@@ -100,11 +100,10 @@ export const columns: ColumnDef<TerminacionDAO>[] = [
  
       return (
         <div className="flex items-center justify-end gap-2">
-          <TerminacionDialog id={data.id} />
-          <ArchiveTerminacionDialog id={data.id} archived={data.archived} />
           {!data.archived && (
             <ArchiveAndDuplicateTerminacionDialog id={data.id} name={data.name} />
           )}
+          <TerminacionDialog id={data.id} />
           <DeleteTerminacionDialog description={deleteDescription} id={data.id} />
         </div>
       )

@@ -7,6 +7,7 @@ export type ColorDAO = {
 	name: string
 	image: string | undefined | null
   archived: boolean
+  duplicatedId: string | undefined | null
   clienteFinalPrice: number
 	arquitectoStudioPrice: number
 	distribuidorPrice: number
@@ -95,18 +96,6 @@ export async function deleteColor(id: string) {
   return deleted
 }
 
-export async function archiveColor(id: string, archive: boolean = true) {
-  const updated = await prisma.color.update({
-    where: {
-      id
-    },
-    data: {
-      archived: archive
-    }
-  })
-  return updated
-}
-
 /**
  * Archiva un color existente y crea uno nuevo con los mismos datos pero diferentes precios
  * @param id ID del color a archivar y duplicar
@@ -132,13 +121,7 @@ export async function archiveAndDuplicateColor(
 
   // Iniciar una transacción para asegurar que ambas operaciones (archivar y crear) se completan o ninguna
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Archivar el color original
-    const archivedColor = await tx.color.update({
-      where: { id },
-      data: { archived: true }
-    });
-
-    // 2. Crear un nuevo color con los mismos datos pero diferentes precios
+    // 1. Crear un nuevo color con los mismos datos pero diferentes precios
     const newColor = await tx.color.create({
       data: {
         name: originalColor.name,
@@ -148,6 +131,15 @@ export async function archiveAndDuplicateColor(
         clienteFinalPrice: newPrices.clienteFinalPrice,
         arquitectoStudioPrice: newPrices.arquitectoStudioPrice,
         distribuidorPrice: newPrices.distribuidorPrice
+      }
+    });
+
+    // 2. Archivar el color original y guardar la referencia al nuevo color
+    const archivedColor = await tx.color.update({
+      where: { id },
+      data: { 
+        archived: true,
+        duplicatedId: newColor.id // Guardamos la referencia al nuevo color
       }
     });
 

@@ -5,7 +5,7 @@ import { ColorDAO } from "@/services/color-services"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, Archive } from "lucide-react"
 import { format } from "date-fns"
-import { DeleteColorDialog, ColorDialog, ArchiveColorDialog, ArchiveAndDuplicateColorDialog } from "./color-dialogs"
+import { DeleteColorDialog, ColorDialog, ArchiveAndDuplicateColorDialog } from "./color-dialogs"
 import { Badge } from "@/components/ui/badge"
 
 export const columns: ColumnDef<ColorDAO>[] = [
@@ -154,11 +154,10 @@ export const columns: ColumnDef<ColorDAO>[] = [
  
       return (
         <div className="flex items-center justify-end gap-2">
-          <ColorDialog id={data.id} />
-          <ArchiveColorDialog id={data.id} archived={data.archived} />
           {!data.archived && (
             <ArchiveAndDuplicateColorDialog id={data.id} name={data.name} />
           )}
+          <ColorDialog id={data.id} />
           <DeleteColorDialog description={deleteDescription} id={data.id} />
         </div>
       )

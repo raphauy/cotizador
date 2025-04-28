@@ -1,6 +1,6 @@
 "use server"
   
-import { ColorDAO, ColorFormValues, archiveAndDuplicateColor, archiveColor, createColor, deleteColor, getFullColorDAO, getFullColorsDAOByMaterialId, updateColor } from "@/services/color-services"
+import { ColorDAO, ColorFormValues, archiveAndDuplicateColor, createColor, deleteColor, getFullColorDAO, getFullColorsDAOByMaterialId, updateColor } from "@/services/color-services"
 import { MaterialDAO, getFullMaterialsDAO } from "@/services/material-services"
 import { revalidatePath } from "next/cache"
 
@@ -30,15 +30,6 @@ export async function deleteColorAction(id: string): Promise<ColorDAO | null> {
     revalidatePath("/admin/materials")
 
     return deleted as ColorDAO
-}
-
-export async function archiveColorAction(id: string, archive: boolean = true): Promise<ColorDAO | null> {
-    const updated = await archiveColor(id, archive)
-    
-    revalidatePath("/admin/colors")
-    revalidatePath("/admin/materials")
-
-    return updated as ColorDAO
 }
 
 export async function archiveAndDuplicateColorAction(id: string, newPrices: {

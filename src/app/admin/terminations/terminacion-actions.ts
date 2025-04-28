@@ -1,7 +1,7 @@
 "use server"
   
 import { revalidatePath } from "next/cache"
-import { TerminacionDAO, TerminacionFormValues, createTerminacion, updateTerminacion, getFullTerminacionDAO, deleteTerminacion, getTerminacionsDAO, archiveTerminacion, archiveAndDuplicateTerminacion, getTerminacionsForWorkDAO } from "@/services/terminacion-services"
+import { TerminacionDAO, TerminacionFormValues, createTerminacion, updateTerminacion, getFullTerminacionDAO, deleteTerminacion, getTerminacionsDAO, archiveAndDuplicateTerminacion, getTerminacionsForWorkDAO } from "@/services/terminacion-services"
 import { prisma } from "@/lib/db"
 import { ItemType } from "@prisma/client"
 
@@ -28,14 +28,6 @@ export async function deleteTerminacionAction(id: string): Promise<TerminacionDA
     revalidatePath("/admin/terminacions")
 
     return deleted as TerminacionDAO
-}
-
-export async function archiveTerminacionAction(id: string, archive: boolean): Promise<TerminacionDAO | null> {    
-    const updated = await archiveTerminacion(id, archive)
-
-    revalidatePath("/admin/terminations")
-
-    return updated as TerminacionDAO
 }
 
 export async function archiveAndDuplicateTerminacionAction(id: string, newPrice: number): Promise<TerminacionDAO | null> {    

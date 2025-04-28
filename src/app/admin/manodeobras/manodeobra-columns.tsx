@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button"
 import { ManoDeObraDAO } from "@/services/manodeobra-services"
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, CheckCircle, Archive } from "lucide-react"
+import { ArrowUpDown, CheckCircle } from "lucide-react"
 import { format } from "date-fns"
-import { DeleteManoDeObraDialog, ManoDeObraDialog, ArchiveManoDeObraDialog, ArchiveAndDuplicateManoDeObraDialog } from "./manodeobra-dialogs"
+import { DeleteManoDeObraDialog, ManoDeObraDialog, ArchiveAndDuplicateManoDeObraDialog } from "./manodeobra-dialogs"
 import { Badge } from "@/components/ui/badge"
 
 
@@ -178,11 +178,10 @@ export const columns: ColumnDef<ManoDeObraDAO>[] = [
  
       return (
         <div className="flex items-center justify-end gap-2">
-          <ManoDeObraDialog id={data.id} />
-          <ArchiveManoDeObraDialog id={data.id} archived={data.archived} />
           {!data.archived && (
             <ArchiveAndDuplicateManoDeObraDialog id={data.id} name={data.name} />
           )}
+          <ManoDeObraDialog id={data.id} />
           <DeleteManoDeObraDialog description={deleteDescription} id={data.id} />
         </div>
       )

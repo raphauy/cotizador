@@ -10,6 +10,7 @@ export type ManoDeObraDAO = {
   isLinear: boolean
   isSurface: boolean
   archived: boolean
+  duplicatedId: string | undefined | null
 }
 
 export const manoDeObraSchema = z.object({
@@ -88,18 +89,6 @@ export async function deleteManoDeObra(id: string) {
   return deleted
 }
 
-export async function archiveManoDeObra(id: string, archive: boolean = true) {
-  const updated = await prisma.manoDeObra.update({
-    where: {
-      id
-    },
-    data: {
-      archived: archive
-    }
-  })
-  return updated
-}
-
 /**
  * Archiva una mano de obra existente y crea una nueva con los mismos datos pero diferentes precios
  * @param id ID de la mano de obra a archivar y duplicar
@@ -125,13 +114,7 @@ export async function archiveAndDuplicateManoDeObra(
 
   // Iniciar una transacción para asegurar que ambas operaciones (archivar y crear) se completan o ninguna
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Archivar la mano de obra original
-    const archivedManoDeObra = await tx.manoDeObra.update({
-      where: { id },
-      data: { archived: true }
-    });
-
-    // 2. Crear una nueva mano de obra con los mismos datos pero diferentes precios
+    // 1. Crear una nueva mano de obra con los mismos datos pero diferentes precios
     const newManoDeObra = await tx.manoDeObra.create({
       data: {
         name: originalManoDeObra.name,
@@ -141,6 +124,15 @@ export async function archiveAndDuplicateManoDeObra(
         isLinear: originalManoDeObra.isLinear,
         isSurface: originalManoDeObra.isSurface,
         archived: false
+      }
+    });
+
+    // 2. Archivar la mano de obra original y guardar la referencia a la nueva
+    const archivedManoDeObra = await tx.manoDeObra.update({
+      where: { id },
+      data: { 
+        archived: true,
+        duplicatedId: newManoDeObra.id // Guardamos la referencia a la nueva mano de obra
       }
     });
 

@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { Archive, ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
+import { ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Pencil, PlusCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { toast } from "@/components/ui/use-toast";
-import { ManoDeObraForm, DeleteManoDeObraForm, ArchiveManoDeObraForm, ArchiveAndDuplicateManoDeObraForm } from "./manodeobra-forms"
+import { ManoDeObraForm, DeleteManoDeObraForm, ArchiveAndDuplicateManoDeObraForm } from "./manodeobra-forms"
 import { getManoDeObraDAOAction } from "./manodeobra-actions"
 
 type Props= {
@@ -52,35 +52,6 @@ export function DeleteManoDeObraDialog({ id, description }: DeleteProps) {
           <DialogDescription className="py-8">{description}</DialogDescription>
         </DialogHeader>
         <DeleteManoDeObraForm closeDialog={() => setOpen(false)} id={id} />
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-type ArchiveProps = {
-  id: string
-  archived: boolean
-}
-
-export function ArchiveManoDeObraDialog({ id, archived }: ArchiveProps) {
-  const [open, setOpen] = useState(false)
-  const actionText = archived ? 'Desarchivar' : 'Archivar'
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Archive className="hover:cursor-pointer" />
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{actionText} Mano de Obra</DialogTitle>
-          <DialogDescription className="py-4">
-            {archived 
-              ? 'Esta acción hará que la mano de obra vuelva a estar disponible en los formularios.' 
-              : 'Esta acción ocultará la mano de obra de los formularios pero mantendrá las referencias existentes.'}
-          </DialogDescription>
-        </DialogHeader>
-        <ArchiveManoDeObraForm closeDialog={() => setOpen(false)} id={id} archive={!archived} />
       </DialogContent>
     </Dialog>
   )

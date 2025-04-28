@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "@/components/ui/use-toast"
 import { useEffect, useState } from "react"
-import { deleteManoDeObraAction, createOrUpdateManoDeObraAction, getManoDeObraDAOAction, archiveManoDeObraAction, archiveAndDuplicateManoDeObraAction } from "./manodeobra-actions"
+import { deleteManoDeObraAction, createOrUpdateManoDeObraAction, getManoDeObraDAOAction, archiveAndDuplicateManoDeObraAction } from "./manodeobra-actions"
 import { manoDeObraSchema, ManoDeObraFormValues } from '@/services/manodeobra-services'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -211,46 +211,6 @@ export function DeleteManoDeObraForm({ id, closeDialog }: Props) {
       <Button onClick={handleDelete} variant="destructive" className="w-32 ml-2 gap-1">
         { loading && <Loader className="h-4 w-4 animate-spin" /> }
         Eliminar  
-      </Button>
-    </div>
-  )
-}
-
-type ArchiveProps = {
-  id: string
-  archive: boolean
-  closeDialog: () => void
-}
-
-export function ArchiveManoDeObraForm({ id, archive, closeDialog }: ArchiveProps) {
-  const [loading, setLoading] = useState(false)
-  const actionText = archive ? 'Archivar' : 'Desarchivar'
-
-  async function handleArchive() {
-    if (!id) return
-    setLoading(true)
-    archiveManoDeObraAction(id, archive)
-    .then(() => {
-      toast({
-        title: "Mano de obra " + (archive ? "archivada" : "desarchivada"), 
-        description: archive ? "La mano de obra ha sido archivada correctamente" : "La mano de obra está nuevamente disponible"
-      })
-    })
-    .catch((error) => {
-      toast({title: "Error", description: error.message, variant: "destructive"})
-    })
-    .finally(() => {
-      setLoading(false)
-      closeDialog && closeDialog()
-    })
-  }
-  
-  return (
-    <div>
-      <Button onClick={() => closeDialog && closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
-      <Button onClick={handleArchive} variant="default" className="w-32 ml-2 gap-1">
-        { loading && <Loader className="h-4 w-4 animate-spin" /> }
-        {actionText}
       </Button>
     </div>
   )
