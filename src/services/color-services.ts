@@ -164,9 +164,14 @@ export async function archiveAndDuplicateColor(
 
 export async function getFullColorsDAOToFilter(includeArchived: boolean = false) {
   const found = await prisma.color.findMany({
-    orderBy: {
-      name: 'asc'
-    },
+    orderBy: [
+      {
+        name: 'asc'
+      },
+      {
+        id: 'asc'
+      }
+    ],
     where: includeArchived ? {} : {
       archived: false
     },

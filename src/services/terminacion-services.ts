@@ -22,9 +22,14 @@ export type TerminacionFormValues = z.infer<typeof terminacionSchema>
 
 export async function getTerminacionsDAO(includeArchived: boolean = false) {
   const found = await prisma.terminacion.findMany({
-    orderBy: {
-      name: 'asc'
-    },
+    orderBy: [
+      {
+        name: 'asc'
+      },
+      {
+        id: 'asc'
+      }
+    ],
     where: includeArchived ? {} : {
       archived: false
     }

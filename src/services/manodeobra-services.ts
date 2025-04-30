@@ -28,9 +28,14 @@ export type ManoDeObraFormValues = z.infer<typeof manoDeObraSchema>
 
 export async function getManoDeObrasDAO(includeArchived: boolean = false) {
   const found = await prisma.manoDeObra.findMany({
-    orderBy: {
-      name: 'asc'
-    },
+    orderBy: [
+      {
+        name: 'asc'
+      },
+      {
+        id: 'asc'
+      }
+    ],
     where: includeArchived ? {} : {
       archived: false
     }
