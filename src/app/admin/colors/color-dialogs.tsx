@@ -48,7 +48,7 @@ export function DeleteColorDialog({ id, description }: DeleteProps) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Color</DialogTitle>
+          <DialogTitle>Eliminar Color</DialogTitle>
           <DialogDescription className="py-8">{description}</DialogDescription>
         </DialogHeader>
         <DeleteColorForm closeDialog={() => setOpen(false)} id={id} />

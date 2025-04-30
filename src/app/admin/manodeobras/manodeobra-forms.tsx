@@ -197,7 +197,11 @@ export function DeleteManoDeObraForm({ id, closeDialog }: Props) {
       toast({title: "Mano de obra eliminada" })
     })
     .catch((error) => {
-      toast({title: "Error", description: error.message, variant: "destructive"})
+      toast({
+        title: "No se puede eliminar", 
+        description: error.message, 
+        variant: "destructive"
+      })
     })
     .finally(() => {
       setLoading(false)

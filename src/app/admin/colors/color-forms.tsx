@@ -184,10 +184,14 @@ export function DeleteColorForm({ id, closeDialog }: Props) {
     setLoading(true)
     deleteColorAction(id)
     .then(() => {
-      toast({title: "Color deleted" })
+      toast({title: "Color eliminado" })
     })
     .catch((error) => {
-      toast({title: "Error", description: error.message, variant: "destructive"})
+      toast({
+        title: "No se puede eliminar", 
+        description: error.message, 
+        variant: "destructive"
+      })
     })
     .finally(() => {
       setLoading(false)
@@ -197,10 +201,10 @@ export function DeleteColorForm({ id, closeDialog }: Props) {
   
   return (
     <div>
-      <Button onClick={() => closeDialog && closeDialog()} type="button" variant={"secondary"} className="w-32">Cancel</Button>
+      <Button onClick={() => closeDialog && closeDialog()} type="button" variant={"secondary"} className="w-32">Cancelar</Button>
       <Button onClick={handleDelete} variant="destructive" className="w-32 ml-2 gap-1">
         { loading && <Loader className="h-4 w-4 animate-spin" /> }
-        Delete  
+        Eliminar  
       </Button>
     </div>
   )

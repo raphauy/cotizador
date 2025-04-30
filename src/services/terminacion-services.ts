@@ -23,7 +23,7 @@ export type TerminacionFormValues = z.infer<typeof terminacionSchema>
 export async function getTerminacionsDAO(includeArchived: boolean = false) {
   const found = await prisma.terminacion.findMany({
     orderBy: {
-      id: 'asc'
+      name: 'asc'
     },
     where: includeArchived ? {} : {
       archived: false
@@ -67,12 +67,29 @@ export async function updateTerminacion(id: string, data: TerminacionFormValues)
 }
 
 export async function deleteTerminacion(id: string) {
-  const deleted = await prisma.terminacion.delete({
-    where: {
-      id
-    },
-  })
-  return deleted
+  try {
+    const deleted = await prisma.terminacion.delete({
+      where: {
+        id
+      },
+    })
+    return deleted
+  } catch (error: any) {
+    // Capturar específicamente el error de clave foránea relacionado con Work
+    if (error.code === 'P2003' && error.meta?.field_name?.includes('Work_terminacionId_fkey')) {
+      throw new Error("No se puede eliminar esta terminación porque está siendo utilizada en uno o más trabajos.")
+    }
+    // Para otros errores de clave foránea relacionados con Item
+    if (error.code === 'P2003' && error.meta?.field_name?.includes('Item_terminacionId_fkey')) {
+      throw new Error("No se puede eliminar esta terminación porque está siendo utilizada en uno o más items.")
+    }
+    // Para otros errores de clave foránea
+    if (error.code === 'P2003') {
+      throw new Error("No se puede eliminar esta terminación porque está siendo utilizada en otros registros.")
+    }
+    // Cualquier otro error
+    throw error
+  }
 }
 
 /**

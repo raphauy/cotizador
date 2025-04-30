@@ -116,7 +116,11 @@ export function DeleteTerminacionForm({ id, closeDialog }: Props) {
       toast({title: "Terminación eliminada" })
     })
     .catch((error) => {
-      toast({title: "Error", description: error.message, variant: "destructive"})
+      toast({
+        title: "No se puede eliminar", 
+        description: error.message, 
+        variant: "destructive"
+      })
     })
     .finally(() => {
       setLoading(false)

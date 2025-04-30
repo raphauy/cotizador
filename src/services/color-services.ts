@@ -88,12 +88,25 @@ export async function updateColor(id: string, data: ColorFormValues) {
 }
 
 export async function deleteColor(id: string) {
-  const deleted = await prisma.color.delete({
-    where: {
-      id
-    },
-  })
-  return deleted
+  try {
+    const deleted = await prisma.color.delete({
+      where: {
+        id
+      },
+    })
+    return deleted
+  } catch (error: any) {
+    // Capturar específicamente el error de clave foránea relacionado con Work
+    if (error.code === 'P2003' && error.meta?.field_name?.includes('Work_colorId_fkey')) {
+      throw new Error("No se puede eliminar este color porque está siendo utilizado en uno o más trabajos.")
+    }
+    // Para otros errores de clave foránea
+    if (error.code === 'P2003') {
+      throw new Error("No se puede eliminar este color porque está siendo utilizado en otros registros.")
+    }
+    // Cualquier otro error
+    throw error
+  }
 }
 
 /**
@@ -152,7 +165,7 @@ export async function archiveAndDuplicateColor(
 export async function getFullColorsDAOToFilter(includeArchived: boolean = false) {
   const found = await prisma.color.findMany({
     orderBy: {
-      id: 'asc'
+      name: 'asc'
     },
     where: includeArchived ? {} : {
       archived: false
@@ -195,7 +208,7 @@ export async function getFullColorsDAO(includeArchived: boolean = false): Promis
 export async function getFullColorsDAOByMaterialId(materialId: string, includeArchived: boolean = false): Promise<ColorDAO[]> {
   const found = await prisma.color.findMany({
     orderBy: {
-      id: 'asc'
+      name: 'asc'
     },
     where: {
       materialId,

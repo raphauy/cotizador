@@ -62,7 +62,7 @@ export async function deleteMaterial(id: string) {
 export async function getFullMaterialsDAO() {
   const found = await prisma.material.findMany({
     orderBy: {
-      id: 'asc'
+      name: 'asc'
     },
     include: {
 		}
