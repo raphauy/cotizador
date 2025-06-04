@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
+import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { ColorDAO } from "@/services/color-services"
 import { MaterialDAO } from "@/services/material-services"
@@ -17,7 +18,7 @@ import { CaretSortIcon } from "@radix-ui/react-icons"
 import { CheckIcon, Loader } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm, useWatch } from "react-hook-form"
-import { getColorsDAOByMaterialIdAction, getMaterialsDAOAction } from "../colors/color-actions"
+import { getColorsForWorkAction, getMaterialsDAOAction } from "../colors/color-actions"
 import { getWorkTypesDAOAction } from "../worktypes/worktype-actions"
 import { createOrUpdateWorkAction, deleteWorkAction, getWorkDAOAction } from "./work-actions"
 import { createWorkDuplicatedAction } from "@/app/seller/cotizations/cotization-actions"
@@ -71,7 +72,7 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
 
   useEffect(() => {
     setLoading(true)
-    getColorsDAOByMaterialIdAction(watchMaterialId)
+    getColorsForWorkAction(watchMaterialId, id)
     .then((data) => {
       setColors(data)
     })
@@ -182,9 +183,34 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
                       role="combobox"
                       className={cn("justify-between",!field.value && "text-muted-foreground")}
                     >
-                      {field.value
-                        ? colors.find((color) => color.id === field.value)?.name
-                        : "Seleccionar color"}
+                      <div className="flex items-center justify-between w-full">
+                        {field.value ? (
+                          <>
+                            <span>
+                              {colors.find((color) => color.id === field.value)?.name}
+                            </span>
+                            {(() => {
+                              const selectedColor = colors.find((color) => color.id === field.value);
+                              return (
+                                <div className="flex gap-1">
+                                  {selectedColor?.archived && (
+                                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
+                                      Archivado
+                                    </Badge>
+                                  )}
+                                  {selectedColor?.discontinued && (
+                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                                      Discontinuado
+                                    </Badge>
+                                  )}
+                                </div>
+                              );
+                            })()}
+                          </>
+                        ) : (
+                          "Seleccionar color"
+                        )}
+                      </div>
                       <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
@@ -211,7 +237,21 @@ export function WorkForm({ id, cotizationId, closeDialog }: Props) {
                                 : "opacity-0"
                             )}
                           />
-                          {color.name}
+                          <div className="flex items-center justify-between w-full">
+                            <span>{color.name}</span>
+                            <div className="flex gap-1">
+                              {color.archived && (
+                                <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
+                                  Archivado
+                                </Badge>
+                              )}
+                              {color.discontinued && (
+                                <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                                  Discontinuado
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
                         </CommandItem>
                       ))}
                     </CommandGroup>

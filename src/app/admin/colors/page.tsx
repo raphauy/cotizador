@@ -3,9 +3,9 @@ import { columns } from "./color-columns"
 import { ColorDialog } from "./color-dialogs"
 import { DataTable } from "./color-table"
 
-export default async function UsersPage() {
+export default async function ColorsPage() {
   
-  const data= await getFullColorsDAO()
+  const data= await getFullColorsDAO(true)
   const materialNames= Array.from(new Set(data.map((color) => color.material.name)))
 
   return (

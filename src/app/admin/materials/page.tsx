@@ -1,4 +1,4 @@
-import { getFullColorsDAO, getFullColorsDAOToFilter } from "@/services/color-services"
+import { getFullColorsDAOToFilter } from "@/services/color-services"
 import { getMaterialsDAO } from "@/services/material-services"
 import { columns as colorColumns } from "../colors/color-columns"
 import { ColorDialog } from "../colors/color-dialogs"

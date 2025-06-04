@@ -11,6 +11,8 @@ export type OptionalColorsTotalResult = {
   colorName: string
   colorPrice: number
   totalValue: number
+  archived: boolean
+  discontinued: boolean
 }
 
 
@@ -21,7 +23,11 @@ export async function getOptionalColorsDAO(workId: string): Promise<ColorDAO[]> 
       id: workId
     },
     include: {
-      optionalColors: true,
+      optionalColors: {
+        include: {
+          material: true,
+        }
+      },
     }
   })
   const optionalColors= found?.optionalColors || []
@@ -31,9 +37,22 @@ export async function getOptionalColorsDAO(workId: string): Promise<ColorDAO[]> 
 
 export async function getComplementaryOptionalColorsDAO(workId: string): Promise<ColorDAO[]> {
   const optionalColors= await getOptionalColorsDAO(workId)
-  const allColors= await getColorsDAO()
+  
+  // Obtener solo colores realmente activos (no archivados Y no discontinuados)
+  const activeColors = await prisma.color.findMany({
+    orderBy: {
+      name: 'asc'
+    },
+    where: {
+      archived: false,
+      discontinued: false
+    },
+    include: {
+      material: true,
+    }
+  });
 
-  const complementaryColors= allColors.filter((c) => !optionalColors.find((o) => o.id === c.id))
+  const complementaryColors= activeColors.filter((c) => !optionalColors.find((o) => o.id === c.id))
 
   return complementaryColors as ColorDAO[]
 }
@@ -96,7 +115,9 @@ export async function calculateTotalWorkValue(workId: string, colors: ColorDAO[]
       materialName: color.material.name,
       colorName: color.name,
       colorPrice,
-      totalValue
+      totalValue,
+      archived: color.archived,
+      discontinued: color.discontinued
     }
     return res
   }))

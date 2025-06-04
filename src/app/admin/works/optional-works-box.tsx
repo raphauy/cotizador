@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeftRight, ChevronsLeft, ChevronsRight, Loader, Search, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -136,7 +137,21 @@ export function OptionalColorsBox({ workId, closeDialog }: OptionalColorsBoxProp
                   optionalColors.map((item) => {
                   return (
                       <div key={item.id} className="flex items-center justify-between gap-2 mb-1 mr-5">
-                          <p className="whitespace-nowrap">{item.name}</p>
+                          <div className="flex items-center gap-2 flex-1">
+                              <p className="whitespace-nowrap">{item.name}</p>
+                              <div className="flex gap-1">
+                                  {item.archived && (
+                                      <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
+                                          Archivado
+                                      </Badge>
+                                  )}
+                                  {item.discontinued && (
+                                      <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                                          Discontinuado
+                                      </Badge>
+                                  )}
+                              </div>
+                          </div>
                           <Button variant="secondary" className="h-7" onClick={() => complementaryOut(item.id)}><ChevronsRight /></Button>
                       </div>
                   )})

@@ -5,7 +5,7 @@ import { ColorDAO } from "@/services/color-services"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, Archive } from "lucide-react"
 import { format } from "date-fns"
-import { DeleteColorDialog, ColorDialog, ArchiveAndDuplicateColorDialog } from "./color-dialogs"
+import { DeleteColorDialog, ColorDialog, ArchiveAndDuplicateColorDialog, MarkAsDiscontinuedColorDialog } from "./color-dialogs"
 import { Badge } from "@/components/ui/badge"
 
 export const columns: ColumnDef<ColorDAO>[] = [
@@ -109,14 +109,20 @@ export const columns: ColumnDef<ColorDAO>[] = [
     )},
     cell: ({ row }) => {
       const archived = row.original.archived
+      const discontinued = row.original.discontinued
+      
       return (
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center gap-1">
           {archived ? (
-            <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
+            <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
               Archivado
             </Badge>
+          ) : discontinued ? (
+            <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+              Discontinuado
+            </Badge>
           ) : (
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
               Activo
             </Badge>
           )}
@@ -125,22 +131,18 @@ export const columns: ColumnDef<ColorDAO>[] = [
     },
     filterFn: (row, id, filterValue) => {
       const archived = row.getValue(id) as boolean;
-      // Manejar casos:
-      // Si no hay filtro, o ambos están seleccionados, mostrar todo
-      if (!filterValue?.length || 
-          (filterValue.includes("Activo") && filterValue.includes("Archivado"))) {
+      const discontinued = (row.original as any).discontinued as boolean;
+      
+      // Si no hay filtro, mostrar todo
+      if (!filterValue?.length) {
         return true;
       }
-      // Si solo Activo está seleccionado
-      if (filterValue.includes("Activo") && !filterValue.includes("Archivado")) {
-        return !archived;
-      }
-      // Si solo Archivado está seleccionado
-      if (!filterValue.includes("Activo") && filterValue.includes("Archivado")) {
-        return archived;
-      }
-      // Por defecto mostrar todo
-      return true;
+      
+      // Determinar el estado actual del color
+      const currentState = archived ? "Archivado" : discontinued ? "Discontinuado" : "Activo";
+      
+      // Verificar si el estado actual está en los filtros seleccionados
+      return filterValue.includes(currentState);
     },
     enableColumnFilter: true,
   },
@@ -156,6 +158,9 @@ export const columns: ColumnDef<ColorDAO>[] = [
         <div className="flex items-center justify-end gap-2">
           {!data.archived && (
             <ArchiveAndDuplicateColorDialog id={data.id} name={data.name} />
+          )}
+          {!data.archived && (
+            <MarkAsDiscontinuedColorDialog id={data.id} name={data.name} discontinued={data.discontinued} />
           )}
           <ColorDialog id={data.id} />
           <DeleteColorDialog description={deleteDescription} id={data.id} />

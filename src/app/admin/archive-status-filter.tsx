@@ -16,7 +16,7 @@ interface ArchiveStatusFilterProps<TData> {
 }
 
 /**
- * Componente reutilizable para filtrar por estado archivado/activo
+ * Componente reutilizable para filtrar por estado archivado/activo/discontinuado
  * @param table - La tabla de TanStack Table
  * @param columnName - El nombre de la columna que contiene el campo 'archived' (por defecto: "archived")
  * @param title - El título que se muestra en el botón del filtro (por defecto: "Estado")
@@ -29,16 +29,16 @@ export function ArchiveStatusFilter<TData>({
   const column = table.getColumn(columnName)
   if (!column) return null
 
-  const statusOptions = ["Activo", "Archivado"];
+  const statusOptions = ["Activo", "Archivado", "Discontinuado"];
   const facets = column?.getFacetedUniqueValues()
   const selectedValues = new Set(column?.getFilterValue() as string[])
   
-  // Calcular conteos para Activo y Archivado
+  // Calcular conteos para cada estado usando los datos de la tabla
+  const tableData = table.getFilteredRowModel().rows.map(row => row.original) as any[];
   const counts = {
-    "Activo": Array.from(facets?.entries() || []).reduce((count, [value, items]) => 
-      value === false ? count + (items as number) : count, 0),
-    "Archivado": Array.from(facets?.entries() || []).reduce((count, [value, items]) => 
-      value === true ? count + (items as number) : count, 0)
+    "Activo": tableData.filter(item => !item.archived && !item.discontinued).length,
+    "Archivado": tableData.filter(item => item.archived).length,
+    "Discontinuado": tableData.filter(item => !item.archived && item.discontinued).length
   }
 
   return (

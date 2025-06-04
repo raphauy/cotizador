@@ -1,6 +1,6 @@
 "use server"
   
-import { ColorDAO, ColorFormValues, archiveAndDuplicateColor, createColor, deleteColor, getFullColorDAO, getFullColorsDAOByMaterialId, updateColor } from "@/services/color-services"
+import { ColorDAO, ColorFormValues, archiveAndDuplicateColor, createColor, deleteColor, getColorsForWorkDAO, getFullColorDAO, getFullColorsDAOByMaterialId, markColorAsDiscontinued, updateColor } from "@/services/color-services"
 import { MaterialDAO, getFullMaterialsDAO } from "@/services/material-services"
 import { revalidatePath } from "next/cache"
 
@@ -45,10 +45,23 @@ export async function archiveAndDuplicateColorAction(id: string, newPrices: {
     return newColor as ColorDAO
 }
 
+export async function markColorAsDiscontinuedAction(id: string, discontinued: boolean): Promise<ColorDAO | null> {
+    const updated = await markColorAsDiscontinued(id, discontinued)
+    
+    revalidatePath("/admin/colors")
+    revalidatePath("/admin/materials")
+    
+    return updated as ColorDAO
+}
+
 export async function getMaterialsDAOAction(): Promise<MaterialDAO[]> {
     return await getFullMaterialsDAO()
 }
 
 export async function getColorsDAOByMaterialIdAction(materialId: string): Promise<ColorDAO[]> {
     return await getFullColorsDAOByMaterialId(materialId)
+}
+
+export async function getColorsForWorkAction(materialId: string, workId?: string): Promise<ColorDAO[]> {
+    return await getColorsForWorkDAO(materialId, workId)
 }

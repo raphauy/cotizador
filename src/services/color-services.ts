@@ -7,6 +7,7 @@ export type ColorDAO = {
 	name: string
 	image: string | undefined | null
   archived: boolean
+  discontinued: boolean
   duplicatedId: string | undefined | null
   clienteFinalPrice: number
 	arquitectoStudioPrice: number
@@ -252,5 +253,84 @@ export async function getFullColorDAO(id: string): Promise<ColorDAO | null> {
     materialName: found.material.name,
   }
   return res as ColorDAO
+}
+
+/**
+ * Marca un color como discontinuado o lo desmarca
+ * @param id ID del color
+ * @param discontinued true para marcar como discontinuado, false para desmarcarlo
+ * @returns El color actualizado
+ */
+export async function markColorAsDiscontinued(id: string, discontinued: boolean) {
+  const updated = await prisma.color.update({
+    where: {
+      id
+    },
+    data: {
+      discontinued
+    }
+  })
+  return updated
+}
+
+/**
+ * Obtiene los colores disponibles para un trabajo específico
+ * Incluye colores activos y el color actual del trabajo si está archivado/discontinuado
+ * @param materialId ID del material
+ * @param workId ID del trabajo (opcional, para edición)
+ * @returns Lista de colores disponibles para el trabajo
+ */
+export async function getColorsForWorkDAO(materialId: string, workId?: string): Promise<ColorDAO[]> {
+  // 1. Obtener solo colores realmente activos (no archivados Y no discontinuados)
+  const activeColors = await prisma.color.findMany({
+    orderBy: {
+      name: 'asc'
+    },
+    where: {
+      materialId,
+      archived: false,
+      discontinued: false
+    },
+    include: {
+      material: true,
+    }
+  });
+  
+  // Si no hay workId (nuevo trabajo), solo devolver colores activos
+  if (!workId) {
+    return activeColors as ColorDAO[];
+  }
+  
+  // 2. Obtener el color actual del trabajo (si existe y está archivado/discontinuado)
+  const workData = await prisma.work.findUnique({
+    where: { id: workId },
+    include: {
+      color: {
+        include: {
+          material: true
+        }
+      }
+    }
+  });
+  
+  // Si el trabajo tiene un color que está archivado o discontinuado, incluirlo en la lista
+  if (workData?.color && 
+      workData.color.materialId === materialId && 
+      (workData.color.archived || workData.color.discontinued)) {
+    
+    const currentColor: ColorDAO = {
+      ...workData.color,
+      material: workData.color.material
+    } as ColorDAO;
+    
+    // Verificar si ya está en la lista de activos (no debería estar si está archivado/discontinuado)
+    const isAlreadyIncluded = activeColors.some(color => color.id === currentColor.id);
+    if (!isAlreadyIncluded) {
+      // Agregar al inicio para que aparezca primero
+      return [currentColor, ...activeColors as ColorDAO[]];
+    }
+  }
+  
+  return activeColors as ColorDAO[];
 }
     

@@ -2,6 +2,7 @@
 
 import { Accordion } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { formatCurrency } from "@/lib/utils"
 import { ItemDAO } from "@/services/item-services"
 import { OptionalColorsTotalResult } from "@/services/optional-colors-services"
@@ -99,7 +100,21 @@ export function ItemsList({ work, optionalColorsTotalResults, clientType, colorP
 
                     return(
                     <div key={index} className="flex flex-row items-center justify-between w-full">
-                        <p className="text-sm">{result.materialName} {result.colorName}</p>
+                        <div className="flex items-center gap-2">
+                            <p className="text-sm">{result.materialName} {result.colorName}</p>
+                            <div className="flex gap-1">
+                                {result.archived && (
+                                    <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
+                                        Archivado
+                                    </Badge>
+                                )}
+                                {result.discontinued && (
+                                    <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                                        Discontinuado
+                                    </Badge>
+                                )}
+                            </div>
+                        </div>
                         <div className="flex flex-row items-center gap-2">
                             <p className="text-sm">({formatCurrency(result.colorPrice, 0)})</p>
                             <p className="text-right">{formatCurrency(result.totalValue, 0)}</p>

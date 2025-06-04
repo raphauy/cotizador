@@ -182,7 +182,21 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                                 {work.workType.name}
                                                 {work.reference && <p className="text-sm text-muted-foreground">({work.reference})</p>}
                                             </CardTitle>
-                                            <p className="text-sm text-muted-foreground">{work.material.name} {work.color.name} ({formatCurrency(colorPrice, 0)})</p>
+                                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                                <span>{work.material.name} {work.color.name} ({formatCurrency(colorPrice, 0)})</span>
+                                                <div className="flex gap-1">
+                                                    {work.color.archived && (
+                                                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
+                                                            Archivado
+                                                        </Badge>
+                                                    )}
+                                                    {work.color.discontinued && (
+                                                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200 text-xs">
+                                                            Discontinuado
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            </p>
                                         </Link>
                                         <WorkMenu workId={work.id} cotizationId={cotization.id} workName={work.workType.name} isEditable={isEditable} />
                                         {/* <OptionalColorsBoxDialog workId={work.id} />
