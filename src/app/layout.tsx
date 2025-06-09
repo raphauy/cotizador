@@ -30,7 +30,7 @@ export default async function AdminLayout({ children }: Props) {
   return (
     <SessionProvider session={session}>
       <html lang="es" suppressHydrationWarning>
-        <body className={cn(inter.className, "min-h-screen flex flex-col text-muted-foreground")}>
+        <body className={`${inter.className} min-h-screen flex flex-col text-muted-foreground`}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
             <div className="px-3 sm:px-4 md:px-5 lg:px-3 border-b border-b-gray-300 w-full">
               <div className="flex justify-between items-center">
