@@ -1,17 +1,16 @@
+import Logged from "@/components/header/logged";
+import Logo from "@/components/header/logo";
+import Menu from "@/components/header/menu";
+import { TailwindIndicator } from "@/components/shadcn/tailwind-indicator";
+import { ThemeProvider } from "@/components/shadcn/theme-provider";
+import { LinealToggle } from "@/components/shadcn/toggle-theme";
+import { Toaster } from "@/components/ui/toaster";
+import { auth } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
+import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { auth } from "@/lib/auth";
-import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "@/components/shadcn/theme-provider";
-import Logo from "@/components/header/logo";
-import Logged from "@/components/header/logged";
-import Menu from "@/components/header/menu";
-import { LinealToggle } from "@/components/shadcn/toggle-theme";
-import { TailwindIndicator } from "@/components/shadcn/tailwind-indicator";
-import { Toaster } from "@/components/ui/toaster";
-import { cn } from "@/lib/utils";
-import RightMenuAdmin from "@/components/header/right-menu-admin";
 
 const inter = Inter({ subsets: ["latin"] });
 
