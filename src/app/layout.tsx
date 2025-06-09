@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/components/shadcn/theme-provider";
 import { LinealToggle } from "@/components/shadcn/toggle-theme";
 import { Toaster } from "@/components/ui/toaster";
 import { auth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
