@@ -182,7 +182,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                                 {work.workType.name}
                                                 {work.reference && <p className="text-sm text-muted-foreground">({work.reference})</p>}
                                             </CardTitle>
-                                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                            <div className="text-sm text-muted-foreground flex items-center gap-2">
                                                 <span>{work.material.name} {work.color.name} ({formatCurrency(colorPrice, 0)})</span>
                                                 <div className="flex gap-1">
                                                     {work.color.archived && (
@@ -196,7 +196,7 @@ export default function CotizationDisplay({ cotization, creatorName, sellerName,
                                                         </Badge>
                                                     )}
                                                 </div>
-                                            </p>
+                                            </div>
                                         </Link>
                                         <WorkMenu workId={work.id} cotizationId={cotization.id} workName={work.workType.name} isEditable={isEditable} />
                                         {/* <OptionalColorsBoxDialog workId={work.id} />

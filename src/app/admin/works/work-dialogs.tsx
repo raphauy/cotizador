@@ -11,7 +11,7 @@ type Props= {
   cotizationId: string
 }
 
-const addTrigger= <Button><PlusCircle size={22} className="mr-2"/>Crear Trabajo</Button>
+const addTrigger= <div className="flex items-center gap-2"><PlusCircle size={22} className="mr-2"/>Crear Trabajo</div>
 const updateTrigger= <div className="flex items-center gap-2 hover:cursor-pointer"><Settings size={25} className="mr-2"/>Configurar trabajo</div> 
 
 export function WorkDialog({ id, cotizationId }: Props) {
