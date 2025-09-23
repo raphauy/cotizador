@@ -171,7 +171,7 @@ export default function TerminationsBox({ workId, cantidad, itemTerminations, se
                 </div>
                 {
                     itemTerminations.map((item, index) => (
-                        <div key={index} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
+                        <div key={item.id || `temp-${index}`} className="grid grid-cols-[1fr,1fr,1fr,1fr,1fr,1fr,50px] gap-2 items-center">
                             { loadingTerminations ?
                                 <Loader className="h-4 w-4 animate-spin" />
                                 :

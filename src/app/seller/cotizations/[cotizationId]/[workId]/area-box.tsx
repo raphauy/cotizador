@@ -67,7 +67,7 @@ export default function AreaBox({ workId, itemType, itemAreas, setItemAreas }: P
                 <p>Valores en <span className="font-bold">cm</span></p>
                 {
                     itemAreas.map((itemArea, index) => (
-                        <div key={index} className="grid grid-cols-[1fr,1fr,1fr,50px] gap-2 items-center">
+                        <div key={itemArea.id || `temp-${index}`} className="grid grid-cols-[1fr,1fr,1fr,50px] gap-2 items-center">
                             <div className="flex items-center gap-2">
                                 <Input autoFocus={index === 0 && itemArea.type === ItemType.TRAMO} type="number" value={itemArea.quantity ? itemArea.quantity : ""} onChange={(e) => handleQuantityChange(e, index)} placeholder="cant"/> 
                                 x

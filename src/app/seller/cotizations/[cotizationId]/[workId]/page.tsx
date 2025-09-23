@@ -15,7 +15,7 @@ import { WorkDAO } from "@/services/work-services"
 import { CotizationStatus, ItemType } from "@prisma/client"
 import { AlertCircle, ChevronLeft, Loader, RefreshCcw, TriangleAlert } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import AjustesBox from "./ajuste-box"
 import AreaBox from "./area-box"
 import ColocationForm from "./colocation-form"
@@ -83,6 +83,7 @@ export default function AddItemsPage({ params }: Props) {
     const [saveCount, setSaveCount] = useState(0)
 
     const [work, setWork] = useState<WorkDAO>()
+    const [isInitialLoad, setIsInitialLoad] = useState(true)
 
     const [tramos, setTramos] = useState<AreaItem[]>([])
     const [zocalos, setZocalos] = useState<AreaItem[]>([])
@@ -94,21 +95,35 @@ export default function AddItemsPage({ params }: Props) {
     
     const [colocaciones, setColocaciones] = useState<ColocacionDAO[]>([])
 
-    const tramosWithData= tramos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
-    const totalTramosWithData= tramosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
-    const zocalosWithData= zocalos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
-    const totalZocalosWithData= zocalosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
-    const alzadasWithData= alzadas.filter((items) => items.length && items.width && items.length > 0 && items.width > 0)
-    const totalAlzadasWithData= alzadasWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0)
+    const tramosWithData = useMemo(() =>
+        tramos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0), [tramos])
+    const totalTramosWithData = useMemo(() =>
+        tramosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0), [tramosWithData])
 
-    const terminacionesWithData= terminaciones.filter((item) => item.terminationId && (item.centimeters && item.centimeters > 0) || (item.length && item.width && item.length > 0 && item.width > 0))
-    const totalTerminationsWithData= terminacionesWithData.reduce((acc, item) => acc + (item.quantity ? item.quantity : 0), 0)
+    const zocalosWithData = useMemo(() =>
+        zocalos.filter((items) => items.length && items.width && items.length > 0 && items.width > 0), [zocalos])
+    const totalZocalosWithData = useMemo(() =>
+        zocalosWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0), [zocalosWithData])
 
-    const manoDeObrasWithData= manoDeObras.filter((item) => item.manoDeObraId)  
-    const totalManoDeObrasWithData= manoDeObrasWithData.reduce((acc, item) => acc + (item.quantity ? item.quantity : 0), 0)
+    const alzadasWithData = useMemo(() =>
+        alzadas.filter((items) => items.length && items.width && items.length > 0 && items.width > 0), [alzadas])
+    const totalAlzadasWithData = useMemo(() =>
+        alzadasWithData.reduce((acc, items) => acc + (items.quantity ? items.quantity : 0), 0), [alzadasWithData])
 
-    const ajustesWithData= ajustes.filter((item) => item.valor && item.valor > 0) 
-    const totalAjustesWithData= ajustesWithData.length
+    const terminacionesWithData = useMemo(() =>
+        terminaciones.filter((item) => item.terminationId && (item.centimeters && item.centimeters > 0) || (item.length && item.width && item.length > 0 && item.width > 0)), [terminaciones])
+    const totalTerminationsWithData = useMemo(() =>
+        terminacionesWithData.reduce((acc, item) => acc + (item.quantity ? item.quantity : 0), 0), [terminacionesWithData])
+
+    const manoDeObrasWithData = useMemo(() =>
+        manoDeObras.filter((item) => item.manoDeObraId), [manoDeObras])
+    const totalManoDeObrasWithData = useMemo(() =>
+        manoDeObrasWithData.reduce((acc, item) => acc + (item.quantity ? item.quantity : 0), 0), [manoDeObrasWithData])
+
+    const ajustesWithData = useMemo(() =>
+        ajustes.filter((item) => item.valor && item.valor > 0), [ajustes])
+    const totalAjustesWithData = useMemo(() =>
+        ajustesWithData.length, [ajustesWithData])
 
     const [loading, setLoading] = useState(false)    
     const [isColocacionLoading, setIsColocacionLoading] = useState(false)
@@ -157,10 +172,10 @@ export default function AddItemsPage({ params }: Props) {
         .catch((error) => {
             toast({title: "Error", description: error.message, variant: "destructive"})
         })
-    }, [workId, saveCount, isColocacionLoading])
+    }, [workId, isColocacionLoading])
 
     useEffect(() => {
-        if (!work || !inputDataConfig) return
+        if (!work || !inputDataConfig || !isInitialLoad) return
 
         const items= work?.items
 
@@ -185,7 +200,9 @@ export default function AddItemsPage({ params }: Props) {
         const ajustes= getAjustesItems(ajustesItem)
         setAjustes(ajustes)
 
-    }, [work, inputDataConfig])
+        setIsInitialLoad(false)
+
+    }, [work, inputDataConfig, isInitialLoad])
 
 
     async function handleSave() {

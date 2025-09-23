@@ -59,7 +59,7 @@ export default function AjustesBox({ items, setAjustes }: Props) {
             <div className="grid lg:grid-cols-2 gap-2 p-6 lg:p-2 space-y-2 border rounded-md dark:text-white bg-white dark:bg-black">
             {
                 items.map((item, index) => (
-                    <div key={index} className="flex gap-2 items-center">
+                    <div key={item.id || `temp-${index}`} className="flex gap-2 items-center">
                         <AjusteForm index={index} item={item} setValor={setValor} setDescription={setDescription} /> 
                         <Button variant="ghost" onClick={() => removeItem(index)}>
                             {
